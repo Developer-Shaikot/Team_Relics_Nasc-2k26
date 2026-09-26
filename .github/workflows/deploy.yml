@@ -43,7 +43,7 @@ jobs:
   deploy-to-vercel:
     name: 🚀 Deploy to Secure Vercel
     needs: build-and-validate
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && secrets.VERCEL_TOKEN != ''
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout Code
@@ -66,3 +66,4 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod'
           scope: ${{ secrets.VERCEL_ORG_ID }}
+
