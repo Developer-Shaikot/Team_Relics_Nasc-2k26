@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Relics of the Red Dust | NASA Space Apps Kids & Youth Explorer</title>
+  <meta name="description" content="An interactive 3D WebGL educational planetary archaeology game for kids and students exploring Opportunity rover (MER-B) on Mars Sol 5111." />
+  
+  <!-- Modern & Kid-Friendly Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@600;800;900&family=Outfit:wght@400;600;700;800&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <!-- 3D WebGL Canvas Container -->
+  <div id="webgl-container"></div>
+
+  <!-- Holographic & Scanline Overlay -->
+  <div class="hologram-scanlines"></div>
+  <div class="hud-vignette"></div>
+
+  <!-- FUTURISTIC GAME HUB LANDING SCREEN -->
+  <div class="game-hub-screen active" id="game-hub-screen">
+    <!-- Hub Top Bar: Profile & Currencies -->
+    <header class="hub-top-bar">
+      <!-- Player Profile Info -->
+      <div class="hub-profile-chip">
+        <div class="hub-avatar-circle">👨‍🚀</div>
+        <div class="hub-user-meta">
+          <div class="hub-user-name-row">
+            <span class="hub-user-name" id="lbl-hub-user-name">CADET EXPLORER</span>
+            <span class="hub-rank-badge" id="lbl-hub-rank">LVL 4 ARCHAEOLOGIST</span>
+          </div>
+          <div class="hub-xp-container">
+            <div class="hub-xp-bar-bg">
+              <div class="hub-xp-bar-fill" id="hub-xp-fill" style="width: 72%;"></div>
+            </div>
+            <span class="hub-xp-label">850 / 1200 XP</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center In-Game Resources & Stats -->
+      <div class="hub-resources-row">
+        <div class="hub-stat-chip">
+          <span class="stat-icon">🪙</span>
+          <span class="stat-value" id="hub-dust-val">1,250</span>
+          <span class="stat-name" id="lbl-hub-dust">Solar Dust</span>
+        </div>
+        <div class="hub-stat-chip">
+          <span class="stat-icon">💎</span>
+          <span class="stat-value" id="hub-gems-val">120</span>
+          <span class="stat-name" id="lbl-hub-gems">Gems</span>
+        </div>
+        <div class="hub-stat-chip battery-chip">
+          <span class="stat-icon">⚡</span>
+          <span class="stat-value">100%</span>
+          <span class="stat-name">Power</span>
+        </div>
+      </div>
+
+      <!-- Right Utility Actions -->
+      <div class="hub-utility-group">
+        <button class="hub-util-btn" id="hub-lang-toggle" title="Switch Language">
+          <span id="hub-lang-flag">🇧🇩</span>
+          <span class="btn-text" id="hub-lang-text">বাংলা</span>
+        </button>
+        <button class="hub-util-btn" id="hub-audio-toggle" title="Audio Soundscape">
+          <span id="hub-audio-icon">🔇</span>
+          <span class="btn-text" id="hub-audio-text">Audio: OFF</span>
+        </button>
+        <div class="hub-nasa-badge">
+          <span>NASA SPACE APPS 2026</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hub Center Stage: Quick Menu + Hero Art + Action Cards -->
+    <main class="hub-main-stage">
+      <!-- Left Quick Menu Column -->
+      <aside class="hub-quick-col">
+        <button class="hub-quick-btn" id="hub-daily-log-btn">
+          <span class="q-icon">📅</span>
+          <span class="q-label" id="lbl-hub-daily">DAILY SOL LOG</span>
+          <span class="q-sub">Sol 5111 Intel</span>
+        </button>
+        <button class="hub-quick-btn" id="hub-news-btn">
+          <span class="q-icon">📰</span>
+          <span class="q-label" id="lbl-hub-news">MISSION NEWS</span>
+          <span class="q-sub">Opportunity 15-Yr</span>
+        </button>
+        <button class="hub-quick-btn" id="hub-quiz-btn">
+          <span class="q-icon">💎</span>
+          <span class="q-label" id="lbl-hub-quiz">EARN GEMS</span>
+          <span class="q-sub">Space Cadet Quiz</span>
+        </button>
+      </aside>
+
+      <!-- Center Hero Showcase with Cinematic Visual -->
+      <section class="hub-hero-section">
+        <div class="hub-hero-bg" style="background-image: url('./hero_astronaut_mars.jpg');">
+          <div class="hub-hero-overlay"></div>
+          <div class="hero-flare-glow"></div>
+        </div>
+
+        <div class="hub-hero-content">
+          <div class="hero-tag-badge">
+            <span class="hero-dot pulse"></span>
+            <span id="lbl-hero-tag">THE SAVIOR OF PLANETARY HISTORY • NASA SPACE APPS</span>
+          </div>
+          <h1 class="hero-game-title" id="lbl-hero-title">RELICS OF THE RED DUST</h1>
+          <p class="hero-game-subtitle" id="lbl-hero-sub">THE LAST TRANSMISSION • MER-B OPPORTUNITY ROVER</p>
+          
+          <div class="hero-cta-wrapper">
+            <button class="hero-launch-btn" id="hub-hero-explore-btn">
+              <span class="btn-glow"></span>
+              <span class="btn-text">🚀 <span id="lbl-hero-btn">ENTER 3D MARS SIMULATION</span></span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Game Mode Cards Column -->
+      <section class="hub-cards-col">
+        <!-- Card 1: Archaeology 2085 -->
+        <div class="hub-game-card" id="hub-card-archaeology" role="button">
+          <div class="card-thumb" style="background-image: url('./thumb_archaeology.jpg');">
+            <div class="card-thumb-overlay"></div>
+            <span class="card-category-badge">3D SIMULATOR</span>
+          </div>
+          <div class="card-details">
+            <h3 class="card-title" id="lbl-card-arch-title">Archaeologist 2085</h3>
+            <p class="card-desc" id="lbl-card-arch-desc">Locate MER-B, scan scientific instruments (RAT, Mini-TES, Mössbauer), and uncover ancient water relics.</p>
+            <div class="card-action-row">
+              <span class="play-link" id="lbl-card-arch-btn">Play Now ➔</span>
+              <span class="card-status-indicator unlocked">ACTIVE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: The Sol 5111 Storm -->
+        <div class="hub-game-card" id="hub-card-storm" role="button">
+          <div class="card-thumb" style="background-image: url('./thumb_storm.jpg');">
+            <div class="card-thumb-overlay"></div>
+            <span class="card-category-badge storm-badge">PLANETARY CRISIS</span>
+          </div>
+          <div class="card-details">
+            <h3 class="card-title" id="lbl-card-storm-title">The Sol 5111 Storm</h3>
+            <p class="card-desc" id="lbl-card-storm-desc">Witness the record global dust storm, slide Optical Tau to 10.8, and experience the solar power collapse.</p>
+            <div class="card-action-row">
+              <span class="play-link" id="lbl-card-storm-btn">Play Now ➔</span>
+              <span class="card-status-indicator unlocked">ACTIVE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Expedition Roadmap -->
+        <div class="hub-game-card" id="hub-card-roadmap" role="button">
+          <div class="card-thumb" style="background-image: url('./thumb_roadmap.jpg');">
+            <div class="card-thumb-overlay"></div>
+            <span class="card-category-badge roadmap-badge">QUESTS & BADGES</span>
+          </div>
+          <div class="card-details">
+            <h3 class="card-title" id="lbl-card-road-title">Expedition Roadmap</h3>
+            <p class="card-desc" id="lbl-card-road-desc">Follow the S-curve trail across 6 mission levels to decode Oppy's final words and earn the Master Certificate.</p>
+            <div class="card-action-row">
+              <span class="play-link" id="lbl-card-road-btn">Play Now ➔</span>
+              <span class="card-status-indicator unlocked">ACTIVE</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Hub Bottom Navigation Bar -->
+    <footer class="hub-bottom-bar">
+      <button class="hub-nav-item active" id="hub-tab-home">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label" id="lbl-hnav-home">HOME</span>
+      </button>
+      <button class="hub-nav-item" id="hub-tab-roadmap">
+        <span class="nav-icon">🗺️</span>
+        <span class="nav-label" id="lbl-hnav-road">ROADMAP</span>
+      </button>
+      <button class="hub-nav-item" id="hub-tab-archaeology">
+        <span class="nav-icon">📡</span>
+        <span class="nav-label" id="lbl-hnav-arch">3D SIMULATOR</span>
+      </button>
+      <button class="hub-nav-item" id="hub-tab-storm">
+        <span class="nav-icon">🌪️</span>
+        <span class="nav-label" id="lbl-hnav-storm">SOL 5111</span>
+      </button>
+      <button class="hub-nav-item" id="hub-tab-drive">
+        <span class="nav-icon">🕹️</span>
+        <span class="nav-label" id="lbl-hnav-drive">DRIVE ROVER</span>
+      </button>
+      <button class="hub-nav-item" id="hub-tab-pitch">
+        <span class="nav-icon">🎬</span>
+        <span class="nav-label" id="lbl-hnav-pitch">120s PITCH</span>
+      </button>
+      <button class="hub-nav-item" id="hub-tab-quiz">
+        <span class="nav-icon">🧩</span>
+        <span class="nav-label" id="lbl-hnav-quiz">QUIZ</span>
+      </button>
+    </footer>
+  </div>
+
+  <!-- TOP HEADER HUD (In-Simulation) -->
+  <header class="top-nav-bar">
+    <div class="brand-section">
+      <div class="nasa-meatball-badge">
+        <span class="badge-dot"></span>
+        <span class="badge-text" id="top-badge-text">NASA SPACE APPS • YOUTH EXPLORER</span>
+      </div>
+      <h1 class="project-title" id="top-project-title">RELICS OF THE RED DUST</h1>
+      <span class="project-subtitle" id="top-project-sub">THE LAST TRANSMISSION • MER-B OPPORTUNITY ROVER</span>
+    </div>
+
+    <!-- Mode Navigation Tabs -->
+    <nav class="mode-nav-group" id="mode-tabs">
+      <button class="nav-tab home-hub-btn" id="tab-home-hub" title="Back to Game Hub">
+        <span class="tab-icon">🏠</span>
+        <span class="tab-label" id="lbl-tab-hub">Hub</span>
+      </button>
+      <button class="nav-tab active" data-mode="archaeologist" id="tab-archaeologist">
+        <span class="tab-icon">📡</span>
+        <span class="tab-label" id="lbl-tab-archaeologist">Archaeologist 2085</span>
+      </button>
+      <button class="nav-tab" data-mode="sol5111" id="tab-sol5111">
+        <span class="tab-icon">🌪️</span>
+        <span class="tab-label" id="lbl-tab-sol5111">Sol 5111 Storm</span>
+      </button>
+      <button class="nav-tab" data-mode="drive" id="tab-drive">
+        <span class="tab-icon">🕹️</span>
+        <span class="tab-label" id="lbl-tab-drive">Drive Rover</span>
+      </button>
+      <button class="nav-tab highlight-gold" id="open-missions-btn">
+        <span class="tab-icon">🎯</span>
+        <span class="tab-label" id="lbl-tab-missions">Missions & Badges (<span id="top-badge-count">0/6</span>)</span>
+      </button>
+      <button class="nav-tab highlight" data-mode="pitch" id="tab-pitch">
+        <span class="tab-icon">🎬</span>
+        <span class="tab-label" id="lbl-tab-pitch">120s Pitch Showcase</span>
+      </button>
+    </nav>
+
+    <!-- Header Actions & Language Switcher -->
+    <div class="header-actions">
+      <!-- Language Switcher -->
+      <button class="action-btn lang-btn" id="lang-toggle-btn" title="Switch Language (English / বাংলা)">
+        <span id="lang-flag">🇧🇩</span>
+        <span class="btn-text" id="lang-btn-text">বাংলা</span>
+      </button>
+
+      <!-- Space Cadet Quiz -->
+      <button class="action-btn quiz-btn" id="open-quiz-btn" title="Play Space Cadet Quiz">
+        <span>🧩</span>
+        <span class="btn-text" id="lbl-quiz-btn">Quiz</span>
+      </button>
+
+      <!-- Audio Toggle -->
+      <button class="action-btn" id="audio-toggle-btn" title="Toggle Atmospheric Soundscape">
+        <span id="audio-icon">🔇</span>
+        <span class="btn-text" id="lbl-audio-btn">Audio: OFF</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- LEFT TELEMETRY HUD -->
+  <aside class="left-telemetry-panel" id="telemetry-panel">
+    <div class="panel-header">
+      <div class="live-dot pulse"></div>
+      <span class="panel-title" id="lbl-pds-header">NASA PDS TELEMETRY</span>
+      <span class="panel-tag">MER-B 1111</span>
+    </div>
+
+    <div class="telemetry-grid">
+      <!-- Optical Depth Tau -->
+      <div class="telemetry-card">
+        <div class="card-label" id="lbl-tau-card">ATMOSPHERIC DUST OPACITY (TAU)</div>
+        <div class="card-value-group">
+          <span class="card-value value-warn" id="hud-tau">10.8</span>
+          <span class="card-unit">τ</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill fill-warn" id="hud-tau-bar" style="width: 100%;"></div>
+        </div>
+        <div class="card-subtext" id="hud-extinction">99.998% Sunlight Extinguished</div>
+      </div>
+
+      <!-- Solar Power Output -->
+      <div class="telemetry-card">
+        <div class="card-label" id="lbl-power-card">SOLAR ARRAY GENERATION</div>
+        <div class="card-value-group">
+          <span class="card-value value-crit" id="hud-power">22</span>
+          <span class="card-unit">Wh / sol</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill fill-crit" id="hud-power-bar" style="width: 2.4%;"></div>
+        </div>
+        <div class="card-subtext" id="lbl-power-baseline">Nominal baseline: 900 Wh</div>
+      </div>
+
+      <!-- Battery Voltage -->
+      <div class="telemetry-card">
+        <div class="card-label" id="lbl-volt-card">BUS VOLTAGE / BATTERY</div>
+        <div class="card-value-group">
+          <span class="card-value" id="hud-voltage">20.8</span>
+          <span class="card-unit">V</span>
+        </div>
+        <div class="card-subtext" id="lbl-volt-sub">Critical sleep cutoff: 20.5 V</div>
+      </div>
+
+      <!-- Site Info -->
+      <div class="telemetry-card coordinates-card">
+        <div class="card-label" id="lbl-site-card">MARTIAN SITE</div>
+        <div class="site-name">Perseverance Valley, Endeavour Rim</div>
+        <div class="coords-line">LAT: 14.5714° S | LON: 354.6734° E</div>
+        <div class="odometer-badge">ODOMETER: 45.16 KM (RECORD)</div>
+      </div>
+    </div>
+
+    <!-- Fun Science Fact Box for Kids -->
+    <div class="fun-fact-card">
+      <div class="fact-header">
+        <span class="fact-title" id="fun-fact-title">✨ Fun Space Fact</span>
+        <button class="fact-next-btn" id="next-fact-btn" title="Next Fact">➔</button>
+      </div>
+      <p class="fact-body" id="fun-fact-text">Mars is red because its soil is full of iron oxide (rust), just like an old bicycle in the rain!</p>
+    </div>
+  </aside>
+
+  <!-- RIGHT SCANNER & MISSION QUICK HUD -->
+  <aside class="right-scanner-panel" id="scanner-panel">
+    <div class="panel-header">
+      <span class="panel-title" id="lbl-scanner-header">ARCHAEOLOGIST SCANNER</span>
+      <span class="panel-tag cyan-glow">LiDAR READY</span>
+    </div>
+
+    <div class="scanner-instruction">
+      <div class="scanner-icon-anim">🎯</div>
+      <p id="lbl-scanner-instruction">Click on any <strong>Rover Subsystem</strong> or <strong>Glowing Beacons</strong> to scan and complete your missions!</p>
+    </div>
+
+    <div class="subsystem-quick-list">
+      <div class="subsystem-item" data-scan="pancam">
+        <span class="sub-dot"></span>
+        <span class="sub-name" id="lbl-scan-pancam">Pancam (Multispectral Camera)</span>
+      </div>
+      <div class="subsystem-item" data-scan="mini_tes">
+        <span class="sub-dot"></span>
+        <span class="sub-name" id="lbl-scan-minites">Mini-TES (Thermal Spectrometer)</span>
+      </div>
+      <div class="subsystem-item" data-scan="mossbauer">
+        <span class="sub-dot"></span>
+        <span class="sub-name" id="lbl-scan-mossbauer">Mössbauer (Jarosite / Water)</span>
+      </div>
+      <div class="subsystem-item" data-scan="rat">
+        <span class="sub-dot"></span>
+        <span class="sub-name" id="lbl-scan-rat">RAT (Diamond Rock Grinder)</span>
+      </div>
+      <div class="subsystem-item" data-scan="solar_array">
+        <span class="sub-dot"></span>
+        <span class="sub-name" id="lbl-scan-solar">Solar Panels & Dust Coating</span>
+      </div>
+      <div class="subsystem-item highlight-cyan" data-scan="blackbox_core">
+        <span class="sub-dot cyan"></span>
+        <span class="sub-name" id="lbl-scan-blackbox">Blackbox Solid-State Core</span>
+      </div>
+    </div>
+
+    <!-- Quick Missions Progress Widget -->
+    <div class="missions-summary-box" id="quick-missions-box">
+      <div class="msb-header">
+        <span class="msb-title" id="lbl-msb-title">MISSION PROGRESS</span>
+        <span class="msb-count" id="badges-earned-counter">0 / 6</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="missions-progress-bar" style="width: 0%;"></div>
+      </div>
+      <button class="open-missions-sheet-btn" id="open-sheet-btn">View All 6 Missions ➔</button>
+    </div>
+  </aside>
+
+  <!-- FLOATING COMPANION BOT ("AERO-1") -->
+  <div class="companion-bot-container" id="companion-bot">
+    <div class="bot-speech-bubble" id="bot-speech-bubble">
+      <div class="bot-name-tag">🤖 AERO-1 (Assistant)</div>
+      <p id="bot-speech-text">👋 Welcome young Explorer! I'm AERO-1, your Martian Archaeology Assistant. Click on glowing artifacts or rover parts to unlock ancient space secrets!</p>
+    </div>
+    <div class="bot-avatar" id="bot-avatar-btn">
+      <div class="bot-avatar-inner">🤖</div>
+      <div class="bot-ping-ring"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM CONTROL DOCK -->
+  <footer class="bottom-dock">
+    <!-- Camera View Switcher -->
+    <div class="camera-controls-group">
+      <span class="dock-label" id="lbl-cam-label">CAMERA:</span>
+      <button class="cam-btn active" id="cam-orbit">360° Orbit</button>
+      <button class="cam-btn" id="cam-pancam">Pancam Eye</button>
+      <button class="cam-btn" id="cam-top">HiRISE Top</button>
+      <button class="cam-btn" id="cam-surface">Ground View</button>
+    </div>
+
+    <!-- Interactive Sol / Tau Slider -->
+    <div class="slider-control-group" id="sol-slider-container">
+      <div class="slider-label-row">
+        <span id="lbl-sol-slider-title">SOL TIMELINE PROGRESSION:</span>
+        <strong id="current-sol-display">SOL 5111 (Final Transmission)</strong>
+      </div>
+      <div class="slider-input-row">
+        <button class="dock-action-btn" id="play-sol-timeline">▶ Play PEDE Storm</button>
+        <input type="range" id="sol-range-input" min="0" max="8" value="8" step="1" />
+        <button class="dock-action-btn" id="reset-rover-pos">↺ Reset View</button>
+      </div>
+    </div>
+
+    <!-- Manual Optical Opacity (Tau) Slider -->
+    <div class="slider-control-group" id="tau-slider-container">
+      <div class="slider-label-row">
+        <span id="lbl-tau-slider-title">BEER-LAMBERT OPTICAL TAU (τ):</span>
+        <strong id="tau-val-display">10.8 (Record Storm)</strong>
+      </div>
+      <input type="range" id="tau-range-input" min="0.4" max="10.8" value="10.8" step="0.1" />
+    </div>
+
+    <!-- On-screen Drive D-Pad -->
+    <div class="drive-touch-controls" id="drive-touch-controls">
+      <div class="dpad-row">
+        <button class="dpad-btn" id="btn-drive-up">▲</button>
+      </div>
+      <div class="dpad-row">
+        <button class="dpad-btn" id="btn-drive-left">◀</button>
+        <button class="dpad-btn" id="btn-drive-down">▼</button>
+        <button class="dpad-btn" id="btn-drive-right">▶</button>
+      </div>
+      <div class="drive-help-text" id="lbl-drive-help">WASD / Arrow Keys or Touch Buttons</div>
+    </div>
+  </footer>
+
+  <!-- 120-SECOND PITCH SUBTITLE & OVERLAY BANNER -->
+  <div class="pitch-overlay-container" id="pitch-overlay">
+    <div class="pitch-act-header">
+      <span class="pitch-act-tag" id="pitch-act-tag">ACT I</span>
+      <span class="pitch-act-title" id="pitch-act-title">The Storm That Stole the Light</span>
+      <span class="pitch-timer" id="pitch-timer">00:00 / 02:00</span>
+    </div>
+    <p class="pitch-narration-text" id="pitch-narration-text">
+      "In 2004, Opportunity landed on Mars for a 90-sol mission. It endured for 15 years. Then, on Sol 5111, an unprecedented global dust storm stole its light."
+    </p>
+    <div class="pitch-progress-line">
+      <div class="pitch-progress-bar" id="pitch-progress-bar" style="width: 0%;"></div>
+    </div>
+  </div>
+
+  <!-- POPUP MODAL: MISSIONS & BADGES DRAWER -->
+  <div class="modal-backdrop" id="missions-modal-backdrop">
+    <div class="modal-card wide-card">
+      <button class="modal-close-btn" id="missions-close-btn">✕</button>
+      
+      <div class="modal-header">
+        <div class="modal-type-badge" id="lbl-missions-modal-badge">SPACE CADET ACADEMY</div>
+        <h2 class="modal-title" id="lbl-missions-modal-title">Martian Archaeology Missions & Badges</h2>
+        <div class="modal-abbrev" id="lbl-missions-modal-sub">Complete all 6 missions to earn the Master Explorer Certificate!</div>
+      </div>
+
+      <div class="modal-body scrollable-body">
+        <div class="missions-list" id="missions-list-container">
+          <!-- Dynamically Rendered by MissionQuestManager -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="modal-action-btn" id="missions-dismiss-btn">CONTINUE EXPLORING</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP MODAL: SPACE CADET QUIZ -->
+  <div class="modal-backdrop" id="quiz-modal-backdrop">
+    <div class="modal-card">
+      <button class="modal-close-btn" id="quiz-close-btn">✕</button>
+      
+      <div class="modal-header">
+        <div class="modal-type-badge">INTERACTIVE SCIENCE CHALLENGE</div>
+        <h2 class="modal-title" id="lbl-quiz-title">Space Cadet Mars Quiz</h2>
+        <div class="modal-abbrev" id="lbl-quiz-step">Question 1 of 3</div>
+      </div>
+
+      <div class="modal-body" id="quiz-body">
+        <div class="quiz-question-box">
+          <p class="quiz-q-text" id="quiz-question-text">How many sols did Opportunity explore Mars?</p>
+        </div>
+        <div class="quiz-options-list" id="quiz-options-list">
+          <!-- Options rendered dynamically -->
+        </div>
+        <div class="quiz-feedback-box" id="quiz-feedback-box" style="display: none;">
+          <p id="quiz-feedback-text"></p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="modal-action-btn" id="quiz-next-btn" style="display: none;">NEXT QUESTION ➔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP MODAL: JUNIOR ARCHAEOLOGIST CERTIFICATE -->
+  <div class="modal-backdrop" id="certificate-modal-backdrop">
+    <div class="modal-card certificate-card">
+      <button class="modal-close-btn" id="cert-close-btn">✕</button>
+      
+      <div class="certificate-inner">
+        <div class="cert-seal">🏅</div>
+        <div class="cert-nasa-tag">NASA SPACE APPS • MARS EXPLORATION ACADEMY</div>
+        <h2 class="cert-title">CERTIFICATE OF ACHIEVEMENT</h2>
+        <p class="cert-awarded">THIS CERTIFIES THAT</p>
+        <div class="cert-name">JUNIOR PLANETARY ARCHAEOLOGIST</div>
+        <p class="cert-desc">has successfully completed all 6 planetary archaeology missions, decoded the Sol 5111 transmission of MER-B Opportunity, and demonstrated mastery of Martian atmospheric physics and mineralogy.</p>
+        <div class="cert-footer-row">
+          <div class="cert-sig">
+            <div class="sig-line">Opportunity (MER-B)</div>
+            <span>Perseverance Valley Monument</span>
+          </div>
+          <div class="cert-sig">
+            <div class="sig-line">AERO-1 Autonomous Bot</div>
+            <span>2085 Archaeological Survey</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="modal-action-btn" id="cert-dismiss-btn">CONGRATULATIONS! KEEP EXPLORING</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP MODAL: EDUCATIONAL SCANNER / PAYLOAD DISCOVERY -->
+  <div class="modal-backdrop" id="scan-modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-card-glow"></div>
+      <button class="modal-close-btn" id="modal-close-btn">✕</button>
+      
+      <div class="modal-header">
+        <div class="modal-type-badge" id="modal-type-badge">SUBSYSTEM RECOVERY</div>
+        <h2 class="modal-title" id="modal-title">Pancam (Panoramic Camera)</h2>
+        <div class="modal-abbrev" id="modal-abbrev">PMA-PANCAM</div>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-section">
+          <h3 id="lbl-modal-discovery-header">HISTORICAL DISCOVERY & IMPACT</h3>
+          <p id="modal-discoveries">Captured over 100,000 multispectral panoramas...</p>
+        </div>
+
+        <div class="modal-specs-grid">
+          <div class="spec-item">
+            <span class="spec-k" id="lbl-spec-k1">Wavelength / Sensor:</span>
+            <span class="spec-v" id="modal-wavelengths">400 - 1000 nm</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-k" id="lbl-spec-k2">Resolution / Specs:</span>
+            <span class="spec-v" id="modal-resolution">1024 x 1024 px stereo</span>
+          </div>
+          <div class="spec-item full-width">
+            <span class="spec-k" id="lbl-spec-k3">Scientific Significance:</span>
+            <span class="spec-v" id="modal-significance">Primary sensory organ for Martian geology.</span>
+          </div>
+        </div>
+
+        <!-- Audio Transmission Playback (For Blackbox) -->
+        <div class="blackbox-transmission-box" id="blackbox-audio-box" style="display: none;">
+          <div class="audio-wave-anim">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="transmission-text">
+            <strong id="lbl-blackbox-header">DECODED MER-B SOL 5111 TELEMETRY PACKET:</strong>
+            <p id="lbl-blackbox-msg">"Tau: 10.8. Array Voltage: 20.8V. Power: 22 Wh. Thermal threshold engaged. Transmitting final housekeeping frame. Entering hibernation."</p>
+            <em id="lbl-blackbox-sub">— Final Telemetry from Perseverance Valley, June 10, 2018.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="modal-action-btn" id="modal-dismiss-btn">CLOSE LOG</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
