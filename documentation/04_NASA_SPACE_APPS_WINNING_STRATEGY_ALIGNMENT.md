@@ -20,7 +20,7 @@ pie title NASA Space Apps Criteria Weightage & Alignment
 | **3. Technological Excellence** *(Art & Technology)* | Custom client-side Three.js procedural DEM terrain engine, real-time atmospheric scattering shaders, LiDAR raycasting, and Web Audio synthesizer. | Zero external heavy asset dependencies; instant 60 FPS performance in browser with responsive mobile touch controls. |
 | **4. Creativity & Innovation** | "Planetary Archaeology": reframing abandoned space hardware not as space junk, but as historic human heritage monuments. | Interactive S-Curve Celestial Roadmap gamifying scientific discovery across 6 milestone levels. |
 | **5. Presentation & Polish** | AAA-grade dark space glassmorphic Game Hub, bilingual English/Bengali localization, and an automated 120-second cinematic pitch showcase. | One-click 2-minute pitch director guiding judges through all project highlights with synchronized subtitles. |
-
+______________
 ---
 
 ## 2. Scientific Data & PDS Ground Truth
