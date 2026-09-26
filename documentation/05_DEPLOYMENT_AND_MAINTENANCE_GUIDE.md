@@ -48,11 +48,18 @@ npm run preview
 # Preview server ready on http://localhost:3000/
 ```
 
-### Static Hosting Deployments
-The generated `dist/` directory is 100% static and can be deployed directly to:
-- **GitHub Pages**: Upload `dist/` branch or configure GitHub Actions.
-- **Vercel / Netlify**: Connect repository, set build command to `npm run build`, and output directory to `dist`.
-- **Firebase Hosting**: Run `firebase deploy --only hosting`.
+### Automated CI/CD: GitHub Actions to Vercel
+An enterprise CI/CD workflow is configured in [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml):
+
+1. **Trigger**: Automatically executes on every `push` or `pull_request` to `main`, plus manual `workflow_dispatch`.
+2. **Build & Validation Job**: Checks dependencies with `npm ci`, compiles production bundle with `npm run build`, and creates verifiable build artifacts.
+3. **Vercel Deploy Job**: Uses [`amondnet/vercel-action`](https://github.com/amondnet/vercel-action) with security hardening (`vercel.json`).
+
+#### Required GitHub Repository Secrets
+Navigate to **GitHub Repository Settings ➔ Secrets and variables ➔ Actions** and add:
+- `VERCEL_TOKEN`: Vercel Personal Access Token ([vercel.com/account/tokens](https://vercel.com/account/tokens)).
+- `VERCEL_ORG_ID`: Found in project settings or `.vercel/project.json`.
+- `VERCEL_PROJECT_ID`: Found in project settings or `.vercel/project.json`.
 
 ---
 
