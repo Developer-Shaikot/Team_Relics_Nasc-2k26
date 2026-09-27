@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Relics of the Red Dust | NASA Space Apps Kids & Youth Explorer</title>
-  <meta name="description" content="An interactive 3D WebGL educational planetary archaeology game for kids and students exploring Opportunity rover (MER-B) on Mars Sol 5111." />
-  
+  <meta name="description"
+    content="An interactive 3D WebGL educational planetary archaeology game for kids and students exploring Opportunity rover (MER-B) on Mars Sol 5111." />
+
   <!-- Modern & Kid-Friendly Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@600;800;900&family=Outfit:wght@400;600;700;800&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@600;800;900&family=Outfit:wght@400;600;700;800&family=Hind+Siliguri:wght@400;600;700&display=swap"
+    rel="stylesheet">
+
   <link rel="stylesheet" href="./style.css" />
 </head>
+
 <body>
   <!-- 3D WebGL Canvas Container -->
   <div id="webgl-container"></div>
@@ -112,7 +117,7 @@
           </div>
           <h1 class="hero-game-title" id="lbl-hero-title">RELICS OF THE RED DUST</h1>
           <p class="hero-game-subtitle" id="lbl-hero-sub">THE LAST TRANSMISSION • MER-B OPPORTUNITY ROVER</p>
-          
+
           <div class="hero-cta-wrapper">
             <button class="hero-launch-btn" id="hub-hero-explore-btn">
               <span class="btn-glow"></span>
@@ -132,7 +137,8 @@
           </div>
           <div class="card-details">
             <h3 class="card-title" id="lbl-card-arch-title">Archaeologist 2085</h3>
-            <p class="card-desc" id="lbl-card-arch-desc">Locate MER-B, scan scientific instruments (RAT, Mini-TES, Mössbauer), and uncover ancient water relics.</p>
+            <p class="card-desc" id="lbl-card-arch-desc">Locate MER-B, scan scientific instruments (RAT, Mini-TES,
+              Mössbauer), and uncover ancient water relics.</p>
             <div class="card-action-row">
               <span class="play-link" id="lbl-card-arch-btn">Play Now ➔</span>
               <span class="card-status-indicator unlocked">ACTIVE</span>
@@ -148,7 +154,8 @@
           </div>
           <div class="card-details">
             <h3 class="card-title" id="lbl-card-storm-title">The Sol 5111 Storm</h3>
-            <p class="card-desc" id="lbl-card-storm-desc">Witness the record global dust storm, slide Optical Tau to 10.8, and experience the solar power collapse.</p>
+            <p class="card-desc" id="lbl-card-storm-desc">Witness the record global dust storm, slide Optical Tau to
+              10.8, and experience the solar power collapse.</p>
             <div class="card-action-row">
               <span class="play-link" id="lbl-card-storm-btn">Play Now ➔</span>
               <span class="card-status-indicator unlocked">ACTIVE</span>
@@ -164,7 +171,8 @@
           </div>
           <div class="card-details">
             <h3 class="card-title" id="lbl-card-road-title">Expedition Roadmap</h3>
-            <p class="card-desc" id="lbl-card-road-desc">Follow the S-curve trail across 6 mission levels to decode Oppy's final words and earn the Master Certificate.</p>
+            <p class="card-desc" id="lbl-card-road-desc">Follow the S-curve trail across 6 mission levels to decode
+              Oppy's final words and earn the Master Certificate.</p>
             <div class="card-action-row">
               <span class="play-link" id="lbl-card-road-btn">Play Now ➔</span>
               <span class="card-status-indicator unlocked">ACTIVE</span>
@@ -268,6 +276,22 @@
     </div>
   </header>
 
+  <!-- FLOATING WAYPOINT OBJECTIVE TRACKER HUD -->
+  <div class="waypoint-tracker-hud" id="waypoint-tracker-hud">
+    <div class="waypoint-icon pulse" id="waypoint-icon">🚀</div>
+    <div class="waypoint-meta">
+      <div class="waypoint-title-row">
+        <span class="waypoint-badge" id="waypoint-badge">MISSION 1 / 6</span>
+        <span class="waypoint-name" id="waypoint-name">Find Opportunity & Activate Pancam</span>
+      </div>
+      <div class="waypoint-sub" id="waypoint-sub">Drive rover toward the glowing cyan beacon light pillar</div>
+    </div>
+    <div class="waypoint-dist-tag" id="waypoint-dist-tag">
+      <span class="dist-icon">🎯</span>
+      <span class="dist-val" id="waypoint-dist-val">0.0m</span>
+    </div>
+  </div>
+
   <!-- LEFT TELEMETRY HUD -->
   <aside class="left-telemetry-panel" id="telemetry-panel">
     <div class="panel-header">
@@ -328,7 +352,8 @@
         <span class="fact-title" id="fun-fact-title">✨ Fun Space Fact</span>
         <button class="fact-next-btn" id="next-fact-btn" title="Next Fact">➔</button>
       </div>
-      <p class="fact-body" id="fun-fact-text">Mars is red because its soil is full of iron oxide (rust), just like an old bicycle in the rain!</p>
+      <p class="fact-body" id="fun-fact-text">Mars is red because its soil is full of iron oxide (rust), just like an
+        old bicycle in the rain!</p>
     </div>
   </aside>
 
@@ -341,7 +366,8 @@
 
     <div class="scanner-instruction">
       <div class="scanner-icon-anim">🎯</div>
-      <p id="lbl-scanner-instruction">Click on any <strong>Rover Subsystem</strong> or <strong>Glowing Beacons</strong> to scan and complete your missions!</p>
+      <p id="lbl-scanner-instruction">Click on any <strong>Rover Subsystem</strong> or <strong>Glowing Beacons</strong>
+        to scan and complete your missions!</p>
     </div>
 
     <div class="subsystem-quick-list">
@@ -384,23 +410,10 @@
     </div>
   </aside>
 
-  <!-- FLOATING COMPANION BOT ("AERO-1") -->
-  <div class="companion-bot-container" id="companion-bot">
-    <div class="bot-speech-bubble" id="bot-speech-bubble">
-      <div class="bot-name-tag">🤖 AERO-1 (Assistant)</div>
-      <p id="bot-speech-text">👋 Welcome young Explorer! I'm AERO-1, your Martian Archaeology Assistant. Click on glowing artifacts or rover parts to unlock ancient space secrets!</p>
-    </div>
-    <div class="bot-avatar" id="bot-avatar-btn">
-      <div class="bot-avatar-inner">🤖</div>
-      <div class="bot-ping-ring"></div>
-    </div>
-  </div>
-
   <!-- BOTTOM CONTROL DOCK -->
   <footer class="bottom-dock">
     <!-- Camera View Switcher -->
     <div class="camera-controls-group">
-      <span class="dock-label" id="lbl-cam-label">CAMERA:</span>
       <button class="cam-btn active" id="cam-orbit">360° Orbit</button>
       <button class="cam-btn" id="cam-pancam">Pancam Eye</button>
       <button class="cam-btn" id="cam-top">HiRISE Top</button>
@@ -410,21 +423,21 @@
     <!-- Interactive Sol / Tau Slider -->
     <div class="slider-control-group" id="sol-slider-container">
       <div class="slider-label-row">
-        <span id="lbl-sol-slider-title">SOL TIMELINE PROGRESSION:</span>
+        <span id="lbl-sol-slider-title">SOL TIMELINE:</span>
         <strong id="current-sol-display">SOL 5111 (Final Transmission)</strong>
       </div>
       <div class="slider-input-row">
-        <button class="dock-action-btn" id="play-sol-timeline">▶ Play PEDE Storm</button>
+        <button class="dock-action-btn" id="play-sol-timeline">▶ Play Storm</button>
         <input type="range" id="sol-range-input" min="0" max="8" value="8" step="1" />
-        <button class="dock-action-btn" id="reset-rover-pos">↺ Reset View</button>
+        <button class="dock-action-btn" id="reset-rover-pos">↺ Reset</button>
       </div>
     </div>
 
     <!-- Manual Optical Opacity (Tau) Slider -->
     <div class="slider-control-group" id="tau-slider-container">
       <div class="slider-label-row">
-        <span id="lbl-tau-slider-title">BEER-LAMBERT OPTICAL TAU (τ):</span>
-        <strong id="tau-val-display">10.8 (Record Storm)</strong>
+        <span id="lbl-tau-slider-title">OPTICAL TAU (τ):</span>
+        <strong id="tau-val-display">1.2 (Nominal Clear)</strong>
       </div>
       <input type="range" id="tau-range-input" min="0.4" max="10.8" value="10.8" step="0.1" />
     </div>
@@ -443,6 +456,16 @@
     </div>
   </footer>
 
+  <!-- DYNAMIC ROVER PROXIMITY RADAR HUD -->
+  <div class="rover-radar-hud" id="rover-radar-hud" style="display: none;">
+    <div class="radar-ping-icon pulse">📍</div>
+    <div class="radar-info">
+      <span class="radar-title" id="radar-title">RELIC DETECTED</span>
+      <span class="radar-sub" id="radar-sub">Distance: 3.4m • Press [E] or Click to Scan</span>
+    </div>
+    <button class="radar-scan-btn" id="radar-scan-btn">SCAN ➔</button>
+  </div>
+
   <!-- 120-SECOND PITCH SUBTITLE & OVERLAY BANNER -->
   <div class="pitch-overlay-container" id="pitch-overlay">
     <div class="pitch-act-header">
@@ -451,7 +474,8 @@
       <span class="pitch-timer" id="pitch-timer">00:00 / 02:00</span>
     </div>
     <p class="pitch-narration-text" id="pitch-narration-text">
-      "In 2004, Opportunity landed on Mars for a 90-sol mission. It endured for 15 years. Then, on Sol 5111, an unprecedented global dust storm stole its light."
+      "In 2004, Opportunity landed on Mars for a 90-sol mission. It endured for 15 years. Then, on Sol 5111, an
+      unprecedented global dust storm stole its light."
     </p>
     <div class="pitch-progress-line">
       <div class="pitch-progress-bar" id="pitch-progress-bar" style="width: 0%;"></div>
@@ -462,11 +486,12 @@
   <div class="modal-backdrop" id="missions-modal-backdrop">
     <div class="modal-card wide-card">
       <button class="modal-close-btn" id="missions-close-btn">✕</button>
-      
+
       <div class="modal-header">
         <div class="modal-type-badge" id="lbl-missions-modal-badge">SPACE CADET ACADEMY</div>
         <h2 class="modal-title" id="lbl-missions-modal-title">Martian Archaeology Missions & Badges</h2>
-        <div class="modal-abbrev" id="lbl-missions-modal-sub">Complete all 6 missions to earn the Master Explorer Certificate!</div>
+        <div class="modal-abbrev" id="lbl-missions-modal-sub">Complete all 6 missions to earn the Master Explorer
+          Certificate!</div>
       </div>
 
       <div class="modal-body scrollable-body">
@@ -485,7 +510,7 @@
   <div class="modal-backdrop" id="quiz-modal-backdrop">
     <div class="modal-card">
       <button class="modal-close-btn" id="quiz-close-btn">✕</button>
-      
+
       <div class="modal-header">
         <div class="modal-type-badge">INTERACTIVE SCIENCE CHALLENGE</div>
         <h2 class="modal-title" id="lbl-quiz-title">Space Cadet Mars Quiz</h2>
@@ -514,14 +539,15 @@
   <div class="modal-backdrop" id="certificate-modal-backdrop">
     <div class="modal-card certificate-card">
       <button class="modal-close-btn" id="cert-close-btn">✕</button>
-      
+
       <div class="certificate-inner">
         <div class="cert-seal">🏅</div>
         <div class="cert-nasa-tag">NASA SPACE APPS • MARS EXPLORATION ACADEMY</div>
         <h2 class="cert-title">CERTIFICATE OF ACHIEVEMENT</h2>
         <p class="cert-awarded">THIS CERTIFIES THAT</p>
         <div class="cert-name">JUNIOR PLANETARY ARCHAEOLOGIST</div>
-        <p class="cert-desc">has successfully completed all 6 planetary archaeology missions, decoded the Sol 5111 transmission of MER-B Opportunity, and demonstrated mastery of Martian atmospheric physics and mineralogy.</p>
+        <p class="cert-desc">has successfully completed all 6 planetary archaeology missions, decoded the Sol 5111
+          transmission of MER-B Opportunity, and demonstrated mastery of Martian atmospheric physics and mineralogy.</p>
         <div class="cert-footer-row">
           <div class="cert-sig">
             <div class="sig-line">Opportunity (MER-B)</div>
@@ -545,7 +571,7 @@
     <div class="modal-card">
       <div class="modal-card-glow"></div>
       <button class="modal-close-btn" id="modal-close-btn">✕</button>
-      
+
       <div class="modal-header">
         <div class="modal-type-badge" id="modal-type-badge">SUBSYSTEM RECOVERY</div>
         <h2 class="modal-title" id="modal-title">Pancam (Panoramic Camera)</h2>
@@ -580,7 +606,8 @@
           </div>
           <div class="transmission-text">
             <strong id="lbl-blackbox-header">DECODED MER-B SOL 5111 TELEMETRY PACKET:</strong>
-            <p id="lbl-blackbox-msg">"Tau: 10.8. Array Voltage: 20.8V. Power: 22 Wh. Thermal threshold engaged. Transmitting final housekeeping frame. Entering hibernation."</p>
+            <p id="lbl-blackbox-msg">"Tau: 10.8. Array Voltage: 20.8V. Power: 22 Wh. Thermal threshold engaged.
+              Transmitting final housekeeping frame. Entering hibernation."</p>
             <em id="lbl-blackbox-sub">— Final Telemetry from Perseverance Valley, June 10, 2018.</em>
           </div>
         </div>
@@ -594,4 +621,5 @@
 
   <script type="module" src="/src/main.js"></script>
 </body>
+
 </html>

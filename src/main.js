@@ -10,7 +10,7 @@ import { PitchShowcaseDirector } from './systems/pitchMode.js';
 import { martianAudio } from './systems/audio.js';
 import { MissionQuestManager } from './systems/quests.js';
 import { HISTORICAL_SOL_LOGS, SCIENTIFIC_PAYLOADS, ARCHAEOLOGICAL_ARTIFACTS } from './data/telemetryData.js';
-import { CADET_QUIZ } from './data/kidsContent.js';
+import { CADET_QUIZ, KIDS_MISSIONS } from './data/kidsContent.js';
 
 // Initialize WebGL Application
 window.addEventListener('DOMContentLoaded', () => {
@@ -39,13 +39,159 @@ window.addEventListener('DOMContentLoaded', () => {
   const scanner = new PlanetaryScanner(camera, scene, renderer.domElement);
   scanner.registerRoverSubsystems(rover);
 
-  // 6. Setup Rover Driving Controller
-  const roverController = new RoverController(rover, wheels, getTerrainHeight, camera);
+  // 6. Setup Rover Driving Controller with Dynamic Scene Tracking
+  const roverController = new RoverController(rover, wheels, getTerrainHeight, camera, sceneManager);
 
   // 7. Setup Mission Quest Manager for Kids & Youth Education
   let currentLanguage = 'en';
-  const questManager = new MissionQuestManager(() => {});
+  const questManager = new MissionQuestManager(() => { });
   questManager.setLanguage(currentLanguage);
+
+  // Live Driving Telemetry & GPS Waypoint Tracker
+  const odometerElem = document.querySelector('.odometer-badge');
+  const coordsElem = document.querySelector('.coords-line');
+  const siteNameElem = document.querySelector('.coordinates-card .site-name');
+  const radarHud = document.getElementById('rover-radar-hud');
+  const radarTitle = document.getElementById('radar-title');
+  const radarSub = document.getElementById('radar-sub');
+  const radarScanBtn = document.getElementById('radar-scan-btn');
+  const waypointHud = document.getElementById('waypoint-tracker-hud');
+
+  let activeRadarArtifact = null;
+
+  function getActiveMission() {
+    const selected = KIDS_MISSIONS.find(m => m.id === questManager.selectedMissionId);
+    if (selected) return selected;
+    const firstUncompleted = KIDS_MISSIONS.find(m => !questManager.completedMissions.has(m.id));
+    return firstUncompleted || KIDS_MISSIONS[0];
+  }
+
+  function getActiveMissionArtifact(missionId) {
+    return ARCHAEOLOGICAL_ARTIFACTS.find(a => a.missionId === missionId);
+  }
+
+  function updateWaypointHUD() {
+    const activeMission = getActiveMission();
+    const artifact = getActiveMissionArtifact(activeMission?.id);
+    const isBn = currentLanguage === 'bn';
+
+    const iconElem = document.getElementById('waypoint-icon');
+    const badgeElem = document.getElementById('waypoint-badge');
+    const nameElem = document.getElementById('waypoint-name');
+    const subElem = document.getElementById('waypoint-sub');
+    const distValElem = document.getElementById('waypoint-dist-val');
+
+    if (questManager.completedMissions.size === KIDS_MISSIONS.length) {
+      if (iconElem) iconElem.innerText = '🏆';
+      if (badgeElem) badgeElem.innerText = isBn ? 'সব মিশন সম্পন্ন!' : 'ALL 6 MISSIONS COMPLETED!';
+      if (nameElem) nameElem.innerText = isBn ? 'মার্স মাস্টার সার্টিফিকেট আনলক হয়েছে!' : 'Master Certificate Unlocked!';
+      if (subElem) subElem.innerText = isBn ? 'কুইজ খেলুন বা সার্টিফিকেট দেখুন ➔' : 'Play Space Cadet Quiz or View Certificate ➔';
+      if (distValElem) distValElem.innerText = '100%';
+      return;
+    }
+
+    if (activeMission) {
+      scanner.setActiveWaypoint(activeMission.id);
+      const isCompleted = questManager.completedMissions.has(activeMission.id);
+      if (iconElem) iconElem.innerText = activeMission.badge || '🚀';
+      if (badgeElem) badgeElem.innerText = `${isBn ? 'মিশন' : 'MISSION'} ${activeMission.level} / 6 ${isCompleted ? '✓' : ''}`;
+      if (nameElem) nameElem.innerText = isBn ? activeMission.title_bn : activeMission.title_en;
+      if (subElem) {
+        subElem.innerText = isBn
+          ? `নিশান: ${artifact ? artifact.title : ''} • ড্রাইভ করে কাছে যান`
+          : `Drive rover toward the glowing beacon light pillar`;
+      }
+
+      if (artifact && distValElem) {
+        const dx = rover.position.x - artifact.coords.x;
+        const dz = rover.position.z - artifact.coords.z;
+        const dist = Math.sqrt(dx * dx + dz * dz);
+        distValElem.innerText = `${dist.toFixed(1)}m`;
+      }
+    }
+  }
+
+  roverController.onTelemetryUpdate = (stats) => {
+    if (coordsElem) {
+      coordsElem.innerText = `LAT: ${stats.lat}° S | LON: ${stats.lon}° E | ${stats.compassDir} (${stats.speedKmH} km/h)`;
+    }
+    if (odometerElem) {
+      const extraKm = (stats.distanceMeters / 1000).toFixed(2);
+      const totalKm = (45.16 + parseFloat(extraKm)).toFixed(2);
+      odometerElem.innerText = `ODOMETER: ${totalKm} KM (+${stats.distanceMeters.toFixed(0)} M)`;
+    }
+    if (siteNameElem && stats.speedKmH > 0.1) {
+      siteNameElem.innerText = `Perseverance Valley (Driving: ${stats.slopeDeg}° Slope)`;
+    }
+
+    // Live distance calculation to active GPS waypoint
+    const activeMission = getActiveMission();
+    const artifact = getActiveMissionArtifact(activeMission?.id);
+    if (artifact && questManager.completedMissions.size < KIDS_MISSIONS.length) {
+      const dx = rover.position.x - artifact.coords.x;
+      const dz = rover.position.z - artifact.coords.z;
+      const dist = Math.sqrt(dx * dx + dz * dz);
+      const distValElem = document.getElementById('waypoint-dist-val');
+      if (distValElem) {
+        distValElem.innerText = `${dist.toFixed(1)}m`;
+      }
+
+      // If rover is in direct proximity of target waypoint (<= 3.5m), trigger quick collection HUD
+      if (dist <= 3.8 && !questManager.completedMissions.has(activeMission.id)) {
+        activeRadarArtifact = artifact;
+        if (radarHud) radarHud.style.display = 'flex';
+        if (radarTitle) {
+          radarTitle.innerText = currentLanguage === 'bn' ? `📍 ${artifact.title}` : `📍 TARGET WAYPOINT: ${artifact.title}`;
+        }
+        if (radarSub) {
+          radarSub.innerText = currentLanguage === 'bn'
+            ? `লক্ষ্যে পৌঁছেছ! (${dist.toFixed(1)}m) • সংগ্রহ করতে [E] চাপুন বা স্ক্যান করুন`
+            : `Objective reached! (${dist.toFixed(1)}m) • Press [E] or Click to Collect`;
+        }
+      }
+    }
+  };
+
+  roverController.onProximityAlert = (artifact, dist) => {
+    if (dist <= 4.0 && artifact) {
+      activeRadarArtifact = artifact;
+      if (radarHud) radarHud.style.display = 'flex';
+      if (radarTitle) {
+        radarTitle.innerText = currentLanguage === 'bn' ? '📍 নিকটবর্তী ঐতিহাসিক নিদর্শন' : '📍 HISTORIC HARDWARE DETECTED';
+      }
+      if (radarSub) {
+        radarSub.innerText = `${artifact.title} (${dist.toFixed(1)}m) • ${currentLanguage === 'bn' ? '[E] চাপুন বা স্ক্যান করুন' : 'Press [E] or Click to Scan'}`;
+      }
+    } else if (!activeRadarArtifact || dist > 4.5) {
+      activeRadarArtifact = null;
+      if (radarHud) radarHud.style.display = 'none';
+    }
+  };
+
+  if (radarScanBtn) {
+    radarScanBtn.addEventListener('click', () => {
+      if (activeRadarArtifact) {
+        scanner.triggerManualScan(activeRadarArtifact.id);
+      }
+    });
+  }
+
+  // Quick Key E to scan nearest artifact
+  window.addEventListener('keydown', (e) => {
+    if (['KeyE', 'e', 'E'].includes(e.code) && activeRadarArtifact) {
+      scanner.triggerManualScan(activeRadarArtifact.id);
+    }
+  });
+
+  // Clicking the Waypoint Tracker HUD opens the Missions Roadmap Drawer
+  if (waypointHud) {
+    waypointHud.addEventListener('click', () => {
+      questManager.renderMissionsList();
+      document.getElementById('missions-modal-backdrop')?.classList.add('active');
+    });
+  }
+
+  updateWaypointHUD();
 
   // 8. State & Mode Manager
   let currentMode = 'archaeologist'; // 'archaeologist', 'sol5111', 'drive', 'pitch'
@@ -74,11 +220,11 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     if (tauSlider) tauSlider.value = tau;
     if (tauValDisplay) {
-      const statusStr = tau > 8.0 
+      const statusStr = tau > 8.0
         ? (currentLanguage === 'bn' ? '(রেকর্ড ধূলিঝড়)' : '(Record Storm)')
-        : tau > 3.0 
-        ? (currentLanguage === 'bn' ? '(ধূলিঝড় চলমান)' : '(Dust Storm)')
-        : (currentLanguage === 'bn' ? '(পরিষ্কার আকাশ)' : '(Nominal Clear)');
+        : tau > 3.0
+          ? (currentLanguage === 'bn' ? '(ধূলিঝড় চলমান)' : '(Dust Storm)')
+          : (currentLanguage === 'bn' ? '(পরিষ্কার আকাশ)' : '(Nominal Clear)');
       tauValDisplay.innerText = `${tau.toFixed(1)} ${statusStr}`;
     }
 
@@ -109,7 +255,10 @@ window.addEventListener('DOMContentLoaded', () => {
     (solData) => {
       const solDisplay = document.getElementById('current-sol-display');
       const solRange = document.getElementById('sol-range-input');
-      if (solDisplay) solDisplay.innerText = `SOL ${solData.sol} (${solData.location})`;
+      if (solDisplay) {
+        const tag = solData.sol === 5111 ? 'Final Transmission' : `Storm Sol ${solData.sol}`;
+        solDisplay.innerText = `SOL ${solData.sol} (${tag})`;
+      }
       if (solRange) solRange.value = solTimelineManager.currentSolIndex;
     }
   );
@@ -175,8 +324,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const significance = document.getElementById('modal-significance');
     const blackboxBox = document.getElementById('blackbox-audio-box');
 
-    if (badge) badge.innerText = type === 'artifact' 
-      ? (currentLanguage === 'bn' ? 'মার্স প্রত্নতাত্ত্বিক স্মৃতিচিহ্ন' : 'ARCHAEOLOGICAL MONUMENT') 
+    if (badge) badge.innerText = type === 'artifact'
+      ? (currentLanguage === 'bn' ? 'মার্স প্রত্নতাত্ত্বিক স্মৃতিচিহ্ন' : 'ARCHAEOLOGICAL MONUMENT')
       : (currentLanguage === 'bn' ? 'সাবসিস্টেম ডায়াগনস্টিক স্ক্যান' : 'SUBSYSTEM SCAN');
     if (title) title.innerText = data.name || data.title;
     if (abbrev) abbrev.innerText = data.abbreviation || 'SITE ARTIFACT';
@@ -194,6 +343,7 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    updateWaypointHUD();
     if (modal) modal.classList.add('active');
   };
 
@@ -210,6 +360,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (text) text.innerText = currentLanguage === 'en' ? 'বাংলা' : 'English';
 
       applyLanguageTranslations(currentLanguage);
+      updateWaypointHUD();
     });
   }
 
@@ -232,8 +383,8 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lbl-volt-sub').innerText = isBn ? 'স্লিপ কাটঅফ: ২০.৫ V' : 'Critical sleep cutoff: 20.5 V';
     document.getElementById('lbl-site-card').innerText = isBn ? 'মঙ্গলে অবস্থান' : 'MARTIAN SITE';
     document.getElementById('lbl-scanner-header').innerText = isBn ? 'আর্কিওলজিস্ট স্ক্যানার' : 'ARCHAEOLOGIST SCANNER';
-    document.getElementById('lbl-scanner-instruction').innerHTML = isBn 
-      ? 'মিশন সম্পন্ন করতে যেকোনো <strong>রোভার পার্টস</strong> অথবা <strong>উজ্জ্বল নিশানে</strong> ক্লিক করো!' 
+    document.getElementById('lbl-scanner-instruction').innerHTML = isBn
+      ? 'মিশন সম্পন্ন করতে যেকোনো <strong>রোভার পার্টস</strong> অথবা <strong>উজ্জ্বল নিশানে</strong> ক্লিক করো!'
       : 'Click on any <strong>Rover Subsystem</strong> or <strong>Glowing Beacons</strong> to scan and complete your missions!';
     document.getElementById('lbl-msb-title').innerText = isBn ? 'মিশন অগ্রগতি' : 'MISSION PROGRESS';
     document.getElementById('open-sheet-btn').innerText = isBn ? 'সবগুলো ৬টি মিশন দেখুন ➔' : 'View All 6 Missions ➔';
@@ -333,6 +484,8 @@ window.addEventListener('DOMContentLoaded', () => {
       if (solSlider) solSlider.style.display = 'none';
       if (driveControls) driveControls.style.display = 'flex';
       updateAtmosphericOptics(1.0);
+      setOrbitEnabled(true);
+      setTarget(rover.position.x, rover.position.y + 0.6, rover.position.z);
     } else if (mode === 'pitch') {
       if (scannerPanel) scannerPanel.style.display = 'none';
       if (solSlider) solSlider.style.display = 'none';
@@ -448,24 +601,21 @@ window.addEventListener('DOMContentLoaded', () => {
   // Hook up Roadmap Direct Action Callback
   questManager.onMissionActionCallback = (missionId) => {
     closeGameHub();
-    if (missionId === 'mission_locate') {
-      setMode('archaeologist');
-      scanner.triggerManualScan('pancam');
-    } else if (missionId === 'mission_blueberries') {
-      setMode('archaeologist');
-      scanner.triggerManualScan('hematite_blueberries');
-    } else if (missionId === 'mission_rat') {
-      setMode('archaeologist');
-      scanner.triggerManualScan('rat_grind_spot');
-    } else if (missionId === 'mission_mossbauer') {
-      setMode('archaeologist');
-      scanner.triggerManualScan('mossbauer');
-    } else if (missionId === 'mission_storm') {
-      setMode('sol5111');
-      updateAtmosphericOptics(10.8);
-    } else if (missionId === 'mission_blackbox') {
-      setMode('archaeologist');
-      scanner.triggerManualScan('blackbox_core');
+    document.getElementById('missions-modal-backdrop')?.classList.remove('active');
+    questManager.setSelectedMission(missionId);
+    updateWaypointHUD();
+    setMode('drive');
+
+    const artifact = getActiveMissionArtifact(missionId);
+    if (artifact) {
+      scanner.setActiveWaypoint(missionId);
+      const isBn = currentLanguage === 'bn';
+      questManager.showBotDialogue(
+        isBn
+          ? `রোভার ড্রাইভ করে ${artifact.title}-এর উজ্জ্বল আলোর নিশানের দিকে যাও!`
+          : `Drive the rover toward the glowing waypoint beacon for ${artifact.title}!`,
+        true
+      );
     }
   };
 
@@ -543,8 +693,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
           if (nextBtn) {
             nextBtn.style.display = 'block';
-            nextBtn.innerText = idx === CADET_QUIZ.length - 1 
-              ? (isBn ? 'ফলাফল ও সার্টিফিকেট দেখুন 🏆' : 'VIEW RESULT & CERTIFICATE 🏆') 
+            nextBtn.innerText = idx === CADET_QUIZ.length - 1
+              ? (isBn ? 'ফলাফল ও সার্টিফিকেট দেখুন 🏆' : 'VIEW RESULT & CERTIFICATE 🏆')
               : (isBn ? 'পরবর্তী প্রশ্ন ➔' : 'NEXT QUESTION ➔');
           }
         });
@@ -672,8 +822,8 @@ window.addEventListener('DOMContentLoaded', () => {
     audioBtn.addEventListener('click', () => {
       const isUnmuted = martianAudio.toggleMute();
       if (audioIcon) audioIcon.innerText = isUnmuted ? '🔊' : '🔇';
-      const audioLabel = isUnmuted 
-        ? (currentLanguage === 'bn' ? 'অডিও: চালু' : 'Audio: ON') 
+      const audioLabel = isUnmuted
+        ? (currentLanguage === 'bn' ? 'অডিও: চালু' : 'Audio: ON')
         : (currentLanguage === 'bn' ? 'অডিও: বন্ধ' : 'Audio: OFF');
       document.getElementById('lbl-audio-btn').innerText = audioLabel;
       audioBtn.style.borderColor = isUnmuted ? 'var(--accent-mars)' : 'rgba(255, 255, 255, 0.15)';
@@ -689,7 +839,7 @@ window.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.subsystem-item').forEach(item => {
     item.addEventListener('click', () => {
       const scanId = item.dataset.scan;
-      const payload = SCIENTIFIC_PAYLOADS.find(p => p.id === scanId) || 
+      const payload = SCIENTIFIC_PAYLOADS.find(p => p.id === scanId) ||
         ARCHAEOLOGICAL_ARTIFACTS.find(a => a.id === scanId);
       if (payload && scanner.onScanCallback) {
         scanner.onScanCallback({ type: 'payload', data: payload, point: rover.position });

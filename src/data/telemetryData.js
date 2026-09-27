@@ -159,36 +159,64 @@ export const HISTORICAL_SOL_LOGS = [
 
 export const ARCHAEOLOGICAL_ARTIFACTS = [
   {
+    id: "pancam",
+    missionId: "mission_locate",
+    title: "Pancam Multispectral Mast Camera (MER-B)",
+    coords: { x: 0.2, y: 1.4, z: 0.4 },
+    description: "Multispectral panoramic camera atop the mast. Over 15 years, it took 100,000+ color panoramas, documenting Martian stratigraphy and the Sol 5111 sky blackout.",
+    significance: "Primary photographic & optical sensor of Opportunity.",
+    icon: "camera",
+    color: 0x00e5ff
+  },
+  {
     id: "hematite_blueberries",
+    missionId: "mission_blueberries",
     title: "Hematite Concretions ('Martian Blueberries')",
-    coords: { x: 3.2, y: 0.1, z: 2.5 },
-    description: "Millimeter-scale iron-rich spherules formed millions of years ago in groundwater-permeated basaltic sandstone. First discovered at Eagle Crater in 2004.",
+    coords: { x: 18.0, y: 0.2, z: 14.0 },
+    description: "Millimeter-scale iron-rich spherules formed millions of years ago in groundwater-permeated basaltic sandstone. Conclusive physical proof of past liquid water.",
     significance: "Conclusive physical evidence of ancient Martian hydrology.",
-    icon: "gem"
+    icon: "gem",
+    color: 0x00e5ff
   },
   {
     id: "rat_grind_spot",
+    missionId: "mission_rat",
     title: "Sol 5105 Rock Abrasion Spot ('Esperance-Class')",
-    coords: { x: -1.8, y: 0.05, z: 1.2 },
+    coords: { x: -22.0, y: 0.3, z: 10.5 },
     description: "A pristine circular grind patch 45mm across cut by Opportunity's diamond-resin RAT. Revealing high clay mineral concentrations in unweathered bedrock.",
     significance: "Demonstrates neutral pH water suitable for pre-biotic chemistry.",
-    icon: "disc"
+    icon: "disc",
+    color: 0xffb700
   },
   {
-    id: "rover_tracks",
-    title: "Opportunity Sol 5110 Wheel Imprints",
-    coords: { x: 0.0, y: -0.02, z: 6.0 },
-    description: "Preserved wheel tread tracks across the basaltic regolith of Perseverance Valley, marking the final meters of Opportunity's 45.16 kilometer marathon.",
-    significance: "Permanent geological record of humanity's longest extraterrestrial overland journey.",
-    icon: "footprints"
+    id: "mossbauer",
+    missionId: "mission_mossbauer",
+    title: "Mössbauer Jarosite Mineral Outcrop",
+    coords: { x: -12.0, y: 0.3, z: -18.0 },
+    description: "Iron sulfate mineral crystallization bedrock analyzed by Mössbauer gamma-ray spectroscopy, proving standing acidic water lake conditions in Mars' early epoch.",
+    significance: "Definitive iron mineralogy validation of Martian aqueous history.",
+    icon: "microscope",
+    color: 0xa855f7
+  },
+  {
+    id: "storm_station",
+    missionId: "mission_storm",
+    title: "Sol 5111 High Rim Atmospheric Weather Station",
+    coords: { x: 16.0, y: 0.5, z: -20.0 },
+    description: "Overlook where optical depth Tau escalated from 1.0 to 10.8 during the 2018 Planet-Encircling Dust Event, capturing the solar generation collapse to 22 Wh.",
+    significance: "Historic record of Martian global dust storm physics.",
+    icon: "tornado",
+    color: 0xff5e28
   },
   {
     id: "blackbox_core",
+    missionId: "mission_blackbox",
     title: "MER-B Master Solid-State Memory Core (2085 Recovery)",
-    coords: { x: 0.1, y: 0.9, z: -0.2 },
+    coords: { x: 0.0, y: 0.9, z: 0.0 },
     description: "The rad-hardened EEPROM storage core containing 15 years of telemetry, navigational waypoints, science packets, and the final encoded transmission from Sol 5111.",
     significance: "The complete digital soul of the Opportunity mission.",
-    icon: "cpu"
+    icon: "cpu",
+    color: 0x00e5ff
   }
 ];
 
