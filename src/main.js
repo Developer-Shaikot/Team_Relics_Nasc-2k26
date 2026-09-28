@@ -56,6 +56,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // 3. Setup Planetary LiDAR Scanner
   const scanner = new PlanetaryScanner(camera, scene, renderer.domElement);
   scanner.registerRoverSubsystems(activeRoverGroup);
+  scanner.registerInteractiveTerrain(activeTerrainGroup);
 
   // 4. Setup Rover Driving Controller with Dynamic Scene Tracking
   const roverController = new RoverController(activeRoverGroup, activeWheels, activeGetTerrainHeight, camera, sceneManager);
@@ -120,7 +121,9 @@ window.addEventListener('DOMContentLoaded', () => {
     activeRoverGroup.position.set(roverController.position.x, activeGetTerrainHeight(roverController.position.x, roverController.position.z), roverController.position.z);
     scene.add(activeRoverGroup);
 
+    scanner.setPlanet(planet);
     scanner.registerRoverSubsystems(activeRoverGroup);
+    scanner.registerInteractiveTerrain(activeTerrainGroup);
     roverController.setPlanet(planet, activeGetTerrainHeight, activeRoverGroup, activeWheels);
     questManager.setPlanet(planet);
 
@@ -282,6 +285,11 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     updateMinimap(stats);
+
+    // Driving on Moon quest hook (Moon Mission 4: The 1/6th Gravity Buggy Run)
+    if (currentPlanet === 'moon' && stats.distanceMeters >= 20) {
+      questManager.markMissionCompleted('moon_quest_lrv_buggy');
+    }
 
     // Live distance calculation to active GPS waypoint
     const activeMission = getActiveMission();
@@ -451,21 +459,36 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Scanner Callback & Quest Progression Hooks
   scanner.onScanCallback = ({ type, data }) => {
-    questManager.markMissionCompleted('mission_locate');
-    questManager.markMissionCompleted('moon_quest_pioneer');
+    const scanId = data.id || '';
 
-    if (data.id === 'hematite_blueberries') {
+    // Mars Mission Progressions
+    if (scanId === 'oppy_rover' || scanId === 'pancam' || scanId === 'mini_tes' || scanId === 'solar_array') {
+      questManager.markMissionCompleted('mission_locate');
+    } else if (scanId === 'hematite_blueberries') {
       questManager.markMissionCompleted('mission_blueberries');
-    } else if (data.id === 'rat' || data.id === 'rat_grind_spot') {
+    } else if (scanId === 'rat' || scanId === 'rat_grind_spot') {
       questManager.markMissionCompleted('mission_rat');
-    } else if (data.id === 'mossbauer') {
+    } else if (scanId === 'mossbauer') {
       questManager.markMissionCompleted('mission_mossbauer');
-    } else if (data.id === 'blackbox_core') {
+    } else if (scanId === 'storm_station') {
+      questManager.markMissionCompleted('mission_storm');
+    } else if (scanId === 'blackbox_core') {
       questManager.markMissionCompleted('mission_blackbox');
-    } else if (data.id === 'surveyor3') {
-      questManager.markMissionCompleted('moon_quest_surveyor3_retrieval');
-    } else if (data.id === 'apollo_lm') {
+    }
+
+    // Moon Mission Progressions
+    if (scanId === 'surveyor1' || scanId === 'artifact_surveyor1') {
+      questManager.markMissionCompleted('moon_quest_pioneer');
+    } else if (scanId === 'apollo_lm' || scanId === 'artifact_apollo_lm') {
       questManager.markMissionCompleted('moon_quest_apollo11');
+    } else if (scanId === 'surveyor3' || scanId === 'artifact_surveyor3') {
+      questManager.markMissionCompleted('moon_quest_surveyor3_retrieval');
+    } else if (scanId === 'lrv_station' || scanId === 'lrv_camera' || scanId === 'lrv_antenna' || scanId === 'lrv_controller') {
+      questManager.markMissionCompleted('moon_quest_lrv_buggy');
+    } else if (scanId === 'lcross_ice' || scanId === 'artifact_lcross_ice') {
+      questManager.markMissionCompleted('moon_quest_lcross_ice');
+    } else if (scanId === 'artemis_beacon' || scanId === 'artifact_artemis_beacon') {
+      questManager.markMissionCompleted('moon_quest_artemis_base');
     }
 
     const modal = document.getElementById('scan-modal-backdrop');

@@ -79,6 +79,36 @@ export const SCIENTIFIC_PAYLOADS = [
     wavelengths: "Solar spectrum 300 - 1100 nm",
     resolution: "1.3 m² active surface area",
     significance: "Lifeblood of the rover; extinguished when Tau exceeded 10.8 on Sol 5111."
+  },
+  {
+    id: "lrv_camera",
+    name: "RCA Color TV Lunar Camera (LRV Mounted)",
+    abbreviation: "LRV-CAM",
+    location: "Front Chassis Equipment Mast",
+    discoveries: "Broadcasted live color television to Earth of astronauts exploring Hadley Rille and recorded the historic Apollo 15, 16, and 17 lunar liftoffs controlled remotely from Houston Mission Control.",
+    wavelengths: "Visible RGB Spectrum (525 lines, 60 fields/s)",
+    resolution: "Broadcast NTSC Color Video",
+    significance: "First remote-controlled planetary broadcast television system."
+  },
+  {
+    id: "lrv_antenna",
+    name: "Lunar High-Gain Parabolic Umbrella Antenna",
+    abbreviation: "LRV-HGA",
+    location: "LRV Forward Left Frame",
+    discoveries: "Transmitted real-time high-bandwidth telemetry, biometric data, and direct live video 384,400 km across deep space to NASA's Deep Space Network dishes on Earth.",
+    wavelengths: "S-Band (2.2 GHz direct to Earth)",
+    resolution: "0.64m diameter foldable parabolic dish",
+    significance: "Direct lunar surface-to-Earth microwave communication link."
+  },
+  {
+    id: "lrv_controller",
+    name: "T-Handle Lunar Drive Controller & Odometry",
+    abbreviation: "LRV-DRIVE",
+    location: "Center Console Between Crew Seats",
+    discoveries: "Single-handed fly-by-wire joystick providing 4-wheel independent steering, traction control, and electronic braking at 1/6th Earth gravity.",
+    wavelengths: "Analog electronic fly-by-wire",
+    resolution: "0.1 km/h directional velocity telemetry",
+    significance: "Pioneered off-world electric vehicle traction control."
   }
 ];
 
@@ -157,10 +187,11 @@ export const HISTORICAL_SOL_LOGS = [
   }
 ];
 
-export const ARCHAEOLOGICAL_ARTIFACTS = [
+export const ARCHAEOLOGICAL_ARTIFACTS_MARS = [
   {
     id: "oppy_rover",
     missionId: "mission_locate",
+    planet: "mars",
     title: "MER-B Opportunity Rover Chassis",
     coords: { x: 0.0, y: 0.0, z: 0.0 },
     description: "The 185-kilogram robotic explorer resting silently on a 15-degree slope in Perseverance Valley. Its gold Kapton-wrapped chassis and solar panels are layered in fine iron oxide dust.",
@@ -171,6 +202,7 @@ export const ARCHAEOLOGICAL_ARTIFACTS = [
   {
     id: "hematite_blueberries",
     missionId: "mission_blueberries",
+    planet: "mars",
     title: "Hematite Concretions ('Martian Blueberries')",
     coords: { x: 18.0, y: 0.2, z: 14.0 },
     description: "Millimeter-scale iron-rich spherules formed millions of years ago in groundwater-permeated basaltic sandstone. Conclusive physical proof of past liquid water.",
@@ -181,6 +213,7 @@ export const ARCHAEOLOGICAL_ARTIFACTS = [
   {
     id: "rat_grind_spot",
     missionId: "mission_rat",
+    planet: "mars",
     title: "Sol 5105 Rock Abrasion Spot ('Esperance-Class')",
     coords: { x: -22.0, y: 0.3, z: 10.5 },
     description: "A pristine circular grind patch 45mm across cut by Opportunity's diamond-resin RAT. Revealing high clay mineral concentrations in unweathered bedrock.",
@@ -191,6 +224,7 @@ export const ARCHAEOLOGICAL_ARTIFACTS = [
   {
     id: "mossbauer",
     missionId: "mission_mossbauer",
+    planet: "mars",
     title: "Mössbauer Jarosite Mineral Outcrop",
     coords: { x: -12.0, y: 0.3, z: -18.0 },
     description: "Iron sulfate mineral crystallization bedrock analyzed by Mössbauer gamma-ray spectroscopy, proving standing acidic water lake conditions in Mars' early epoch.",
@@ -201,6 +235,7 @@ export const ARCHAEOLOGICAL_ARTIFACTS = [
   {
     id: "storm_station",
     missionId: "mission_storm",
+    planet: "mars",
     title: "Sol 5111 High Rim Atmospheric Weather Station",
     coords: { x: 16.0, y: 0.5, z: -20.0 },
     description: "Overlook where optical depth Tau escalated from 1.0 to 10.8 during the 2018 Planet-Encircling Dust Event, capturing the solar generation collapse to 22 Wh.",
@@ -211,6 +246,7 @@ export const ARCHAEOLOGICAL_ARTIFACTS = [
   {
     id: "blackbox_core",
     missionId: "mission_blackbox",
+    planet: "mars",
     title: "MER-B Master Solid-State Memory Core (2085 Recovery)",
     coords: { x: 0.0, y: 0.9, z: 0.0 },
     description: "The rad-hardened EEPROM storage core containing 15 years of telemetry, navigational waypoints, science packets, and the final encoded transmission from Sol 5111.",
@@ -218,6 +254,80 @@ export const ARCHAEOLOGICAL_ARTIFACTS = [
     icon: "cpu",
     color: 0x00e5ff
   }
+];
+
+export const ARCHAEOLOGICAL_ARTIFACTS_MOON = [
+  {
+    id: "surveyor1",
+    missionId: "moon_quest_pioneer",
+    planet: "moon",
+    title: "Surveyor 1 Lunar Soft Lander (1966)",
+    coords: { x: 0.0, y: 0.0, z: -3.0 },
+    description: "NASA's first successful lunar soft lander in Oceanus Procellarum. Its touchdown telemetry proved lunar soil bearing strength would support heavy Apollo crewed modules.",
+    significance: "Pioneering robotic validation that the Moon's surface is solid and safe for human footsteps.",
+    icon: "lander",
+    color: 0x00e5ff
+  },
+  {
+    id: "apollo_lm",
+    missionId: "moon_quest_apollo11",
+    planet: "moon",
+    title: "Apollo 11 Lunar Module Descent Stage ('Eagle')",
+    coords: { x: -10.0, y: 0.0, z: -12.0 },
+    description: "Tranquility Base descent stage left behind on July 20, 1969 by Neil Armstrong and Buzz Aldrin. Features the historic commemorative plaque: 'Here men from the planet Earth first set foot upon the Moon.'",
+    significance: "Humanity's first crewed lunar landing monument.",
+    icon: "flag",
+    color: 0xffb700
+  },
+  {
+    id: "surveyor3",
+    missionId: "moon_quest_surveyor3_retrieval",
+    planet: "moon",
+    title: "Surveyor 3 Relic & Apollo 12 Retrieval Site",
+    coords: { x: 14.0, y: 0.0, z: -10.0 },
+    description: "Landed inside a 200m crater in Oceanus Procellarum. In Nov 1969, Apollo 12 astronauts retrieved its TV camera and mechanical scoop to analyze long-term space weathering.",
+    significance: "The first and only off-world archaeological artifact retrieval mission.",
+    icon: "camera",
+    color: 0x38bdf8
+  },
+  {
+    id: "lrv_station",
+    missionId: "moon_quest_lrv_buggy",
+    planet: "moon",
+    title: "Apollo 15 Lunar Roving Vehicle (LRV) Buggy Base",
+    coords: { x: 12.0, y: 0.0, z: 14.0 },
+    description: "Boeing/GM electric Lunar Roving Vehicle designed for 1/6th gravity. Enabled astronauts to travel 27.8 km across lunar mountains and collect deep volcanic samples.",
+    significance: "First wheeled crewed vehicle operated on another celestial world.",
+    icon: "car",
+    color: 0x10b981
+  },
+  {
+    id: "lcross_ice",
+    missionId: "moon_quest_lcross_ice",
+    planet: "moon",
+    title: "LCROSS Cabeus Polar Water Ice Deposit",
+    coords: { x: -16.0, y: 0.0, z: 12.0 },
+    description: "Permanently shadowed polar cold trap crater confirmed by NASA's 2009 LCROSS kinetic impact to hold billions of kilograms of water ice for rocket propellant and life support.",
+    significance: "Definitive confirmation of usable lunar water ice reservoirs.",
+    icon: "snowflake",
+    color: 0x00e5ff
+  },
+  {
+    id: "artemis_beacon",
+    missionId: "moon_quest_artemis_base",
+    planet: "moon",
+    title: "Artemis Lunar South Pole Base Camp Beacon",
+    coords: { x: 18.0, y: 0.0, z: -20.0 },
+    description: "Laser optical communication relay terminal connecting the 2026 Artemis II astronauts, Gateway lunar orbit station, and the permanent South Pole surface habitat.",
+    significance: "Humanity's permanent off-world habitat and springboard to Mars.",
+    icon: "crown",
+    color: 0xff5e28
+  }
+];
+
+export const ARCHAEOLOGICAL_ARTIFACTS = [
+  ...ARCHAEOLOGICAL_ARTIFACTS_MARS,
+  ...ARCHAEOLOGICAL_ARTIFACTS_MOON
 ];
 
 export const PITCH_SCRIPT_MARS = [

@@ -130,11 +130,11 @@ export function createLunarTerrain() {
     group.add(rock);
   }
 
-  // 3. Historic Surveyor 3 Probe Relic (at X: 14, Z: -10)
-  const surveyorGroup = createSurveyor3Model();
-  const sY = getLunarTerrainHeight(14, -10);
-  surveyorGroup.position.set(14, sY, -10);
-  group.add(surveyorGroup);
+  // 3. Historic Surveyor 1 Soft Lander Relic (at X: 0, Z: -3)
+  const surveyor1Group = createSurveyor1Model();
+  const s1Y = getLunarTerrainHeight(0, -3);
+  surveyor1Group.position.set(0, s1Y, -3);
+  group.add(surveyor1Group);
 
   // 4. Apollo 11 Lunar Module Descent Stage Relic (at X: -10, Z: -12)
   const lmGroup = createApolloDescentStageModel();
@@ -142,7 +142,31 @@ export function createLunarTerrain() {
   lmGroup.position.set(-10, lmY, -12);
   group.add(lmGroup);
 
-  // 5. Lunar Rover LRV Tracks
+  // 5. Historic Surveyor 3 Probe Relic (at X: 14, Z: -10)
+  const surveyor3Group = createSurveyor3Model();
+  const s3Y = getLunarTerrainHeight(14, -10);
+  surveyor3Group.position.set(14, s3Y, -10);
+  group.add(surveyor3Group);
+
+  // 6. Apollo 15 LRV Buggy Station & Deployment Ramp (at X: 12, Z: 14)
+  const lrvBaseGroup = createLRVBaseStationModel();
+  const lrvY = getLunarTerrainHeight(12, 14);
+  lrvBaseGroup.position.set(12, lrvY, 14);
+  group.add(lrvBaseGroup);
+
+  // 7. LCROSS Polar Crater Water Ice Crystal Deposit (at X: -16, Z: 12)
+  const iceGroup = createLCROSSIceDepositModel();
+  const iceY = getLunarTerrainHeight(-16, 12);
+  iceGroup.position.set(-16, iceY, 12);
+  group.add(iceGroup);
+
+  // 8. Artemis South Pole Gateway Communication Beacon (at X: 18, Z: -20)
+  const artemisGroup = createArtemisBaseBeaconModel();
+  const artY = getLunarTerrainHeight(18, -20);
+  artemisGroup.position.set(18, artY, -20);
+  group.add(artemisGroup);
+
+  // 9. Lunar Rover LRV Tracks
   const trackMat = new THREE.MeshBasicMaterial({
     color: 0x2e3034,
     transparent: true,
@@ -309,4 +333,195 @@ function createApolloDescentStageModel() {
   lm.add(beacon);
 
   return lm;
+}
+
+// Surveyor 1 Soft Lander 3D Relic (Oceanus Procellarum, 1966)
+function createSurveyor1Model() {
+  const probe = new THREE.Group();
+  probe.name = "artifact_surveyor1";
+  probe.userData = { subsystemId: "surveyor1" };
+
+  const whiteMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.35, metalness: 0.75 });
+  const darkMat = new THREE.MeshStandardMaterial({ color: 0x2a2d32, roughness: 0.7, metalness: 0.8 });
+  const solarMat = new THREE.MeshStandardMaterial({ color: 0x0f2042, roughness: 0.25, metalness: 0.85 });
+
+  // Central triangular tubular chassis frame
+  const frameGeo = new THREE.CylinderGeometry(0.3, 0.42, 0.65, 3);
+  const frame = new THREE.Mesh(frameGeo, whiteMat);
+  frame.position.y = 0.52;
+  probe.add(frame);
+
+  // 3 Tripod Landing Legs with crushable footpads
+  for (let i = 0; i < 3; i++) {
+    const angle = (i * Math.PI * 2) / 3 + 0.3;
+    const legGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.95, 8);
+    const leg = new THREE.Mesh(legGeo, whiteMat);
+    leg.position.set(Math.cos(angle) * 0.45, 0.3, Math.sin(angle) * 0.45);
+    leg.rotation.z = Math.cos(angle) * 0.6;
+    leg.rotation.x = -Math.sin(angle) * 0.6;
+    probe.add(leg);
+
+    const padGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.04, 12);
+    const pad = new THREE.Mesh(padGeo, darkMat);
+    pad.position.set(Math.cos(angle) * 0.82, 0.02, Math.sin(angle) * 0.82);
+    probe.add(pad);
+  }
+
+  // Mast & Planar Solar Panel
+  const mastGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.85, 8);
+  const mast = new THREE.Mesh(mastGeo, darkMat);
+  mast.position.set(0, 1.15, 0);
+  probe.add(mast);
+
+  const solarPanelGeo = new THREE.BoxGeometry(0.42, 0.65, 0.02);
+  const solarPanel = new THREE.Mesh(solarPanelGeo, solarMat);
+  solarPanel.position.set(0, 1.55, 0.08);
+  solarPanel.rotation.x = 0.25;
+  probe.add(solarPanel);
+
+  // High-Gain Planar Antenna
+  const hgaGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.02, 16);
+  const hga = new THREE.Mesh(hgaGeo, whiteMat);
+  hga.position.set(-0.25, 1.25, 0);
+  hga.rotation.z = 0.4;
+  probe.add(hga);
+
+  // Glowing Beacon
+  const beaconGeo = new THREE.CylinderGeometry(0.04, 0.04, 8, 12);
+  const beaconMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.35 });
+  const beacon = new THREE.Mesh(beaconGeo, beaconMat);
+  beacon.position.y = 4;
+  probe.add(beacon);
+
+  return probe;
+}
+
+// Apollo 15 LRV Buggy Station & Deployment Ramp (1971)
+function createLRVBaseStationModel() {
+  const station = new THREE.Group();
+  station.name = "artifact_lrv_station";
+  station.userData = { subsystemId: "lrv_station" };
+
+  const metalMat = new THREE.MeshStandardMaterial({ color: 0x8892a0, roughness: 0.4, metalness: 0.8 });
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xdfa133, roughness: 0.35, metalness: 0.85 });
+  const neonMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.8 });
+
+  // Deployment Platform Ramp
+  const rampGeo = new THREE.BoxGeometry(2.4, 0.1, 3.2);
+  const ramp = new THREE.Mesh(rampGeo, metalMat);
+  ramp.position.y = 0.06;
+  station.add(ramp);
+
+  // Corner Tool Staging Boxes
+  const box1 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.4, 0.5), goldMat);
+  box1.position.set(-0.9, 0.25, -1.2);
+  station.add(box1);
+
+  const box2 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.3, 0.4), metalMat);
+  box2.position.set(0.8, 0.2, -1.2);
+  station.add(box2);
+
+  // Navigation Marker Antenna Mast
+  const poleGeo = new THREE.CylinderGeometry(0.03, 0.03, 3.5, 8);
+  const pole = new THREE.Mesh(poleGeo, metalMat);
+  pole.position.set(1.0, 1.75, 1.3);
+  station.add(pole);
+
+  const flagGeo = new THREE.PlaneGeometry(0.6, 0.35);
+  const flag = new THREE.Mesh(flagGeo, neonMat);
+  flag.position.set(1.32, 3.2, 1.3);
+  station.add(flag);
+
+  // Beacon
+  const beaconGeo = new THREE.CylinderGeometry(0.04, 0.04, 8, 12);
+  const beaconMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.35 });
+  const beacon = new THREE.Mesh(beaconGeo, beaconMat);
+  beacon.position.y = 4;
+  station.add(beacon);
+
+  return station;
+}
+
+// LCROSS Polar Crater Water Ice Crystal Deposit (Cabeus Crater)
+function createLCROSSIceDepositModel() {
+  const deposit = new THREE.Group();
+  deposit.name = "artifact_lcross_ice";
+  deposit.userData = { subsystemId: "lcross_ice" };
+
+  const iceMat = new THREE.MeshStandardMaterial({
+    color: 0x8be9fd,
+    emissive: 0x00c4e6,
+    emissiveIntensity: 0.45,
+    roughness: 0.15,
+    metalness: 0.1,
+    transparent: true,
+    opacity: 0.88
+  });
+
+  // Clustered Ice Spire Crystals
+  for (let i = 0; i < 7; i++) {
+    const angle = (i * Math.PI * 2) / 7;
+    const dist = 0.3 + (i % 3) * 0.25;
+    const h = 0.8 + (i % 4) * 0.4;
+    const crystalGeo = new THREE.ConeGeometry(0.18, h, 6);
+    const crystal = new THREE.Mesh(crystalGeo, iceMat);
+    crystal.position.set(Math.cos(angle) * dist, h * 0.5, Math.sin(angle) * dist);
+    crystal.rotation.set(Math.sin(i) * 0.2, angle, Math.cos(i) * 0.2);
+    deposit.add(crystal);
+  }
+
+  // Glowing Ice Rim Pulse
+  const ringGeo = new THREE.RingGeometry(0.4, 1.8, 24);
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.y = 0.04;
+  deposit.add(ring);
+
+  // Beacon
+  const beaconGeo = new THREE.CylinderGeometry(0.04, 0.04, 8, 12);
+  const beaconMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.35 });
+  const beacon = new THREE.Mesh(beaconGeo, beaconMat);
+  beacon.position.y = 4;
+  deposit.add(beacon);
+
+  return deposit;
+}
+
+// Artemis South Pole Gateway Communication Beacon (2026+)
+function createArtemisBaseBeaconModel() {
+  const terminal = new THREE.Group();
+  terminal.name = "artifact_artemis_beacon";
+  terminal.userData = { subsystemId: "artemis_beacon" };
+
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xdfa133, roughness: 0.3, metalness: 0.9 });
+  const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3, metalness: 0.7 });
+  const orangeMat = new THREE.MeshBasicMaterial({ color: 0xff5e28, transparent: true, opacity: 0.9 });
+
+  // Modern Hexagonal Gateway Hab Base
+  const baseGeo = new THREE.CylinderGeometry(1.2, 1.4, 0.6, 6);
+  const base = new THREE.Mesh(baseGeo, whiteMat);
+  base.position.y = 0.3;
+  terminal.add(base);
+
+  // Central Optical Laser Terminal Tower
+  const towerGeo = new THREE.CylinderGeometry(0.08, 0.15, 3.2, 12);
+  const tower = new THREE.Mesh(towerGeo, goldMat);
+  tower.position.y = 1.9;
+  terminal.add(tower);
+
+  // Optical Transceiver Head
+  const headGeo = new THREE.OctahedronGeometry(0.35, 1);
+  const head = new THREE.Mesh(headGeo, orangeMat);
+  head.position.y = 3.6;
+  terminal.add(head);
+
+  // Beacon Light
+  const beaconGeo = new THREE.CylinderGeometry(0.05, 0.05, 8, 12);
+  const beaconMat = new THREE.MeshBasicMaterial({ color: 0xff5e28, transparent: true, opacity: 0.45 });
+  const beacon = new THREE.Mesh(beaconGeo, beaconMat);
+  beacon.position.y = 4;
+  terminal.add(beacon);
+
+  return terminal;
 }

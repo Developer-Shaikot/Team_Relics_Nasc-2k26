@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { SCIENTIFIC_PAYLOADS, ARCHAEOLOGICAL_ARTIFACTS } from '../data/telemetryData.js';
+import { SCIENTIFIC_PAYLOADS, ARCHAEOLOGICAL_ARTIFACTS, ARCHAEOLOGICAL_ARTIFACTS_MARS, ARCHAEOLOGICAL_ARTIFACTS_MOON } from '../data/telemetryData.js';
 import { martianAudio } from './audio.js';
 
 export class PlanetaryScanner {
@@ -13,6 +13,7 @@ export class PlanetaryScanner {
     this.hoveredObject = null;
     this.selectedPayload = null;
     this.onScanCallback = null;
+    this.currentPlanet = 'mars';
 
     // 3D Laser Reticle Ring
     const reticleGeo = new THREE.RingGeometry(0.12, 0.16, 32);
@@ -26,7 +27,7 @@ export class PlanetaryScanner {
     this.reticleMesh.visible = false;
     this.scene.add(this.reticleMesh);
 
-    // LiDAR Target Pulse Rings (for 2085 Archaeological targets)
+    // LiDAR Target Pulse Rings
     this.beaconGroup = new THREE.Group();
     this.scene.add(this.beaconGroup);
     this.activeWaypointId = "mission_locate";
@@ -35,8 +36,32 @@ export class PlanetaryScanner {
     this.bindEvents();
   }
 
+  get activeArtifacts() {
+    return this.currentPlanet === 'moon' ? ARCHAEOLOGICAL_ARTIFACTS_MOON : ARCHAEOLOGICAL_ARTIFACTS_MARS;
+  }
+
+  setPlanet(planet) {
+    this.currentPlanet = planet;
+    this.activeWaypointId = planet === 'moon' ? 'moon_quest_pioneer' : 'mission_locate';
+    this.rebuildArchaeologicalBeacons();
+  }
+
+  rebuildArchaeologicalBeacons() {
+    // Remove existing beacon objects from interactiveObjects
+    this.interactiveObjects = this.interactiveObjects.filter(obj => !obj.userData?.isArtifactBeacon);
+
+    // Clear beacon group
+    while (this.beaconGroup.children.length > 0) {
+      const child = this.beaconGroup.children[0];
+      this.beaconGroup.remove(child);
+    }
+
+    this.createArchaeologicalBeacons();
+  }
+
   createArchaeologicalBeacons() {
-    ARCHAEOLOGICAL_ARTIFACTS.forEach(artifact => {
+    const list = this.activeArtifacts;
+    list.forEach(artifact => {
       const beaconSubGroup = new THREE.Group();
       beaconSubGroup.position.set(artifact.coords.x, artifact.coords.y, artifact.coords.z);
 
@@ -121,7 +146,20 @@ export class PlanetaryScanner {
   registerRoverSubsystems(roverGroup) {
     roverGroup.traverse(child => {
       if (child.userData && (child.userData.subsystemId || child.name?.startsWith('subsystem_'))) {
-        this.interactiveObjects.push(child);
+        if (!this.interactiveObjects.includes(child)) {
+          this.interactiveObjects.push(child);
+        }
+      }
+    });
+  }
+
+  registerInteractiveTerrain(terrainGroup) {
+    if (!terrainGroup) return;
+    terrainGroup.traverse(child => {
+      if (child.userData && (child.userData.subsystemId || child.name?.startsWith('artifact_'))) {
+        if (!this.interactiveObjects.includes(child)) {
+          this.interactiveObjects.push(child);
+        }
       }
     });
   }
