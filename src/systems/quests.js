@@ -1,16 +1,44 @@
 import confetti from 'canvas-confetti';
-import { KIDS_MISSIONS, FUN_FACTS, CADET_QUIZ, COMPANION_BOT_LINES } from '../data/kidsContent.js';
+import { KIDS_MISSIONS_MARS, KIDS_MISSIONS_MOON, FUN_FACTS, COMPANION_BOT_LINES, LEVEL_BADGES_SHOWCASE } from '../data/kidsContent.js';
 import { martianAudio } from './audio.js';
 
 export class MissionQuestManager {
   constructor(updateUICallback) {
     this.completedMissions = new Set();
     this.currentLanguage = 'en'; // 'en' or 'bn'
+    this.currentPlanet = 'mars'; // 'mars' or 'moon'
+    this.userXP = 1250;
+    this.userGems = 120;
+    this.userLevel = 4;
     this.updateUI = updateUICallback;
     this.currentFunFactIndex = 0;
     this.currentViewMode = 'roadmap'; // 'roadmap' | 'list'
     this.selectedMissionId = 'mission_locate';
     this.onMissionActionCallback = null;
+    this.onXPChangeCallback = null;
+    this.onPlanetChangeCallback = null;
+
+    // Load saved XP from localStorage if available
+    try {
+      const savedXP = localStorage.getItem('nasa_cadet_xp');
+      if (savedXP) this.userXP = parseInt(savedXP, 10);
+      const savedCompleted = localStorage.getItem('nasa_completed_missions');
+      if (savedCompleted) {
+        JSON.parse(savedCompleted).forEach(id => this.completedMissions.add(id));
+      }
+    } catch (e) {}
+  }
+
+  get activeMissionsList() {
+    return this.currentPlanet === 'moon' ? KIDS_MISSIONS_MOON : KIDS_MISSIONS_MARS;
+  }
+
+  setPlanet(planet) {
+    this.currentPlanet = planet;
+    const missions = this.activeMissionsList;
+    const firstUncompleted = missions.find(m => !this.completedMissions.has(m.id));
+    this.selectedMissionId = firstUncompleted ? firstUncompleted.id : missions[0].id;
+    this.renderMissionsList();
   }
 
   setLanguage(lang) {
@@ -18,6 +46,54 @@ export class MissionQuestManager {
     this.renderMissionsList();
     this.renderFunFact();
     this.updateCompanionBotText();
+    this.renderBadgesShowcase();
+  }
+
+  addXP(amount) {
+    this.userXP += amount;
+    this.userGems += Math.floor(amount / 50);
+
+    // Calculate level based on XP (every 350 XP is 1 level)
+    this.userLevel = Math.max(1, Math.floor(this.userXP / 350) + 1);
+
+    try {
+      localStorage.setItem('nasa_cadet_xp', this.userXP.toString());
+      localStorage.setItem('nasa_completed_missions', JSON.stringify([...this.completedMissions]));
+    } catch (e) {}
+
+    // Update Top & Hub UI bars
+    this.updateXPDisplays();
+    if (this.onXPChangeCallback) {
+      this.onXPChangeCallback(this.userXP, this.userLevel, this.userGems);
+    }
+  }
+
+  updateXPDisplays() {
+    const xpFill = document.getElementById('hub-xp-fill');
+    const xpLabel = document.querySelector('.hub-xp-label');
+    const rankLabel = document.getElementById('lbl-hub-rank');
+    const gemsVal = document.getElementById('hub-gems-val');
+    const dustVal = document.getElementById('hub-dust-val');
+
+    const nextLevelXP = this.userLevel * 350;
+    const prevLevelXP = (this.userLevel - 1) * 350;
+    const progressInLvl = this.userXP - prevLevelXP;
+    const pct = Math.min(100, Math.max(10, Math.round((progressInLvl / 350) * 100)));
+
+    if (xpFill) xpFill.style.width = `${pct}%`;
+    if (xpLabel) xpLabel.innerText = `${this.userXP} / ${nextLevelXP} XP`;
+    if (gemsVal) gemsVal.innerText = this.userGems.toLocaleString();
+    if (dustVal) dustVal.innerText = (1250 + Math.floor(this.userXP * 1.5)).toLocaleString();
+
+    if (rankLabel) {
+      const isBn = this.currentLanguage === 'bn';
+      const rankTitle = this.userLevel >= 6
+        ? (isBn ? 'লেভেল ৬ গ্র্যান্ড মাস্টার' : 'LVL 6 GRAND MASTER')
+        : this.userLevel >= 4
+          ? (isBn ? 'লেভেল ৪ প্রত্নতাত্ত্বিক' : 'LVL 4 ARCHAEOLOGIST')
+          : (isBn ? `লেভেল ${this.userLevel} স্পেস ক্যাডেট` : `LVL ${this.userLevel} SPACE CADET`);
+      rankLabel.innerText = rankTitle;
+    }
   }
 
   setViewMode(mode) {
@@ -34,16 +110,23 @@ export class MissionQuestManager {
     if (this.completedMissions.has(missionId)) return;
     this.completedMissions.add(missionId);
 
+    const mission = [...KIDS_MISSIONS_MARS, ...KIDS_MISSIONS_MOON].find(m => m.id === missionId);
+    const xpReward = mission?.rewardXP || 150;
+    this.addXP(xpReward);
+
     // Audio fanfare & celebratory confetti
     martianAudio.playTelemetryTransmission();
     this.triggerConfetti();
+
+    // Show celebratory Discovery Popup Dialog
+    this.showMissionDiscoveryModal(mission);
 
     // Show bot notification
     const botText = this.currentLanguage === 'bn' ? COMPANION_BOT_LINES.mission_done_bn : COMPANION_BOT_LINES.mission_done_en;
     this.showBotDialogue(botText, true);
 
-    // Automatically advance selected mission to next uncompleted mission if available
-    const nextUncompleted = KIDS_MISSIONS.find(m => !this.completedMissions.has(m.id));
+    const missions = this.activeMissionsList;
+    const nextUncompleted = missions.find(m => !this.completedMissions.has(m.id));
     if (nextUncompleted) {
       this.selectedMissionId = nextUncompleted.id;
     } else {
@@ -51,37 +134,61 @@ export class MissionQuestManager {
     }
 
     this.renderMissionsList();
+    this.renderBadgesShowcase();
 
-    if (this.completedMissions.size === KIDS_MISSIONS.length) {
+    const allMarsDone = KIDS_MISSIONS_MARS.every(m => this.completedMissions.has(m.id));
+    const allMoonDone = KIDS_MISSIONS_MOON.every(m => this.completedMissions.has(m.id));
+
+    if (allMarsDone && allMoonDone) {
       setTimeout(() => {
         const winText = this.currentLanguage === 'bn' ? COMPANION_BOT_LINES.all_completed_bn : COMPANION_BOT_LINES.all_completed_en;
         this.showBotDialogue(winText, true);
         this.triggerBigConfetti();
         this.showCertificateModal();
-      }, 1500);
+      }, 1800);
     }
+  }
+
+  showMissionDiscoveryModal(mission) {
+    if (!mission) return;
+    const isBn = this.currentLanguage === 'bn';
+
+    const discModal = document.getElementById('mission-discovery-modal-backdrop');
+    const discBadge = document.getElementById('disc-modal-badge');
+    const discTitle = document.getElementById('disc-modal-title');
+    const discDesc = document.getElementById('disc-modal-desc');
+    const discFact = document.getElementById('disc-modal-fact');
+    const discXp = document.getElementById('disc-modal-xp');
+    const discIcon = document.getElementById('disc-modal-icon');
+
+    if (discBadge) discBadge.innerText = isBn ? `মিশন ${mission.level} সম্পন্ন!` : `MISSION ${mission.level} COMPLETED!`;
+    if (discTitle) discTitle.innerText = isBn ? mission.title_bn : mission.title_en;
+    if (discDesc) discDesc.innerText = isBn ? mission.desc_bn : mission.desc_en;
+    if (discFact) discFact.innerText = isBn ? (mission.discoveryFact_bn || '') : (mission.discoveryFact_en || '');
+    if (discXp) discXp.innerText = `+${mission.rewardXP || 150} XP`;
+    if (discIcon) discIcon.innerText = mission.badge || '🏅';
+
+    if (discModal) discModal.classList.add('active');
   }
 
   triggerConfetti() {
     try {
       confetti({
-        particleCount: 80,
-        spread: 70,
+        particleCount: 90,
+        spread: 75,
         origin: { y: 0.7 },
-        colors: ['#ff5e28', '#00e5ff', '#ffb700', '#ffffff']
+        colors: ['#ff5e28', '#00e5ff', '#ffb700', '#ffffff', '#10b981']
       });
-    } catch (e) {
-      console.log('Confetti triggered');
-    }
+    } catch (e) {}
   }
 
   triggerBigConfetti() {
     try {
       confetti({
-        particleCount: 200,
-        spread: 120,
-        origin: { y: 0.6 },
-        colors: ['#ff5e28', '#00e5ff', '#ffb700', '#10b981', '#ec4899']
+        particleCount: 250,
+        spread: 140,
+        origin: { y: 0.55 },
+        colors: ['#ff5e28', '#00e5ff', '#ffb700', '#10b981', '#ec4899', '#38bdf8']
       });
     } catch (e) {}
   }
@@ -90,16 +197,18 @@ export class MissionQuestManager {
     const container = document.getElementById('missions-list-container');
     const badgeCounter = document.getElementById('badges-earned-counter');
     const progressBar = document.getElementById('missions-progress-bar');
+    const topCount = document.getElementById('top-badge-count');
     if (!container) return;
 
-    const total = KIDS_MISSIONS.length;
-    const completedCount = this.completedMissions.size;
+    const missions = this.activeMissionsList;
+    const total = missions.length;
+    const completedCount = missions.filter(m => this.completedMissions.has(m.id)).length;
 
     if (badgeCounter) badgeCounter.innerText = `${completedCount} / ${total}`;
+    if (topCount) topCount.innerText = `${completedCount}/${total}`;
     if (progressBar) progressBar.style.width = `${(completedCount / total) * 100}%`;
 
-    const lang = this.currentLanguage;
-    const isBn = lang === 'bn';
+    const isBn = this.currentLanguage === 'bn';
 
     if (this.currentViewMode === 'roadmap') {
       this.renderRoadmapView(container, isBn, completedCount, total);
@@ -111,71 +220,105 @@ export class MissionQuestManager {
   }
 
   renderRoadmapView(container, isBn, completedCount, total) {
-    // All milestones on the path
-    const nodes = [
-      {
-        id: 'node_start',
-        type: 'start',
-        levelLabel: isBn ? 'শুরু' : 'Start',
-        title: isBn ? 'মঙ্গলে অবতরণ' : 'Landing Base',
-        year: '2004',
-        icon: '🚀',
-        coords: { left: '8%', top: '81%' },
-        isDone: true,
-        isActive: false,
-        isLocked: false,
-        badgeName: isBn ? 'লঞ্চপ্যাড ব্যাজ' : 'Launchpad Milestone',
-        desc: isBn ? '২০০৪ সালে মঙ্গলের মেরিডিয়ানি প্লেনামে অপরচুনিটি রোভারের ঐতিহাসিক অবতরণ।' : 'Opportunity successfully touches down inside Eagle Crater on Meridiani Planum, Mars.',
-        hint: isBn ? 'অভিযান শুরু হয়ে গেছে! পরবর্তী লেভেলগুলোতে ক্লিক করো।' : 'The historic voyage began here. Click on the next mission nodes!'
-      },
-      ...KIDS_MISSIONS.map((m, idx) => {
-        const isDone = this.completedMissions.has(m.id);
-        // Next uncompleted mission is active
-        const isNext = !isDone && (idx === 0 || this.completedMissions.has(KIDS_MISSIONS[idx - 1].id));
-        const coordsList = [
-          { left: '22%', top: '69%' }, // Level 1
-          { left: '39%', top: '79%' }, // Level 2
-          { left: '58%', top: '67%' }, // Level 3
-          { left: '76%', top: '77%' }, // Level 4
-          { left: '91%', top: '48%' }, // Level 5
-          { left: '66%', top: '25%' }  // Level 6
-        ];
+    const missions = this.activeMissionsList;
+    const isMars = this.currentPlanet === 'mars';
 
-        return {
-          id: m.id,
-          type: 'mission',
-          levelNumber: m.level,
-          levelLabel: isBn ? `লেভেল ${m.level}` : `Level ${m.level}`,
-          title: isBn ? m.shortTitle_bn : m.shortTitle_en,
-          fullTitle: isBn ? m.title_bn : m.title_en,
-          year: m.stationYear,
-          icon: m.icon || m.badge,
-          coords: coordsList[idx],
-          isDone: isDone,
-          isActive: isNext,
-          isLocked: !isDone && !isNext,
-          badgeName: isBn ? m.badgeName_bn : m.badgeName_en,
-          desc: isBn ? m.desc_bn : m.desc_en,
-          hint: isBn ? m.hint_bn : m.hint_en,
-          badge: m.badge
-        };
-      }),
-      {
-        id: 'node_finish',
-        type: 'finish',
-        levelLabel: isBn ? 'চূড়ান্ত লক্ষ্য' : 'Goal',
-        title: isBn ? 'মাস্টার সার্টিফিকেট' : 'Master Certificate',
-        year: '2085',
-        icon: '🎓',
-        coords: { left: '28%', top: '23%' },
-        isDone: completedCount === total,
-        isActive: completedCount === total,
-        isLocked: completedCount < total,
-        badgeName: isBn ? 'প্ল্যানেটারি আর্কিওলজিস্ট অনারারি সার্টিফিকেট' : 'Planetary Archaeologist Certificate',
-        desc: isBn ? 'সকল ৬টি মিশন সফলভাবে সম্পন্ন করে নাসার স্বীকৃতিপ্রাপ্ত সম্মাননা সার্টিফিকেট আনলক করো!' : 'Complete all 6 exploration missions to unlock your official NASA Master Certificate!',
-        hint: isBn ? 'সবগুলো মিশন সম্পন্ন হলে এখানে ক্লিক করে সার্টিফিকেট প্রিন্ট করো।' : 'Complete all previous levels to claim your certificate.'
-      }
+    // Build milestone nodes list for the current world
+    const coordsList = [
+      { left: '22%', top: '69%' }, // Level 1
+      { left: '39%', top: '79%' }, // Level 2
+      { left: '58%', top: '67%' }, // Level 3
+      { left: '76%', top: '77%' }, // Level 4
+      { left: '91%', top: '48%' }, // Level 5
+      { left: '66%', top: '25%' }  // Level 6
     ];
+
+    const startNode = isMars ? {
+      id: 'node_start',
+      type: 'start',
+      levelLabel: isBn ? 'শুরু' : 'Start',
+      title: isBn ? 'মঙ্গলে অবতরণ' : 'Eagle Crater Base',
+      year: '2004',
+      icon: '🚀',
+      coords: { left: '8%', top: '81%' },
+      isDone: true,
+      isActive: false,
+      isLocked: false,
+      badgeName: isBn ? 'লঞ্চপ্যাড ব্যাজ' : 'Launchpad Milestone',
+      desc: isBn ? '২০০৪ সালে মঙ্গলের মেরিডিয়ানি প্লেনামে অপরচুনিটি রোভারের ঐতিহাসিক অবতরণ।' : 'Opportunity successfully touches down inside Eagle Crater on Meridiani Planum, Mars.',
+      hint: isBn ? 'অভিযান শুরু হয়ে গেছে! পরবর্তী মিশন নোডগুলোতে ক্লিক করো।' : 'The historic voyage began here. Click on the next mission nodes!'
+    } : {
+      id: 'node_start',
+      type: 'start',
+      levelLabel: isBn ? 'শুরু' : 'Start',
+      title: isBn ? 'শান্ত সাগরে অবতরণ' : 'Tranquility Base',
+      year: '1969',
+      icon: '🚀',
+      coords: { left: '8%', top: '81%' },
+      isDone: true,
+      isActive: false,
+      isLocked: false,
+      badgeName: isBn ? 'লুনার লঞ্চপ্যাড ব্যাজ' : 'Lunar Pioneer Milestone',
+      desc: isBn ? '১৯৬৯ সালে অ্যাপোলো ১১ মিশনে মানবজাতির প্রথম সফল চন্দ্র অবতরণ।' : 'Apollo 11 touches down at Mare Tranquillitatis: "The Eagle has landed."',
+      hint: isBn ? 'চন্দ্র অভিযান শুরু! পরবর্তী মিশন নোডগুলোতে ক্লিক করো।' : 'The historic lunar voyage began here. Click on the next mission nodes!'
+    };
+
+    const missionNodes = missions.map((m, idx) => {
+      const isDone = this.completedMissions.has(m.id);
+      const isNext = !isDone && (idx === 0 || this.completedMissions.has(missions[idx - 1].id));
+
+      return {
+        id: m.id,
+        type: 'mission',
+        levelNumber: m.level,
+        levelLabel: isBn ? `লেভেল ${m.level}` : `Level ${m.level}`,
+        title: isBn ? m.shortTitle_bn : m.shortTitle_en,
+        fullTitle: isBn ? m.title_bn : m.title_en,
+        year: m.stationYear,
+        icon: m.icon || m.badge,
+        coords: coordsList[idx] || { left: `${20 + idx * 12}%`, top: '50%' },
+        isDone: isDone,
+        isActive: isNext,
+        isLocked: !isDone && !isNext,
+        badgeName: isBn ? m.badgeName_bn : m.badgeName_en,
+        desc: isBn ? m.desc_bn : m.desc_en,
+        hint: isBn ? m.hint_bn : m.hint_en,
+        badge: m.badge,
+        rewardXP: m.rewardXP || 150
+      };
+    });
+
+    const finishNode = isMars ? {
+      id: 'node_finish',
+      type: 'finish',
+      levelLabel: isBn ? 'চূড়ান্ত লক্ষ্য' : 'Goal',
+      title: isBn ? 'মাস্টার সার্টিফিকেট' : 'Master Certificate',
+      year: '2085',
+      icon: '🎓',
+      coords: { left: '28%', top: '23%' },
+      isDone: completedCount === total,
+      isActive: completedCount === total,
+      isLocked: completedCount < total,
+      badgeName: isBn ? 'মার্স আর্কিওলজিস্ট মাস্টার সার্টিফিকেট' : 'Mars Planetary Master Certificate',
+      desc: isBn ? 'সকল ৬টি মার্স মিশন সফলভাবে সম্পন্ন করে নাসার স্বীকৃতিপ্রাপ্ত সম্মাননা সার্টিফিকেট আনলক করো!' : 'Complete all 6 Mars exploration missions to unlock your official NASA Master Certificate!',
+      hint: isBn ? 'সবগুলো মিশন সম্পন্ন হলে এখানে ক্লিক করে সার্টিফিকেট প্রিন্ট করো।' : 'Complete all previous levels to claim your certificate.'
+    } : {
+      id: 'node_finish',
+      type: 'finish',
+      levelLabel: isBn ? 'চূড়ান্ত লক্ষ্য' : 'Goal',
+      title: isBn ? 'আর্টেমিস মাস্টার' : 'Artemis Master',
+      year: '2026',
+      icon: '🎓',
+      coords: { left: '28%', top: '23%' },
+      isDone: completedCount === total,
+      isActive: completedCount === total,
+      isLocked: completedCount < total,
+      badgeName: isBn ? 'লুনার এক্সপ্লোরার গ্র্যান্ড মাস্টার সার্টিফিকেট' : 'Lunar Exploration Grand Master Certificate',
+      desc: isBn ? 'সকল ৬টি লুনার মিশন সম্পন্ন করে নাসার চন্দ্র অভিযাত্রী সম্মাননা সার্টিফিকেট আনলক করো!' : 'Complete all 6 Moon exploration missions to unlock your official NASA Master Certificate!',
+      hint: isBn ? 'সবগুলো মিশন সম্পন্ন হলে এখানে ক্লিক করে সার্টিফিকেট প্রিন্ট করো।' : 'Complete all previous levels to claim your certificate.'
+    };
+
+    const nodes = [startNode, ...missionNodes, finishNode];
 
     // Find currently selected node data
     let selectedNode = nodes.find(n => n.id === this.selectedMissionId);
@@ -184,12 +327,26 @@ export class MissionQuestManager {
       this.selectedMissionId = selectedNode.id;
     }
 
+    const roadmapSuperTitle = isMars
+      ? `🪐 ${isBn ? 'মার্স এক্সপেডিশন রোডম্যাপ' : 'MARTIAN EXPEDITION ROADMAP'}`
+      : `🌕 ${isBn ? 'লুনার এক্সপেডিশন রোডম্যাপ' : 'LUNAR EXPEDITION ROADMAP'}`;
+
     container.innerHTML = `
       <div class="roadmap-wrapper">
+        <!-- Dual Planet Toggle Selector Tabs -->
+        <div class="roadmap-planet-toggle-row">
+          <button class="planet-toggle-btn ${isMars ? 'active' : ''}" id="btn-toggle-mars-roadmap">
+            🔴 ${isBn ? 'মঙ্গল এক্সপ্লোরেশন রোডম্যাপ' : 'Mars Exploration Roadmap'}
+          </button>
+          <button class="planet-toggle-btn ${!isMars ? 'active' : ''}" id="btn-toggle-moon-roadmap">
+            🌕 ${isBn ? 'চাঁদ এক্সপ্লোরেশন রোডম্যাপ' : 'Moon Exploration Roadmap'}
+          </button>
+        </div>
+
         <!-- View Toggle & Header Bar -->
         <div class="roadmap-nav-header">
           <div class="roadmap-title-box">
-            <span class="roadmap-super-title">🪐 ${isBn ? 'মিশন এক্সপেডিশন রোডম্যাপ' : 'MARTIAN EXPEDITION ROADMAP'}</span>
+            <span class="roadmap-super-title">${roadmapSuperTitle}</span>
             <span class="roadmap-sub-badge">${completedCount} / ${total} ${isBn ? 'লেভেল সম্পন্ন' : 'Levels Completed'}</span>
           </div>
           <div class="roadmap-view-switcher">
@@ -204,8 +361,8 @@ export class MissionQuestManager {
           <div class="space-stars-bg">
             <div class="cosmic-flare flare-center"></div>
             <div class="cosmic-flare flare-top-right"></div>
-            <div class="cosmic-nebula nebula-cyan"></div>
-            <div class="cosmic-nebula nebula-purple"></div>
+            <div class="cosmic-nebula ${isMars ? 'nebula-purple' : 'nebula-cyan'}"></div>
+            <div class="cosmic-nebula ${isMars ? 'nebula-cyan' : 'nebula-purple'}"></div>
             ${Array.from({ length: 32 }).map((_, i) => {
               const top = Math.floor(Math.sin(i * 13) * 45 + 50);
               const left = Math.floor(Math.cos(i * 17) * 45 + 50);
@@ -223,13 +380,6 @@ export class MissionQuestManager {
                 <stop offset="50%" stop-color="#7c3aed" stop-opacity="0.6"/>
                 <stop offset="100%" stop-color="#10b981" stop-opacity="0.9"/>
               </linearGradient>
-              <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="5" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
             </defs>
 
             <!-- Ambient Glow Track -->
@@ -327,7 +477,7 @@ export class MissionQuestManager {
               </button>
             ` : selectedNode.id === 'node_start' ? `
               <button class="hud-action-btn secondary-btn" id="btn-focus-rover">
-                🚀 ${isBn ? 'রোভার অবস্থানে যান' : 'FOCUS OPPORTUNITY ROVER'}
+                🚀 ${isBn ? 'অবতরণ অবস্থানে যান' : (isMars ? 'FOCUS OPPORTUNITY ROVER' : 'FOCUS APOLLO 11 BASE')}
               </button>
             ` : `
               <button class="hud-action-btn primary-btn" id="btn-launch-mission" data-mission-id="${selectedNode.id}">
@@ -341,48 +491,83 @@ export class MissionQuestManager {
   }
 
   renderListView(container, isBn, completedCount, total) {
+    const missions = this.activeMissionsList;
+    const isMars = this.currentPlanet === 'mars';
+    const roadmapSuperTitle = isMars
+      ? `🪐 ${isBn ? 'মার্স মিশন তালিকা' : 'MARS MISSION OBJECTIVES'}`
+      : `🌕 ${isBn ? 'লুনার মিশন তালিকা' : 'MOON MISSION OBJECTIVES'}`;
+
     container.innerHTML = `
-      <div class="roadmap-nav-header">
-        <div class="roadmap-title-box">
-          <span class="roadmap-super-title">🪐 ${isBn ? 'মিশন তালিকা' : 'MISSION OBJECTIVES'}</span>
-          <span class="roadmap-sub-badge">${completedCount} / ${total} ${isBn ? 'সম্পন্ন' : 'Completed'}</span>
+      <div class="roadmap-wrapper">
+        <!-- Dual Planet Toggle Selector Tabs -->
+        <div class="roadmap-planet-toggle-row">
+          <button class="planet-toggle-btn ${isMars ? 'active' : ''}" id="btn-toggle-mars-roadmap">
+            🔴 ${isBn ? 'মঙ্গল এক্সপ্লোরেশন রোডম্যাপ' : 'Mars Exploration Roadmap'}
+          </button>
+          <button class="planet-toggle-btn ${!isMars ? 'active' : ''}" id="btn-toggle-moon-roadmap">
+            🌕 ${isBn ? 'চাঁদ এক্সপ্লোরেশন রোডম্যাপ' : 'Moon Exploration Roadmap'}
+          </button>
         </div>
-        <div class="roadmap-view-switcher">
-          <button class="view-switch-btn" id="btn-view-roadmap">🗺️ ${isBn ? 'রোডম্যাপ' : 'Roadmap'}</button>
-          <button class="view-switch-btn active" id="btn-view-list">📋 ${isBn ? 'তালিকা' : 'List'}</button>
+
+        <div class="roadmap-nav-header">
+          <div class="roadmap-title-box">
+            <span class="roadmap-super-title">${roadmapSuperTitle}</span>
+            <span class="roadmap-sub-badge">${completedCount} / ${total} ${isBn ? 'সম্পন্ন' : 'Completed'}</span>
+          </div>
+          <div class="roadmap-view-switcher">
+            <button class="view-switch-btn" id="btn-view-roadmap">🗺️ ${isBn ? 'রোডম্যাপ' : 'Roadmap'}</button>
+            <button class="view-switch-btn active" id="btn-view-list">📋 ${isBn ? 'তালিকা' : 'List'}</button>
+          </div>
         </div>
-      </div>
 
-      <div class="missions-vertical-list">
-        ${KIDS_MISSIONS.map((m) => {
-          const isDone = this.completedMissions.has(m.id);
-          const title = isBn ? m.title_bn : m.title_en;
-          const desc = isBn ? m.desc_bn : m.desc_en;
-          const badgeName = isBn ? m.badgeName_bn : m.badgeName_en;
-          const hint = isBn ? m.hint_bn : m.hint_en;
+        <div class="missions-vertical-list">
+          ${missions.map((m) => {
+            const isDone = this.completedMissions.has(m.id);
+            const title = isBn ? m.title_bn : m.title_en;
+            const desc = isBn ? m.desc_bn : m.desc_en;
+            const badgeName = isBn ? m.badgeName_bn : m.badgeName_en;
+            const hint = isBn ? m.hint_bn : m.hint_en;
 
-          return `
-            <div class="mission-card ${isDone ? 'completed' : ''}" data-mission-id="${m.id}">
-              <div class="mission-badge-icon ${isDone ? 'unlocked' : 'locked'}">
-                ${m.badge}
-              </div>
-              <div class="mission-info">
-                <div class="mission-title-row">
-                  <span class="m-title">Level ${m.level}: ${title}</span>
-                  ${isDone ? '<span class="status-tag done">✓ COMPLETED</span>' : '<span class="status-tag active">ACTIVE</span>'}
+            return `
+              <div class="mission-card ${isDone ? 'completed' : ''}" data-mission-id="${m.id}">
+                <div class="mission-badge-icon ${isDone ? 'unlocked' : 'locked'}">
+                  ${m.badge}
                 </div>
-                <p class="m-desc">${desc}</p>
-                <div class="m-hint">💡 <strong>${isBn ? 'ক্লু' : 'Hint'}:</strong> ${hint}</div>
-                <div class="m-reward-tag">🏆 ${badgeName}</div>
+                <div class="mission-info">
+                  <div class="mission-title-row">
+                    <span class="m-title">Level ${m.level}: ${title}</span>
+                    ${isDone ? '<span class="status-tag done">✓ COMPLETED</span>' : '<span class="status-tag active">ACTIVE</span>'}
+                  </div>
+                  <p class="m-desc">${desc}</p>
+                  <div class="m-hint">💡 <strong>${isBn ? 'ক্লু' : 'Hint'}:</strong> ${hint}</div>
+                  <div class="m-reward-tag">🏆 ${badgeName} (+${m.rewardXP || 150} XP)</div>
+                </div>
               </div>
-            </div>
-          `;
-        }).join('')}
+            `;
+          }).join('')}
+        </div>
       </div>
     `;
   }
 
   attachEventListeners(container) {
+    // Planet Toggle Listeners in Roadmap Modal
+    const toggleMars = container.querySelector('#btn-toggle-mars-roadmap');
+    if (toggleMars) {
+      toggleMars.addEventListener('click', () => {
+        this.setPlanet('mars');
+        if (this.onPlanetChangeCallback) this.onPlanetChangeCallback('mars');
+      });
+    }
+
+    const toggleMoon = container.querySelector('#btn-toggle-moon-roadmap');
+    if (toggleMoon) {
+      toggleMoon.addEventListener('click', () => {
+        this.setPlanet('moon');
+        if (this.onPlanetChangeCallback) this.onPlanetChangeCallback('moon');
+      });
+    }
+
     // Switch to Roadmap View
     const roadmapBtn = container.querySelector('#btn-view-roadmap');
     if (roadmapBtn) {
@@ -426,11 +611,12 @@ export class MissionQuestManager {
       });
     }
 
-    // Action button: Focus Rover
+    // Action button: Focus Rover / Landing base
     const focusRoverBtn = container.querySelector('#btn-focus-rover');
     if (focusRoverBtn) {
       focusRoverBtn.addEventListener('click', () => {
-        this.executeMissionAction('mission_locate');
+        const firstMission = this.activeMissionsList[0]?.id || 'mission_locate';
+        this.executeMissionAction(firstMission);
       });
     }
 
@@ -456,37 +642,75 @@ export class MissionQuestManager {
     }
   }
 
-  renderFunFact() {
-    const box = document.getElementById('fun-fact-text');
-    const title = document.getElementById('fun-fact-title');
-    if (!box || !title) return;
+  renderBadgesShowcase() {
+    const container = document.getElementById('badges-showcase-container');
+    if (!container) return;
 
+    const isBn = this.currentLanguage === 'bn';
+    const totalXP = this.userXP;
+
+    container.innerHTML = `
+      <div class="badges-grid-layout">
+        ${LEVEL_BADGES_SHOWCASE.map(badge => {
+          const isUnlocked = totalXP >= badge.minXP;
+          return `
+            <div class="badge-tier-card ${isUnlocked ? 'unlocked' : 'locked'}">
+              <div class="badge-icon-wrap" style="box-shadow: 0 0 16px ${badge.color}40;">
+                <span class="b-icon">${badge.icon}</span>
+                ${isUnlocked ? '<span class="b-check">✓</span>' : '<span class="b-lock">🔒</span>'}
+              </div>
+              <div class="badge-meta">
+                <span class="badge-tier-label" style="color: ${badge.color}">${isBn ? badge.tier_bn : badge.tier}</span>
+                <h4 class="badge-name">${isBn ? badge.name_bn : badge.name}</h4>
+                <p class="badge-cond">${isBn ? badge.unlockCondition_bn : badge.unlockCondition_en}</p>
+                <div class="badge-xp-req">
+                  <span>${isBn ? 'প্রয়োজনীয় XP:' : 'Req XP:'} ${badge.minXP}</span>
+                  <span class="badge-status-tag ${isUnlocked ? 'earned' : ''}">
+                    ${isUnlocked ? (isBn ? 'অর্জিত 🏆' : 'UNLOCKED') : `${Math.round((totalXP / badge.minXP) * 100)}%`}
+                  </span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  renderFunFact() {
+    const isBn = this.currentLanguage === 'bn';
     const fact = FUN_FACTS[this.currentFunFactIndex % FUN_FACTS.length];
-    title.innerText = this.currentLanguage === 'bn' ? `✨ বিজ্ঞানের মজার তথ্য: ${fact.title_bn}` : `✨ Fun Space Fact: ${fact.title_en}`;
-    box.innerText = this.currentLanguage === 'bn' ? fact.text_bn : fact.text_en;
+    const factTitle = document.getElementById('fun-fact-title');
+    const factText = document.getElementById('fun-fact-text');
+
+    if (factTitle) factTitle.innerText = `✨ ${isBn ? fact.title_bn : fact.title_en}`;
+    if (factText) factText.innerText = isBn ? fact.text_bn : fact.text_en;
   }
 
   nextFunFact() {
     this.currentFunFactIndex++;
     this.renderFunFact();
-  }
-
-  showBotDialogue(text, highlight = false) {
-    const bubble = document.getElementById('bot-speech-bubble');
-    const msg = document.getElementById('bot-speech-text');
-    if (!bubble || !msg) return;
-
-    msg.innerText = text;
-    bubble.classList.add('visible');
-    if (highlight) {
-      bubble.classList.add('bubble-glow');
-      setTimeout(() => bubble.classList.remove('bubble-glow'), 2000);
-    }
+    martianAudio.playScannerBeep(false);
   }
 
   updateCompanionBotText() {
-    const text = this.currentLanguage === 'bn' ? COMPANION_BOT_LINES.welcome_bn : COMPANION_BOT_LINES.welcome_en;
-    this.showBotDialogue(text);
+    const isBn = this.currentLanguage === 'bn';
+    const text = isBn ? COMPANION_BOT_LINES.welcome_bn : COMPANION_BOT_LINES.welcome_en;
+    this.showBotDialogue(text, false);
+  }
+
+  showBotDialogue(text, autoOpen = false) {
+    const bubble = document.getElementById('bot-speech-bubble');
+    const textElem = document.getElementById('bot-speech-text');
+    if (!bubble || !textElem) return;
+
+    textElem.innerText = text;
+    if (autoOpen) {
+      bubble.classList.add('visible');
+      setTimeout(() => {
+        bubble.classList.remove('visible');
+      }, 7000);
+    }
   }
 
   showCertificateModal() {

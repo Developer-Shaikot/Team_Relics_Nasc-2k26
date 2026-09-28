@@ -1,19 +1,19 @@
-// Authentic NASA Planetary Data System (PDS) & MER-B Opportunity Telemetry Archive
+// Authentic NASA Planetary Data System (PDS), MER-B Opportunity & Apollo Moon Missions Telemetry Archive
 
 export const MISSION_METRICS = {
-  roverName: "Opportunity (MER-B)",
+  roverName: "Opportunity (MER-B) & Apollo Lunar Relics",
   missionStatus: "Mission Complete / Monument Preserved",
-  primarySite: "Perseverance Valley, Endeavour Crater, Mars",
+  primarySite: "Perseverance Valley (Mars) / Sea of Tranquility & Oceanus Procellarum (Moon)",
   coordinates: {
-    lat: -14.5714, // 14.5714° S
-    lon: 354.6734, // 354.6734° E
-    elevation: -1540 // meters below Martian datum
+    lat: -14.5714,
+    lon: 354.6734,
+    elevation: -1540
   },
   landedSol: "Sol 1 (January 25, 2004 UTC)",
   lastContactSol: "Sol 5111 (June 10, 2018 UTC)",
   totalSols: 5111,
-  designLifeSols: 90, // Exceeded warranty by 56.8x
-  totalOdometerKm: 45.16, // Record for any off-Earth wheeled vehicle
+  designLifeSols: 90,
+  totalOdometerKm: 45.16,
   totalOdometerMiles: 28.06,
   rawImagesReturned: 217594,
   atmosphericPhenomenon: "2018 Planet-Encircling Dust Event (PEDE)"
@@ -100,58 +100,58 @@ export const HISTORICAL_SOL_LOGS = [
     powerWh: 820
   },
   {
-    sol: 951,
-    date: "2006-09-27",
-    location: "Victoria Crater",
-    event: "Reached the spectacular 800-meter-wide Victoria Crater after an arduous 21-month cross-country drive.",
-    tau: 0.6,
-    powerWh: 680
+    sol: 950,
+    date: "2006-09-28",
+    location: "Victoria Crater Rim",
+    event: "Reached the 800-meter wide Victoria Crater after 2 years of driving, studying massive layered cliffs at Duck Bay.",
+    tau: 0.7,
+    powerWh: 610
   },
   {
-    sol: 2709,
+    sol: 1220,
+    date: "2007-06-30",
+    location: "Victoria Crater Interior",
+    event: "Survived 2007 global dust storm when Tau spiked to 4.7. Cleaned by wind gusts on Sol 1240.",
+    tau: 4.7,
+    powerWh: 128
+  },
+  {
+    sol: 2700,
     date: "2011-08-09",
-    location: "Endeavour Crater (Cape York)",
-    event: "Arrived at Cape York rim. Discovered 'Homestake' gypsum vein—pure calcium sulfate deposited by warm water.",
-    tau: 0.45,
+    location: "Endeavour Crater (Spirit Point)",
+    event: "Arrived at the 22-km wide Endeavour Crater, identifying gypsum veins formed in neutral water.",
+    tau: 0.4,
     powerWh: 540
   },
   {
-    sol: 4000,
+    sol: 3968,
     date: "2015-03-24",
-    location: "Marathon Valley",
-    event: "Passed the official marathon distance (42.195 km) on Mars. Discovered extensive smectite clay minerals.",
-    tau: 0.55,
-    powerWh: 580
+    location: "Marathon Valley, Endeavour Rim",
+    event: "Completed 42.195 km (26.219 miles)—completing the first official Marathon run on another planet!",
+    tau: 0.6,
+    powerWh: 590
   },
   {
     sol: 5000,
     date: "2018-02-16",
-    location: "Perseverance Valley Rim",
-    event: "5,000 sols of exploration celebrated with a high-resolution Pancam panorama overlooking Endeavour Crater.",
-    tau: 0.52,
-    powerWh: 610
+    location: "Perseverance Valley",
+    event: "Celebrated 5,000 sols of continuous exploration, photographing carved fluid channels descending the rim.",
+    tau: 0.8,
+    powerWh: 640
   },
   {
     sol: 5105,
     date: "2018-06-04",
     location: "Perseverance Valley",
-    event: "Orbital MRO detects rapid onset of Planet-Encircling Dust Event (PEDE). Tau rises sharply from 1.0 to 2.1.",
+    event: "Atmospheric optical depth Tau jumps sharply from 1.0 to 2.1 as regional dust storm rapidly intensifies.",
     tau: 2.1,
     powerWh: 345
   },
   {
-    sol: 5108,
-    date: "2018-06-07",
-    location: "Perseverance Valley",
-    event: "Sky turns dark amber. Optical depth Tau escalates to 8.0. Solar power generation plunges below survival baseline.",
-    tau: 8.0,
-    powerWh: 89
-  },
-  {
     sol: 5111,
     date: "2018-06-10",
-    location: "Perseverance Valley (-14.57° S, 354.67° E)",
-    event: "Final contact recorded. Tau reaches historic record >10.8 (99.998% direct sunlight extinguished). Solar output 22 Wh. Rover enters low-power sleep.",
+    location: "Perseverance Valley (Monument Site)",
+    event: "Optical Tau reaches unprecedented 10.8. Solar array output collapses to 22 Wh. Final housekeeping packet transmitted before entering terminal sleep.",
     tau: 10.8,
     powerWh: 22
   }
@@ -159,14 +159,14 @@ export const HISTORICAL_SOL_LOGS = [
 
 export const ARCHAEOLOGICAL_ARTIFACTS = [
   {
-    id: "pancam",
+    id: "oppy_rover",
     missionId: "mission_locate",
-    title: "Pancam Multispectral Mast Camera (MER-B)",
-    coords: { x: 0.2, y: 1.4, z: 0.4 },
-    description: "Multispectral panoramic camera atop the mast. Over 15 years, it took 100,000+ color panoramas, documenting Martian stratigraphy and the Sol 5111 sky blackout.",
-    significance: "Primary photographic & optical sensor of Opportunity.",
-    icon: "camera",
-    color: 0x00e5ff
+    title: "MER-B Opportunity Rover Chassis",
+    coords: { x: 0.0, y: 0.0, z: 0.0 },
+    description: "The 185-kilogram robotic explorer resting silently on a 15-degree slope in Perseverance Valley. Its gold Kapton-wrapped chassis and solar panels are layered in fine iron oxide dust.",
+    significance: "First machine to complete a marathon distance on another world.",
+    icon: "rover",
+    color: 0xff5e28
   },
   {
     id: "hematite_blueberries",
@@ -220,7 +220,7 @@ export const ARCHAEOLOGICAL_ARTIFACTS = [
   }
 ];
 
-export const PITCH_SCRIPT_TIMESTAMPS = [
+export const PITCH_SCRIPT_MARS = [
   {
     start: 0,
     end: 18,
@@ -262,3 +262,48 @@ export const PITCH_SCRIPT_TIMESTAMPS = [
     mode: "heritage"
   }
 ];
+
+export const PITCH_SCRIPT_MOON = [
+  {
+    start: 0,
+    end: 20,
+    title: "Act I: From Tranquility Base to the Stars",
+    subtitle: "1969 Apollo 11 & The First Footsteps",
+    script: "In July 1969, humanity took its first giant leap onto the Moon. At Tranquility Base and Oceanus Procellarum, robotic scouts and astronauts forged our first off-world foothold.",
+    camTarget: { x: 0, y: 5, z: 14 },
+    tau: 0.0,
+    mode: "moon_apollo"
+  },
+  {
+    start: 21,
+    end: 55,
+    title: "Act II: The Surveyor 3 Retrieval & Lunar Buggy",
+    subtitle: "The First Off-World Archaeology Mission",
+    script: "Apollo 12 performed the only retrieval of an extraterrestrial robotic probe—Surveyor 3. Then, Apollo 15 drove the first electric Lunar Roving Vehicle across the lunar mountains.",
+    camTarget: { x: 8, y: 3, z: 6 },
+    tau: 0.0,
+    mode: "moon_surveyor"
+  },
+  {
+    start: 56,
+    end: 88,
+    title: "Act III: Water Ice in Permanent Shadows",
+    subtitle: "LCROSS, LRO, and Commercial CLPS",
+    script: "LCROSS and Lunar Prospector proved billions of tons of water ice lie trapped inside polar cold traps—the fuel and lifeblood for future human civilization.",
+    camTarget: { x: -6, y: 4, z: 8 },
+    tau: 0.0,
+    mode: "moon_water"
+  },
+  {
+    start: 89,
+    end: 120,
+    title: "Act IV: The Artemis Generation Returns",
+    subtitle: "Artemis II, Gateway, and the Highway to Mars",
+    script: "With Artemis II in 2026 and permanent lunar base camps on the horizon, the Moon is not our final destination—it is humanity's stepping stone to Mars and beyond!",
+    camTarget: { x: 0, y: 2, z: 4 },
+    tau: 0.0,
+    mode: "artemis_future"
+  }
+];
+
+export const PITCH_SCRIPT_TIMESTAMPS = PITCH_SCRIPT_MARS; // Default

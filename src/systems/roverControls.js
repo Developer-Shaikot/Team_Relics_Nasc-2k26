@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { martianAudio } from './audio.js';
-import { ARCHAEOLOGICAL_ARTIFACTS, SCIENTIFIC_PAYLOADS } from '../data/telemetryData.js';
+import { ARCHAEOLOGICAL_ARTIFACTS } from '../data/telemetryData.js';
 
 export class RoverController {
   constructor(roverGroup, wheels, getTerrainHeightFn, camera, sceneManager) {
@@ -13,11 +13,12 @@ export class RoverController {
     // Movement state
     this.position = new THREE.Vector3(0, 0, 0);
     this.velocity = 0;
-    this.heading = 0; // radians
+    this.heading = 0; // radians (0 means facing +Z)
     this.maxSpeed = 2.4; // m/s
-    this.acceleration = 2.2;
-    this.friction = 0.93;
-    this.turnSpeed = 1.4;
+    this.acceleration = 2.4;
+    this.friction = 0.92;
+    this.turnSpeed = 1.6;
+    this.currentPlanet = 'mars'; // 'mars' or 'moon'
 
     this.totalDistanceDriven = 0; // in meters
     this.currentSpeedKmH = 0;
@@ -29,7 +30,6 @@ export class RoverController {
     };
 
     this.isDriving = false;
-    this.cameraMode = 'orbit'; // 'orbit', 'follow'
     this.closestArtifact = null;
     this.closestDistance = Infinity;
 
@@ -40,8 +40,18 @@ export class RoverController {
     this.bindKeyboard();
   }
 
+  setPlanet(planet, getTerrainHeightFn, roverGroup, wheels) {
+    this.currentPlanet = planet;
+    this.getTerrainHeight = getTerrainHeightFn;
+    this.rover = roverGroup;
+    this.wheels = wheels;
+    this.maxSpeed = planet === 'moon' ? 3.6 : 2.4; // Lunar rover is faster at lower gravity
+    this.acceleration = planet === 'moon' ? 3.0 : 2.4;
+  }
+
   bindKeyboard() {
     window.addEventListener('keydown', (e) => {
+      // Forward/Backward: Up Arrow / W is FORWARD (1), Down Arrow / S is REVERSE (-1)
       if (['ArrowUp', 'KeyW', 'w', 'W'].includes(e.code)) this.input.forward = 1;
       if (['ArrowDown', 'KeyS', 's', 'S'].includes(e.code)) this.input.forward = -1;
       if (['ArrowLeft', 'KeyA', 'a', 'A'].includes(e.code)) this.input.turn = 1;
@@ -60,16 +70,20 @@ export class RoverController {
   }
 
   update(delta) {
-    // Turning
+    if (!this.rover) return;
+
+    // Turning: Left rotates positive, Right rotates negative
     if (Math.abs(this.input.turn) > 0.05) {
       this.heading += this.input.turn * this.turnSpeed * delta;
-      this.rover.rotation.y = this.heading;
+      this.rover.rotation.y = this.heading + Math.PI;
+    } else {
+      this.rover.rotation.y = this.heading + Math.PI;
     }
 
-    // Acceleration
+    // Acceleration & Braking
     if (this.input.forward !== 0) {
       this.velocity += this.input.forward * this.acceleration * delta;
-      this.velocity = Math.max(-this.maxSpeed * 0.6, Math.min(this.velocity, this.maxSpeed));
+      this.velocity = Math.max(-this.maxSpeed * 0.7, Math.min(this.velocity, this.maxSpeed));
 
       if (!this.isDriving && Math.abs(this.velocity) > 0.1) {
         this.isDriving = true;
@@ -83,7 +97,7 @@ export class RoverController {
       }
     }
 
-    // Move along heading vector
+    // Move along heading vector (forward is into terrain: -Z at heading 0)
     if (Math.abs(this.velocity) > 0.001) {
       const moveDistance = this.velocity * delta;
       this.position.x -= Math.sin(this.heading) * moveDistance;
@@ -91,25 +105,27 @@ export class RoverController {
       this.totalDistanceDriven += Math.abs(moveDistance);
 
       // Rotate wheels
-      const wheelRotation = moveDistance / 0.12;
-      this.wheels.forEach(w => {
-        w.rotation.x += wheelRotation;
-      });
+      if (this.wheels && this.wheels.length > 0) {
+        const wheelRotation = moveDistance / 0.12;
+        this.wheels.forEach(w => {
+          w.rotation.x -= wheelRotation;
+        });
+      }
     }
 
     // Terrain elevation alignment
-    const curY = this.getTerrainHeight(this.position.x, this.position.z);
+    const curY = this.getTerrainHeight ? this.getTerrainHeight(this.position.x, this.position.z) : 0;
     this.position.y = curY;
     this.rover.position.copy(this.position);
 
     // Compute terrain slope pitch and roll
     const deltaSample = 0.5;
-    const yFront = this.getTerrainHeight(this.position.x - Math.sin(this.heading) * deltaSample, this.position.z - Math.cos(this.heading) * deltaSample);
-    const yBack = this.getTerrainHeight(this.position.x + Math.sin(this.heading) * deltaSample, this.position.z + Math.cos(this.heading) * deltaSample);
+    const yFront = this.getTerrainHeight ? this.getTerrainHeight(this.position.x - Math.sin(this.heading) * deltaSample, this.position.z - Math.cos(this.heading) * deltaSample) : 0;
+    const yBack = this.getTerrainHeight ? this.getTerrainHeight(this.position.x + Math.sin(this.heading) * deltaSample, this.position.z + Math.cos(this.heading) * deltaSample) : 0;
     const pitch = Math.atan2(yFront - yBack, deltaSample * 2);
 
-    const yRight = this.getTerrainHeight(this.position.x + Math.cos(this.heading) * deltaSample, this.position.z - Math.sin(this.heading) * deltaSample);
-    const yLeft = this.getTerrainHeight(this.position.x - Math.cos(this.heading) * deltaSample, this.position.z + Math.sin(this.heading) * deltaSample);
+    const yRight = this.getTerrainHeight ? this.getTerrainHeight(this.position.x + Math.cos(this.heading) * deltaSample, this.position.z - Math.sin(this.heading) * deltaSample) : 0;
+    const yLeft = this.getTerrainHeight ? this.getTerrainHeight(this.position.x - Math.cos(this.heading) * deltaSample, this.position.z + Math.sin(this.heading) * deltaSample) : 0;
     const roll = Math.atan2(yRight - yLeft, deltaSample * 2);
 
     this.rover.rotation.x = pitch;
@@ -118,8 +134,8 @@ export class RoverController {
     this.currentSlopeDeg = (Math.abs(pitch) * (180 / Math.PI)).toFixed(1);
     this.currentSpeedKmH = Math.abs(this.velocity * 3.6).toFixed(1);
 
-    // Dynamic Camera Tracking - Keep camera centered on moving rover
-    if (this.sceneManager) {
+    // Dynamic Camera Tracking - Keep camera target locked to the rover when driving in orbit view
+    if (this.sceneManager && this.sceneManager.isOrbitEnabled) {
       this.sceneManager.spherical.target.set(this.position.x, this.position.y + 0.6, this.position.z);
       this.sceneManager.updateCameraPosition();
     }
@@ -134,11 +150,13 @@ export class RoverController {
       const dirIndex = Math.round(headingDeg / 45) % 8;
       const compassDir = headingDirs[dirIndex];
 
-      // Simulated Martian Coordinates
+      const latBase = this.currentPlanet === 'moon' ? 0.674 : -14.5714;
+      const lonBase = this.currentPlanet === 'moon' ? 23.472 : 354.6734;
+
       const latOffset = (this.position.z * 0.00015);
       const lonOffset = (this.position.x * 0.00015);
-      const currentLat = (-14.5714 + latOffset).toFixed(4);
-      const currentLon = (354.6734 + lonOffset).toFixed(4);
+      const currentLat = (latBase + latOffset).toFixed(4);
+      const currentLon = (lonBase + lonOffset).toFixed(4);
 
       this.onTelemetryUpdate({
         x: this.position.x,
@@ -180,4 +198,3 @@ export class RoverController {
     }
   }
 }
-
