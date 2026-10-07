@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { martianAudio } from './audio.js';
-import { ARCHAEOLOGICAL_ARTIFACTS } from '../data/telemetryData.js';
+import { ARCHAEOLOGICAL_ARTIFACTS, ARCHAEOLOGICAL_ARTIFACTS_MARS, ARCHAEOLOGICAL_ARTIFACTS_MOON } from '../data/telemetryData.js';
 
 export class RoverController {
   constructor(roverGroup, wheels, getTerrainHeightFn, camera, sceneManager) {
@@ -179,7 +179,9 @@ export class RoverController {
     let nearest = null;
     let minDistance = Infinity;
 
-    ARCHAEOLOGICAL_ARTIFACTS.forEach(artifact => {
+    const list = this.currentPlanet === 'moon' ? ARCHAEOLOGICAL_ARTIFACTS_MOON : ARCHAEOLOGICAL_ARTIFACTS_MARS;
+
+    list.forEach(artifact => {
       const dx = this.position.x - artifact.coords.x;
       const dz = this.position.z - artifact.coords.z;
       const dist = Math.hypot(dx, dz);

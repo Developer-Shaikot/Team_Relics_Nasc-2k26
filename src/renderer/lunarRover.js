@@ -59,6 +59,8 @@ export function createLunarRover() {
 
   // High-Gain Umbrella Mesh Parabolic Antenna (Front Left)
   const hgaGroup = new THREE.Group();
+  hgaGroup.name = "subsystem_lrv_antenna";
+  hgaGroup.userData = { subsystemId: "lrv_antenna" };
   hgaGroup.position.set(-0.35, 0.55, 0.8);
   const dishGeo = new THREE.SphereGeometry(0.32, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.4);
   const dish = new THREE.Mesh(dishGeo, dishMat);
@@ -75,6 +77,8 @@ export function createLunarRover() {
 
   // Low Gain Omni & Color TV Camera (Front Right)
   const tvCamGroup = new THREE.Group();
+  tvCamGroup.name = "subsystem_lrv_camera";
+  tvCamGroup.userData = { subsystemId: "lrv_camera" };
   tvCamGroup.position.set(0.35, 0.55, 0.8);
   const tvCam = new THREE.Mesh(
     new THREE.BoxGeometry(0.14, 0.12, 0.2),
@@ -101,6 +105,8 @@ export function createLunarRover() {
 
   // Central T-Handle Hand Controller
   const tHandleGroup = new THREE.Group();
+  tHandleGroup.name = "subsystem_lrv_controller";
+  tHandleGroup.userData = { subsystemId: "lrv_controller" };
   tHandleGroup.position.set(0, 0.5, 0.3);
   const stick = new THREE.Mesh(
     new THREE.CylinderGeometry(0.015, 0.015, 0.25, 8),
