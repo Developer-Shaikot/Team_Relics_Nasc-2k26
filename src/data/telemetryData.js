@@ -109,6 +109,66 @@ export const SCIENTIFIC_PAYLOADS = [
     wavelengths: "Analog electronic fly-by-wire",
     resolution: "0.1 km/h directional velocity telemetry",
     significance: "Pioneered off-world electric vehicle traction control."
+  },
+  {
+    id: "insight_lander",
+    name: "InSight Lander & SEIS Planetary Seismometer Dome",
+    abbreviation: "INSIGHT-SEIS",
+    location: "Martian Surface Deployment Zone",
+    discoveries: "Recorded over 1,319 Marsquakes and meteoroid impacts using ultra-sensitive pendulum seismometers inside a golden wind and thermal shield, proving Mars has a molten liquid iron-alloy core.",
+    wavelengths: "0.01 Hz - 50 Hz P-Wave (Primary) & S-Wave (Secondary) Seismic Oscillations",
+    resolution: "Sub-atomic ground displacement (< 10^-11 meters)",
+    significance: "First mission to map the deep interior crust, mantle, and liquid core of another rocky planet."
+  },
+  {
+    id: "voyager_rtg",
+    name: "MHW-RTG Plutonium-238 Nuclear Thermoelectric Generators",
+    abbreviation: "PU238-RTG",
+    location: "Voyager 1 Left-Rear Outrigger Boom",
+    discoveries: "Three Multihundred-Watt Radioisotope Thermoelectric Generators converting Plutonium-238 radioactive decay heat into electricity. Losing ~4 Watts per year since 1977, requiring careful power budgeting at 24.3 billion km.",
+    wavelengths: "Alpha Decay Thermal Conversion (Half-life: 87.7 Years)",
+    resolution: "470W at Launch (1977) → ~249W in Interstellar Space",
+    significance: "The nuclear heartbeat keeping humanity's farthest ambassador alive in pitch-black interstellar space."
+  },
+  {
+    id: "voyager_hga",
+    name: "Voyager 1 3.7-Meter High-Gain Parabolic Dish",
+    abbreviation: "VGR-HGA",
+    location: "Primary Bus Forward Axis",
+    discoveries: "Maintains the 22-hour 34-minute one-way light-travel telemetry link with NASA's Deep Space Network across 24.3 billion kilometers.",
+    wavelengths: "S-Band (2.29 GHz) & X-Band (8.42 GHz)",
+    resolution: "160 bits per second interstellar telemetry stream",
+    significance: "Longest-distance radio handshake in human history."
+  },
+  {
+    id: "voyager_mag",
+    name: "Triaxial Fluxgate Magnetometer (13m Boom)",
+    abbreviation: "VGR-MAG",
+    location: "13-Meter Fiberglass Astromast Boom",
+    discoveries: "Measured the magnetic boundary of the Heliosphere (Heliopause) at 121 AU and continues mapping the interstellar magnetic field between the stars.",
+    wavelengths: "0.002 nT to 2,000,000 nT Magnetic Flux",
+    resolution: "Dual high/low field sensors",
+    significance: "Confirmed humanity's first crossing into interstellar space."
+  },
+  {
+    id: "voyager_iss",
+    name: "Imaging Science Subsystem (ISS Narrow & Wide Angle Cameras)",
+    abbreviation: "VGR-ISS",
+    location: "Articulated Science Scan Platform",
+    discoveries: "Revealed active volcanoes on Io, titan's hazy atmosphere, and captured the iconic 'Pale Blue Dot' portrait of Earth from 6 billion km in 1990 before being powered down to save 28 Watts for interstellar instruments.",
+    wavelengths: "280 - 640 nm Vidicon Optics",
+    resolution: "800 x 800 lines per frame",
+    significance: "Gave humanity its most humbling portrait of home before entering eternal sleep."
+  },
+  {
+    id: "golden_record",
+    name: "The Voyager Golden Record (12-Inch Gold-Plated Copper Disc)",
+    abbreviation: "GOLDEN-RECORD",
+    location: "Voyager 1 Center Bus Exterior Shield",
+    discoveries: "Curated by Carl Sagan, carrying 115 images, the Sounds of Earth, 90 minutes of global music including indigenous flute melodies, and spoken greetings in 55 languages (including Bengali: 'Namaskar! Vishwe shanti hok').",
+    wavelengths: "16-2/3 RPM Analog Audio & Video Grooves + Uranium-238 Electroplated Clock",
+    resolution: "1-Billion-Year Shelf Life in Interstellar Space",
+    significance: "Humanity's eternal time capsule and love letter to the cosmos."
   }
 ];
 
@@ -225,10 +285,21 @@ export const ARCHAEOLOGICAL_ARTIFACTS_MARS = [
     id: "mossbauer",
     missionId: "mission_mossbauer",
     planet: "mars",
-    title: "Mössbauer Jarosite Mineral Outcrop",
+    title: "InSight Lander & SEIS Planetary Seismometer Dome",
     coords: { x: -12.0, y: 0.3, z: -18.0 },
-    description: "Iron sulfate mineral crystallization bedrock analyzed by Mössbauer gamma-ray spectroscopy, proving standing acidic water lake conditions in Mars' early epoch.",
-    significance: "Definitive iron mineralogy validation of Martian aqueous history.",
+    description: "NASA's geophysical lander listening to the heart of Mars. Its golden hexagonal SEIS dome recorded 1,319 Marsquakes and meteoroid impacts—allowing Asha and Leo to align P-wave and S-wave arrivals to map Mars's liquid core.",
+    significance: "Proved Mars has a molten liquid iron-alloy core through planetary seismology.",
+    icon: "microscope",
+    color: 0xa855f7
+  },
+  {
+    id: "insight_lander",
+    missionId: "mission_mossbauer",
+    planet: "mars",
+    title: "InSight Lander & SEIS Planetary Seismometer Dome",
+    coords: { x: -12.0, y: 0.3, z: -18.0 },
+    description: "NASA's geophysical lander listening to the heart of Mars. Its golden hexagonal SEIS dome recorded 1,319 Marsquakes and meteoroid impacts—allowing Asha and Leo to align P-wave and S-wave arrivals to map Mars's liquid core.",
+    significance: "Proved Mars has a molten liquid iron-alloy core through planetary seismology.",
     icon: "microscope",
     color: 0xa855f7
   },
@@ -325,9 +396,24 @@ export const ARCHAEOLOGICAL_ARTIFACTS_MOON = [
   }
 ];
 
+export const ARCHAEOLOGICAL_ARTIFACTS_DEEPSPACE = [
+  {
+    id: "voyager1",
+    missionId: "mission_blackbox",
+    planet: "deepspace",
+    title: "Voyager 1 Interstellar Probe & The Golden Record (24.3B km)",
+    coords: { x: 0.0, y: 0.6, z: 0.0 },
+    description: "Humanity's farthest spacecraft, 24.3 billion km from Earth in interstellar space beyond the Heliosphere. Powered by decaying Plutonium-238 RTGs and carrying the 12-inch gold-plated Golden Record.",
+    significance: "First human-made object to enter interstellar space and carry Earth's 55 greetings to the stars.",
+    icon: "satellite",
+    color: 0xffb700
+  }
+];
+
 export const ARCHAEOLOGICAL_ARTIFACTS = [
   ...ARCHAEOLOGICAL_ARTIFACTS_MARS,
-  ...ARCHAEOLOGICAL_ARTIFACTS_MOON
+  ...ARCHAEOLOGICAL_ARTIFACTS_MOON,
+  ...ARCHAEOLOGICAL_ARTIFACTS_DEEPSPACE
 ];
 
 export const PITCH_SCRIPT_MARS = [

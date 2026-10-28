@@ -232,15 +232,53 @@ export function createOpportunityRover() {
   ratMesh.userData = { subsystemId: "rat" };
   turretGroup.add(ratMesh);
 
-  // Mössbauer Spectrometer
+  // Mössbauer & APXS (Alpha Particle X-Ray Spectrometer) Sensor Head
   const mossMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.09, 16), bodyMat);
   mossMesh.position.set(0.06, 0, 0);
   mossMesh.name = "subsystem_mossbauer";
   mossMesh.userData = { subsystemId: "mossbauer" };
   turretGroup.add(mossMesh);
 
+  // APXS Curium-244 X-Ray Fluorescence Excitation Cone (Glows during Hematite Blueberry Scan)
+  const apxsConeMat = new THREE.MeshBasicMaterial({
+    color: 0x38bdf8,
+    transparent: true,
+    opacity: 0.0,
+    side: THREE.DoubleSide,
+    depthWrite: false
+  });
+  const apxsBeamCone = new THREE.Mesh(new THREE.ConeGeometry(0.26, 0.45, 20, 1, true), apxsConeMat);
+  apxsBeamCone.position.set(0.06, -0.22, 0.08);
+  turretGroup.add(apxsBeamCone);
+
   armGroup.add(turretGroup);
   rover.add(armGroup);
+
+  // 6b. Floating Companion Drone Actor (AERO-1) hovering beside Rover
+  const droneGroup = new THREE.Group();
+  droneGroup.name = "aero1_companion_drone";
+  droneGroup.position.set(-0.95, 1.35, 0.35);
+
+  const droneBody = new THREE.Mesh(
+    new THREE.SphereGeometry(0.13, 16, 16),
+    new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.25, metalness: 0.75 })
+  );
+  droneGroup.add(droneBody);
+
+  const droneEye = new THREE.Mesh(
+    new THREE.SphereGeometry(0.055, 12, 12),
+    new THREE.MeshBasicMaterial({ color: 0x00e5ff })
+  );
+  droneEye.position.set(0, 0.01, 0.11);
+  droneGroup.add(droneEye);
+
+  const droneHalo = new THREE.Mesh(
+    new THREE.RingGeometry(0.17, 0.21, 24),
+    new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.65, side: THREE.DoubleSide })
+  );
+  droneHalo.rotation.x = Math.PI / 2;
+  droneGroup.add(droneHalo);
+  rover.add(droneGroup);
 
   // 7. Master Solid-State Memory Core (2085 Archaeological Artifact)
   const coreGroup = new THREE.Group();
@@ -311,11 +349,71 @@ export function createOpportunityRover() {
     );
   }
 
+  // Articulated Actor Animation State (IDD Robotic Arm, Pancam Mast, & AERO-1 Drone)
+  let apxsScanning = false;
+  let apxsScanTimer = 0;
+
+  function triggerAPXSScanAnimation() {
+    apxsScanning = true;
+    apxsScanTimer = 0;
+  }
+
+  function update(delta, elapsedTime = 0, currentTau = 1.2) {
+    // 1. AERO-1 Companion Drone hover & expressive bobbing
+    droneGroup.position.y = 1.35 + Math.sin(elapsedTime * 2.8) * 0.09;
+    droneGroup.position.x = -0.95 + Math.cos(elapsedTime * 1.4) * 0.06;
+    droneGroup.rotation.y = Math.sin(elapsedTime * 1.2) * 0.35;
+    droneHalo.scale.setScalar(1.0 + Math.sin(elapsedTime * 5.0) * 0.08);
+
+    // 2. Pancam Mast (PMA) Pixar-style head expression & Sol 5111 low-battery droop
+    const stormDroop = currentTau >= 8.0 ? Math.min(0.42, (currentTau - 8.0) * 0.15) : 0;
+    if (apxsScanning) {
+      // Look down curiously at the robotic arm scanning the Hematite Blueberries
+      camHead.rotation.x += (0.38 - camHead.rotation.x) * Math.min(1, delta * 4.0);
+      camHead.rotation.y += (-0.22 - camHead.rotation.y) * Math.min(1, delta * 4.0);
+    } else if (stormDroop > 0.05) {
+      // Emotional Sol 5111 sleepy droop ("My battery is low and it's getting dark")
+      camHead.rotation.x += (stormDroop - camHead.rotation.x) * Math.min(1, delta * 2.5);
+      camHead.rotation.y = Math.sin(elapsedTime * 0.4) * 0.08;
+    } else {
+      // Alive, curious horizon observation
+      const targetPitch = Math.sin(elapsedTime * 0.9) * 0.06;
+      const targetYaw = Math.sin(elapsedTime * 0.55) * 0.28;
+      camHead.rotation.x += (targetPitch - camHead.rotation.x) * Math.min(1, delta * 3.0);
+      camHead.rotation.y += (targetYaw - camHead.rotation.y) * Math.min(1, delta * 3.0);
+    }
+
+    // 3. 5-DOF Robotic Arm (IDD) & APXS X-Ray Beam Articulation
+    if (apxsScanning) {
+      apxsScanTimer += delta;
+      // Extend arm forward & downward to place APXS onto rock outcrop
+      armGroup.rotation.x += (0.36 - armGroup.rotation.x) * Math.min(1, delta * 4.5);
+      turretGroup.rotation.z = Math.sin(elapsedTime * 8.0) * 0.15;
+      ratMesh.rotation.x += delta * 18.0; // Spin RAT diamond grinder
+
+      // Pulse X-ray fluorescence excitation cone (alternating red/blue spectral shimmer)
+      apxsConeMat.opacity = 0.45 + Math.sin(elapsedTime * 16.0) * 0.25;
+      const hueShift = (Math.sin(elapsedTime * 6.0) + 1) * 0.5;
+      apxsConeMat.color.setRGB(0.2 + hueShift * 0.75, 0.4, 1.0 - hueShift * 0.5);
+
+      if (apxsScanTimer > 6.5) {
+        apxsScanning = false;
+        apxsConeMat.opacity = 0.0;
+      }
+    } else {
+      armGroup.rotation.x += (Math.sin(elapsedTime * 1.1) * 0.04 - armGroup.rotation.x) * Math.min(1, delta * 3.0);
+      turretGroup.rotation.z *= 0.9;
+      apxsConeMat.opacity = 0.0;
+    }
+  }
+
   return {
     rover,
     wheels,
     armGroup,
     mastGroup,
-    setDustAccumulation
+    setDustAccumulation,
+    triggerAPXSScanAnimation,
+    update
   };
 }

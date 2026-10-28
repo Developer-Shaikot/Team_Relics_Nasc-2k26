@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { SCIENTIFIC_PAYLOADS, ARCHAEOLOGICAL_ARTIFACTS, ARCHAEOLOGICAL_ARTIFACTS_MARS, ARCHAEOLOGICAL_ARTIFACTS_MOON } from '../data/telemetryData.js';
+import { SCIENTIFIC_PAYLOADS, ARCHAEOLOGICAL_ARTIFACTS, ARCHAEOLOGICAL_ARTIFACTS_MARS, ARCHAEOLOGICAL_ARTIFACTS_MOON, ARCHAEOLOGICAL_ARTIFACTS_DEEPSPACE } from '../data/telemetryData.js';
 import { martianAudio } from './audio.js';
 
 export class PlanetaryScanner {
@@ -37,12 +37,18 @@ export class PlanetaryScanner {
   }
 
   get activeArtifacts() {
-    return this.currentPlanet === 'moon' ? ARCHAEOLOGICAL_ARTIFACTS_MOON : ARCHAEOLOGICAL_ARTIFACTS_MARS;
+    if (this.currentPlanet === 'moon') return ARCHAEOLOGICAL_ARTIFACTS_MOON;
+    if (this.currentPlanet === 'deepspace') return ARCHAEOLOGICAL_ARTIFACTS_DEEPSPACE;
+    return ARCHAEOLOGICAL_ARTIFACTS_MARS;
   }
 
   setPlanet(planet) {
     this.currentPlanet = planet;
-    this.activeWaypointId = planet === 'moon' ? 'moon_quest_pioneer' : 'mission_locate';
+    this.activeWaypointId = planet === 'moon'
+      ? 'moon_quest_apollo11'
+      : planet === 'deepspace'
+        ? 'mission_blackbox'
+        : 'mission_locate';
     this.rebuildArchaeologicalBeacons();
   }
 

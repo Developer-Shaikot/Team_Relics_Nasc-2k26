@@ -172,11 +172,20 @@ export function createLunarRover() {
     wheels.push(wheelGroup);
   });
 
+  function update(delta, elapsedTime = 0) {
+    // Remote-controlled RCA Color TV Camera panning (like Ed Fendell in Houston Mission Control)
+    tvCamGroup.rotation.y = Math.sin(elapsedTime * 0.65) * 0.42;
+    tvCamGroup.rotation.x = Math.sin(elapsedTime * 0.4) * 0.08;
+    // Subtle High-Gain Umbrella Dish Earth-tracking oscillation
+    hgaGroup.rotation.z = Math.sin(elapsedTime * 0.5) * 0.04;
+  }
+
   return {
     rover,
     wheels,
     setDustAccumulation: (tau) => {
       // Moon has no atmospheric dust storms
-    }
+    },
+    update
   };
 }

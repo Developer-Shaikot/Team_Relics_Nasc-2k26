@@ -4843,4 +4843,904 @@ input[type="range"] {
   color: var(--accent-gold);
   margin-top: 2px;
 }
-
+
+
+/* ==========================================================================
+   JUNIOR DEEP SPACE NETWORK (ASHA & LEO), RIGGED ACTOR ANIMATIONS,
+   AND 4 FLAGSHIP NASA JPL SCIENCE MINI-GAME WORKBENCHES
+   ========================================================================== */
+
+:root {
+  /* Fallback for older browsers */
+  --spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --spring-duration: 500ms;
+}
+
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    --spring-easing: linear(
+      0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017,
+      1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%,
+      1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%,
+      0.997 69.8%, 1.003 76.9%, 1.004 83.8%, 1
+    );
+  }
+}
+
+/* Entry / Exit Discrete Transitions with @starting-style */
+.modal-backdrop {
+  opacity: 0;
+  transform: scale(0.96);
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 280ms, var(--spring-duration), 280ms, 280ms;
+  transition-timing-function: ease-out, var(--spring-easing), ease, ease;
+  transition-behavior: allow-discrete;
+}
+
+.modal-backdrop.active {
+  display: flex;
+  opacity: 1;
+  transform: scale(1);
+}
+
+@starting-style {
+  .modal-backdrop.active {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+.bot-speech-bubble {
+  opacity: 0;
+  transform: translateY(10px) scale(0.96);
+  transition-property: opacity, transform, display;
+  transition-duration: 240ms, var(--spring-duration), 240ms;
+  transition-timing-function: ease-out, var(--spring-easing), ease;
+  transition-behavior: allow-discrete;
+}
+
+.bot-speech-bubble.visible {
+  display: block;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@starting-style {
+  .bot-speech-bubble.visible {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop,
+  .bot-speech-bubble {
+    transition: none;
+  }
+}
+
+/* Triple Hero CTA & Deep Space Button */
+.hero-cta-wrapper.triple-cta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.hero-cta-wrapper.triple-cta .hero-launch-btn {
+  padding: 11px 16px;
+  font-size: 11px;
+}
+
+.deepspace-launch-btn {
+  background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+  border: 1px solid rgba(56, 189, 248, 0.7);
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.45);
+}
+
+.deepspace-launch-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.75);
+}
+
+.hub-util-btn.highlight-prologue-btn {
+  border-color: rgba(255, 183, 0, 0.55);
+  background: rgba(255, 183, 0, 0.14);
+  color: #fde68a;
+}
+
+.hub-util-btn.highlight-lab-btn,
+.nav-tab.highlight-cyan-tab {
+  border: 1px solid rgba(0, 229, 255, 0.55);
+  background: rgba(0, 229, 255, 0.14);
+  color: var(--accent-cyan);
+}
+
+.action-btn.prologue-top-btn {
+  border-color: rgba(255, 183, 0, 0.5);
+  background: rgba(255, 183, 0, 0.12);
+  color: #fde68a;
+}
+
+/* Right Scanner Flagship JPL Science Lab Quick Box */
+.flagship-labs-quick-box {
+  background: rgba(0, 229, 255, 0.06);
+  border: 1px solid rgba(0, 229, 255, 0.28);
+  border-radius: 9px;
+  padding: 8px 10px;
+  margin-bottom: 4px;
+}
+
+.flq-title {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
+}
+
+.flq-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.flq-btn {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 5px 7px;
+  color: #f8fafc;
+  font-family: var(--font-body);
+  font-size: 9.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.2s var(--spring-easing), border-color 0.2s ease, background 0.2s ease;
+}
+
+.flq-btn:hover {
+  border-color: var(--accent-gold);
+  background: rgba(255, 183, 0, 0.16);
+  transform: translateY(-1px) scale(1.03);
+}
+
+/* Bottom Dock World Switcher Pills */
+.world-switcher-pills {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.world-switch-pill {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  padding: 3px 9px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.world-switch-pill:hover {
+  color: #fff;
+  border-color: var(--accent-cyan);
+}
+
+.world-switch-pill.active {
+  color: #fff;
+  background: rgba(0, 229, 255, 0.22);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+}
+
+/* Dual-Actor (Asha & Leo) JDSN Comms Widget */
+.jdsn-avatars-dock {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(8, 14, 30, 0.92);
+  border: 1.5px solid rgba(0, 229, 255, 0.45);
+  border-radius: 40px;
+  padding: 4px 8px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.65);
+}
+
+.jdsn-mini-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: #0b132b;
+  transition: transform 350ms var(--spring-easing), border-color 250ms ease, box-shadow 250ms ease;
+}
+
+.jdsn-mini-avatar.active-speaker {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 14px rgba(255, 183, 0, 0.7);
+  transform: scale(1.1);
+}
+
+.jdsn-mini-avatar .actor-rig-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.bubble-speaker-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.comms-emotion-badge {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  color: #00e5ff;
+  background: rgba(0, 229, 255, 0.14);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.4px;
+}
+
+.bubble-actions-row {
+  margin-top: 7px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.comms-minigame-btn {
+  background: linear-gradient(135deg, #ffb700, #ff5e28);
+  border: none;
+  border-radius: 6px;
+  padding: 5px 11px;
+  color: #080c18;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(255, 183, 0, 0.45);
+  transition: transform 250ms var(--spring-easing), box-shadow 200ms ease;
+}
+
+.comms-minigame-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 18px rgba(255, 183, 0, 0.75);
+}
+
+/* ==========================================================================
+   RIGGED SVG CHARACTER ACTOR KEYFRAME ANIMATIONS (ASHA & LEO)
+   ========================================================================== */
+
+.actor-rig-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Subtle breathing & expressive head tilt */
+.actor-head-group {
+  transform-origin: 70px 78px;
+  animation: actorHeadBreathe 3.8s ease-in-out infinite alternate;
+}
+
+@keyframes actorHeadBreathe {
+  0% {
+    transform: translateY(0px) rotate(-1.4deg);
+  }
+  100% {
+    transform: translateY(-2.5px) rotate(1.8deg);
+  }
+}
+
+/* Periodic natural eye blinking */
+.actor-eyes {
+  transform-origin: 70px 67px;
+  animation: actorBlink 4.6s infinite;
+}
+
+@keyframes actorBlink {
+  0%, 92%, 100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.08);
+  }
+}
+
+/* Lip-Sync Mouth Cadence when .actor-talking is active */
+.actor-mouth-talk {
+  opacity: 0;
+  transform-origin: 70px 83px;
+}
+
+.actor-talking .actor-mouth-idle {
+  opacity: 0;
+}
+
+.actor-talking .actor-mouth-talk {
+  opacity: 1;
+  animation: actorLipSync 0.26s ease-in-out infinite alternate;
+}
+
+@keyframes actorLipSync {
+  0% {
+    transform: scaleY(0.35) scaleX(0.9);
+  }
+  100% {
+    transform: scaleY(1.15) scaleX(1.05);
+  }
+}
+
+/* Asha's Rooftop Scarf Breeze & Antenna Pulse */
+.actor-scarf {
+  transform-origin: 85px 98px;
+  animation: scarfBreeze 2.6s ease-in-out infinite alternate;
+}
+
+@keyframes scarfBreeze {
+  0% {
+    transform: rotate(-3deg) skewX(-2deg);
+  }
+  100% {
+    transform: rotate(5deg) skewX(4deg);
+  }
+}
+
+.antenna-signal-tip {
+  animation: antennaPulse 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes antennaPulse {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
+/* Expressive Hand Gesture */
+.actor-hand-group {
+  transform-origin: 36px 96px;
+  animation: actorHandGesture 2.9s ease-in-out infinite alternate;
+}
+
+@keyframes actorHandGesture {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-3px) rotate(4deg);
+  }
+}
+
+/* ==========================================================================
+   STORY PROLOGUE MODAL (THE DREAM PROJECT: ASHA & LEO)
+   ========================================================================== */
+
+.prologue-modal-card {
+  max-width: 820px;
+}
+
+.prologue-actors-stage {
+  display: grid;
+  grid-template-columns: 190px 1fr 190px;
+  align-items: center;
+  gap: 14px;
+  background: rgba(6, 11, 25, 0.78);
+  border: 1px solid rgba(0, 229, 255, 0.22);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.prologue-actor-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  opacity: 0.65;
+  transform: scale(0.95);
+  transition: transform var(--spring-duration) var(--spring-easing), opacity 250ms ease-out, border-color 250ms ease, box-shadow 250ms ease;
+}
+
+.prologue-actor-card.active-actor {
+  opacity: 1;
+  transform: scale(1.03);
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 24px rgba(255, 183, 0, 0.35);
+}
+
+.actor-svg-stage {
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(0, 229, 255, 0.35);
+  background: #070d1e;
+}
+
+.actor-card-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2px;
+}
+
+.actor-card-meta strong {
+  font-family: var(--font-display);
+  font-size: 11px;
+  color: #fff;
+}
+
+.actor-card-meta span {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  color: var(--accent-cyan);
+}
+
+.prologue-signal-bridge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 8px;
+}
+
+.signal-bridge-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  letter-spacing: 0.8px;
+}
+
+.signal-wave-track {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #f59e0b, #00e5ff, #38bdf8);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.sig-pulse {
+  position: absolute;
+  top: -3px;
+  left: 0;
+  width: 28px;
+  height: 10px;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 0 12px #00e5ff;
+  animation: bridgeWaveSlide 2.2s linear infinite;
+}
+
+.sig-pulse.delay-1 {
+  animation-delay: 0.7s;
+}
+
+.sig-pulse.delay-2 {
+  animation-delay: 1.4s;
+}
+
+@keyframes bridgeWaveSlide {
+  0% {
+    left: -10%;
+  }
+  100% {
+    left: 105%;
+  }
+}
+
+.signal-bridge-quote {
+  font-size: 11px;
+  font-style: italic;
+  color: #cbd5e1;
+}
+
+.prologue-dialogue-card {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 183, 0, 0.35);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.prologue-speaker-pill {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.prologue-dialogue-text {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #f8fafc;
+}
+
+.prologue-science-pill {
+  background: rgba(0, 229, 255, 0.1);
+  border-left: 3px solid var(--accent-cyan);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: #bae6fd;
+  line-height: 1.4;
+}
+
+.modal-footer-dual {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ==========================================================================
+   4 FLAGSHIP NASA JPL SCIENCE MINI-GAME WORKBENCH MODAL
+   ========================================================================== */
+
+.minigame-modal-card {
+  max-width: 960px;
+  width: 95vw;
+}
+
+.mg-mission-tabs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.mg-tab-pill {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mg-tab-pill:hover {
+  color: #fff;
+  border-color: var(--accent-cyan);
+}
+
+.mg-tab-pill.active {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.25), rgba(59, 130, 246, 0.25));
+  color: #ffffff;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.35);
+}
+
+.mg-workbench {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mg-story-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 183, 0, 0.09);
+  border: 1px solid rgba(255, 183, 0, 0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: #f1f5f9;
+  line-height: 1.45;
+}
+
+.mg-story-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.mg-split-grid {
+  display: grid;
+  grid-template-columns: 1.08fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+@media (max-width: 820px) {
+  .mg-split-grid,
+  .prologue-actors-stage {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mg-canvas-panel {
+  background: #050914;
+  border: 1px solid rgba(0, 229, 255, 0.28);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mg-sim-canvas {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: #040814;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mg-formula-bar {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent-cyan);
+  text-align: center;
+  background: rgba(0, 229, 255, 0.08);
+  padding: 5px 8px;
+  border-radius: 6px;
+}
+
+.mg-controls-panel {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mg-control-card {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mg-ctrl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+.mg-ctrl-header strong {
+  font-family: var(--font-mono);
+  color: var(--accent-gold);
+}
+
+.mg-toggle-btn {
+  padding: 8px 12px;
+  border-radius: 7px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.mg-toggle-btn.warn {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+.mg-toggle-btn.success {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: #10b981;
+  color: #6ee7b7;
+}
+
+.mg-ctrl-sub {
+  font-size: 10.5px;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+.mg-telemetry-readout {
+  background: rgba(4, 9, 20, 0.85);
+  border: 1px solid rgba(0, 229, 255, 0.22);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mg-stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: #cbd5e1;
+}
+
+.mg-stat-row strong.ok {
+  color: #10b981;
+}
+
+.mg-stat-row strong.bad {
+  color: #f43f5e;
+}
+
+.mg-feedback-box {
+  background: rgba(0, 229, 255, 0.08);
+  border-left: 3px solid var(--accent-cyan);
+  padding: 8px 11px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  color: #e2e8f0;
+  line-height: 1.4;
+}
+
+.mg-feedback-box.success-glow {
+  background: rgba(16, 185, 129, 0.14);
+  border-left-color: #10b981;
+  color: #d1fae5;
+}
+
+.mg-feedback-box.error-glow {
+  background: rgba(244, 63, 94, 0.15);
+  border-left-color: #f43f5e;
+  color: #ffe4e6;
+}
+
+.mg-primary-action-btn,
+.mg-secondary-action-btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: transform 250ms var(--spring-easing), box-shadow 200ms ease;
+}
+
+.mg-primary-action-btn {
+  background: linear-gradient(135deg, #ff5e28, #ffb700);
+  border: none;
+  color: #090d16;
+  box-shadow: 0 0 16px rgba(255, 94, 40, 0.45);
+}
+
+.mg-primary-action-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 0 24px rgba(255, 183, 0, 0.7);
+}
+
+.mg-primary-action-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mg-secondary-action-btn {
+  background: rgba(0, 229, 255, 0.14);
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+/* Voyager 1 Power Grid & Golden Record Box */
+.mg-power-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mg-power-sw {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #94a3b8;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.mg-power-sw.on {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.14);
+  color: #ecfdf5;
+}
+
+.mg-golden-record-box {
+  background: rgba(255, 183, 0, 0.08);
+  border: 1px solid rgba(255, 183, 0, 0.35);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.mg-gr-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.mg-select {
+  width: 100%;
+  background: #090f20;
+  border: 1px solid rgba(255, 183, 0, 0.4);
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 11px;
+}
+
+.mg-gr-Actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mg-gr-btn {
+  flex: 1;
+  background: rgba(255, 183, 0, 0.18);
+  border: 1px solid var(--accent-gold);
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: #fde68a;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mg-gr-btn.flute {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.15);
+  color: #bae6fd;
+}
+
+.mg-gr-btn:hover {
+  filter: brightness(1.2);
+}
+
+.secondary-lab-btn {
+  background: linear-gradient(135deg, #00e5ff, #3b82f6) !important;
+  color: #050914 !important;
+  font-weight: 800 !important;
+}
