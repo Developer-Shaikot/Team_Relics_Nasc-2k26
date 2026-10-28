@@ -7,7 +7,7 @@
     "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "preview": "vite preview --port 3000",
-    "generate:docs": "node generate-docx.js && node generate-final-blueprint-docx.js && node generate-pdf.js"
+    "generate:docs": "node scripts/generate-docx.js && node scripts/generate-final-blueprint-docx.js && node scripts/generate-pdf.js"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",

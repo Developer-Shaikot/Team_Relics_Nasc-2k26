@@ -18,6 +18,7 @@
 | **[04. Space Apps Strategy](./04_NASA_SPACE_APPS_WINNING_STRATEGY_ALIGNMENT.md)** | **NASA Space Apps Alignment & Strategy** | Global judging criteria mapping, scientific data validity, 120-second pitch director breakdown, and educational impact. |
 | **[05. Deployment Guide](./05_DEPLOYMENT_AND_MAINTENANCE_GUIDE.md)** | **Deployment, Optimization & Runbook** | Local setup, production build, 60 FPS performance optimizations, mobile responsiveness, and troubleshooting guide. |
 | **[06. Production Blueprint & Script](./06_OFFICIAL_PRODUCTION_BLUEPRINT_AND_VIDEO_SCRIPT.md)** | **Official 240s Video Script & Proven Data Dossier** | Complete 4-minute video timeline, member roles, exact voiceover, director notes, and verified NASA scientific URLs. |
+| **[07. NASA Data Sources & Citations](./NASA_DATA_SOURCES.md)** | **NASA Open Data Sources & Verification Links** | Complete matrix of all NASA PDS, HiRISE, LOLA, and 3D archives with direct external URLs and application data models. |
 | **[📄 Official Blueprint DOCX](./NASA_Space_Apps_2026_Relics_of_the_Red_Dust_Official_Production_Blueprint.docx)** | **Master Word Document (.docx)** | Formatted official Word document for NASA Space Apps Challenge 2026 submission. |
 
 ---
