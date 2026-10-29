@@ -86,6 +86,7 @@
       </div>
     </header>
 
+
     <!-- Hub Center Stage: Quick Menu + Hero Art + Scrollable Action Cards -->
     <main class="hub-main-stage">
       <!-- Left Quick Menu Column -->
@@ -117,36 +118,143 @@
         </button>
       </aside>
 
-      <!-- Center Hero Showcase with Cinematic Visual & Triple Launch Actions -->
+      <!-- Center Hero Showcase: Moving Celestial Background + Character Selector + Guide Robot + Start Mission -->
       <section class="hub-hero-section">
-        <div class="hub-hero-bg" style="background-image: url('./hero_astronaut_mars.jpg');">
+        <!-- Moving Space Background with Mars, Moon & Voyager Beacon -->
+        <div class="hub-hero-bg">
+          <div class="hero-space-canvas">
+            <div class="space-starfield"></div>
+            <div class="space-nebula-glow"></div>
+          </div>
+
+          <!-- Animated Moving Celestial Bodies -->
+          <div class="hero-celestial-stage">
+            <!-- Floating Rotating Mars -->
+            <div class="celestial-body mars-body" id="hero-celestial-mars" title="Planet Mars • Destination of Opportunity & InSight">
+              <div class="planet-atmosphere-halo mars-halo"></div>
+              <div class="planet-sphere mars-sphere">
+                <div class="planet-shadow"></div>
+              </div>
+              <div class="planet-orbit-badge">🔴 MARS</div>
+            </div>
+
+            <!-- Floating Orbiting Moon -->
+            <div class="celestial-body moon-body" id="hero-celestial-moon" title="Earth's Moon • Apollo 11 Tranquility Base">
+              <div class="planet-atmosphere-halo moon-halo"></div>
+              <div class="planet-sphere moon-sphere">
+                <div class="planet-shadow"></div>
+              </div>
+              <div class="planet-orbit-badge">🌕 MOON</div>
+            </div>
+
+            <!-- Deep Space Voyager 1 Telemetry Beacon -->
+            <div class="celestial-body voyager-body" id="hero-celestial-voyager" title="Deep Space • 24.3 Billion KM • Voyager 1">
+              <div class="voyager-beacon-ring pulse"></div>
+              <div class="voyager-craft-icon">🛰️</div>
+              <div class="planet-orbit-badge">🌌 DEEP SPACE</div>
+            </div>
+          </div>
+
           <div class="hub-hero-overlay"></div>
           <div class="hero-flare-glow"></div>
         </div>
 
         <div class="hub-hero-content">
-          <div class="hero-tag-badge">
-            <span class="hero-dot pulse"></span>
-            <span id="lbl-hero-tag">JUNIOR DEEP SPACE NETWORK • ASHA (DHAKA) &amp; LEO (FLORIDA)</span>
+          <div class="hero-top-info">
+            <div class="hero-tag-badge">
+              <span class="hero-dot pulse"></span>
+              <span id="lbl-hero-tag">JUNIOR DEEP SPACE NETWORK • MISSION STAGING CONSOLE</span>
+            </div>
+            <h1 class="hero-game-title" id="lbl-hero-title">RELICS OF THE COSMIC DUST</h1>
+            <p class="hero-game-subtitle" id="lbl-hero-sub">
+              "When we leave something behind on the Moon or Mars, it is not 'Space Junk'—it is a permanent monument to human curiosity etched into the cosmos."
+            </p>
           </div>
-          <h1 class="hero-game-title" id="lbl-hero-title">RELICS OF THE COSMIC DUST: THE LAST HANDSHAKE</h1>
-          <p class="hero-game-subtitle" id="lbl-hero-sub">
-            "When we leave something behind on the Moon or Mars, it is not 'Space Junk'—it is a permanent monument to human curiosity etched into the cosmos."
-          </p>
 
-          <!-- Triple Exploration Action Buttons: Moon, Mars, Deep Space -->
-          <div class="hero-cta-wrapper triple-cta">
-            <button class="hero-launch-btn moon-launch-btn" id="hub-hero-moon-btn">
-              <span class="btn-glow moon-glow"></span>
-              <span class="btn-text">🌕 <span id="lbl-hero-moon-btn">MISSION 1: MOON (APOLLO 11)</span></span>
-            </button>
-            <button class="hero-launch-btn mars-launch-btn" id="hub-hero-mars-btn">
-              <span class="btn-glow"></span>
-              <span class="btn-text">🔴 <span id="lbl-hero-mars-btn">MISSIONS 2 &amp; 3: MARS (OPPY &amp; INSIGHT)</span></span>
-            </button>
-            <button class="hero-launch-btn deepspace-launch-btn" id="hub-hero-deepspace-btn">
-              <span class="btn-glow deepspace-glow"></span>
-              <span class="btn-text">🌌 <span id="lbl-hero-deepspace-btn">MISSION 4: DEEP SPACE (VOYAGER 1)</span></span>
+          <!-- INTERACTIVE CHARACTER SELECTION DECK (2 Characters + Guide Robot) -->
+          <div class="hero-character-selection-deck">
+            <div class="deck-header-row">
+              <span class="deck-label">SELECT YOUR MISSION COMMANDER:</span>
+              <button class="customize-robot-trigger-btn" id="btn-open-robot-customizer" title="Customize Companion Guide Robot">
+                <span class="bot-icon-mini" id="mini-bot-icon">🤖</span>
+                <span class="bot-btn-text">CUSTOMIZE GUIDE BOT: <strong id="mini-bot-name-label">ASTRO-BOT</strong></span>
+                <span class="bot-color-dot" id="mini-bot-color-dot" style="background: #00e5ff;"></span>
+              </button>
+            </div>
+
+            <div class="character-cards-grid">
+              <!-- Character 1: Asha -->
+              <div class="character-select-card selected" id="char-card-asha" data-character="asha" role="button" tabindex="0">
+                <div class="char-selection-indicator">
+                  <span class="check-icon">✓</span>
+                  <span class="status-text">ACTIVE COMMANDER</span>
+                </div>
+                <div class="char-card-inner">
+                  <div class="char-avatar-pod asha-pod">
+                    <div class="char-svg-box" id="hero-asha-avatar-box"></div>
+                    <span class="char-origin-flag">🇧🇩 DHAKA</span>
+                  </div>
+                  <div class="char-meta">
+                    <div class="char-name-row">
+                      <h3 class="char-name">ASHA</h3>
+                      <span class="char-title-tag asha-tag">ASTROPHYSICIST</span>
+                    </div>
+                    <p class="char-bio">Rooftop RF hacker. Tracks S-Band carrier waves &amp; calibrated Oppy's APXS spectrometer.</p>
+                    <div class="char-perks">
+                      <span class="perk-badge">📡 +40% RF Signal Boost</span>
+                      <span class="perk-badge">🧪 APXS Spectrometry</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Character 2: Leo -->
+              <div class="character-select-card" id="char-card-leo" data-character="leo" role="button" tabindex="0">
+                <div class="char-selection-indicator">
+                  <span class="check-icon">✓</span>
+                  <span class="status-text">ACTIVE COMMANDER</span>
+                </div>
+                <div class="char-card-inner">
+                  <div class="char-avatar-pod leo-pod">
+                    <div class="char-svg-box" id="hero-leo-avatar-box"></div>
+                    <span class="char-origin-flag">🇺🇸 FLORIDA</span>
+                  </div>
+                  <div class="char-meta">
+                    <div class="char-name-row">
+                      <h3 class="char-name">LEO</h3>
+                      <span class="char-title-tag leo-tag">ROVER PILOT</span>
+                    </div>
+                    <p class="char-bio">KSC robotics engineer. Expert in rocker-bogie chassis dynamics &amp; InSight seismology.</p>
+                    <div class="char-perks">
+                      <span class="perk-badge">🕹️ +40% Driving Handling</span>
+                      <span class="perk-badge">💓 InSight Seismogram</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MISSION DESTINATION & START MISSION LAUNCH BAR -->
+          <div class="hero-mission-launch-bar">
+            <div class="destination-pills-row">
+              <span class="dest-label">DESTINATION:</span>
+              <button class="dest-pill active" data-dest="mars" id="dest-pill-mars">
+                <span>🔴</span> Mars (Oppy &amp; InSight)
+              </button>
+              <button class="dest-pill" data-dest="moon" id="dest-pill-moon">
+                <span>🌕</span> Moon (Apollo 11)
+              </button>
+              <button class="dest-pill" data-dest="deepspace" id="dest-pill-deepspace">
+                <span>🌌</span> Deep Space (Voyager 1)
+              </button>
+            </div>
+
+            <button class="hero-start-mission-btn" id="hero-start-mission-btn">
+              <span class="btn-glow-pulse"></span>
+              <span class="start-btn-icon">🚀</span>
+              <span class="start-btn-text">START MISSION AS <strong id="lbl-start-commander-name">ASHA</strong></span>
+              <span class="start-btn-sub" id="lbl-start-dest-sub">TO MARS ➔</span>
             </button>
           </div>
         </div>
@@ -321,15 +429,215 @@
     </footer>
   </div>
 
+  <!-- =========================================================================
+       ABANDONED SPACESHIP HABITATION & READY ROOM SCREEN
+       ========================================================================= -->
+  <div class="spaceship-hab-screen" id="spaceship-hab-screen">
+    <!-- Atmospheric Hab Interior Background with Bulkheads & Flickering Consoles -->
+    <div class="hab-interior-bg">
+      <div class="hab-bulkhead-grid"></div>
+      <div class="hab-ambient-fog"></div>
+      <div class="hab-floating-sparks"></div>
+    </div>
+
+    <!-- Hab Header -->
+    <header class="hab-top-bar">
+      <div class="hab-header-title">
+        <span class="hab-dot pulse"></span>
+        <span>ABANDONED SPACESHIP BRIDGE • HABITATION &amp; AIRLOCK READY ROOM</span>
+      </div>
+      <button class="hab-return-hub-btn" id="hab-return-hub-btn" title="Back to Game Hub">
+        <span>🏠 HUB</span>
+      </button>
+    </header>
+
+    <!-- Hab Stage: Character Staging + Interactive Exploration Stations -->
+    <main class="hab-main-stage">
+      <!-- Left: Character Status Pod -->
+      <aside class="hab-character-column">
+        <div class="hab-char-card">
+          <div class="hab-char-avatar-pod" id="hab-char-avatar-pod">
+            <!-- Rendered by SpaceshipHabManager -->
+          </div>
+          <h2 class="hab-character-name" id="hab-character-name">ASHA (DHAKA)</h2>
+          <span class="hab-character-role" id="hab-character-role">ASTROPHYSICIST &amp; RF HACKER</span>
+          <div class="hab-suit-status-tag" id="hab-suit-status">STATUS: CIVILIAN ATTIRE</div>
+        </div>
+
+        <div class="hab-guide-info-box">
+          <span class="info-icon">💡</span>
+          <p>Explore the abandoned consoles to recover historical mission dossiers &amp; star maps, then equip your pressurized EVA spacesuit!</p>
+        </div>
+      </aside>
+
+      <!-- Center & Right: 3 Discovery Stations -->
+      <section class="hab-stations-grid">
+        <!-- Station 1: Mission Dossiers & Logs -->
+        <div class="hab-station-card" id="hab-station-files" role="button">
+          <div class="station-icon-glow">📁</div>
+          <div class="station-meta">
+            <span class="station-badge">HISTORICAL LOGS</span>
+            <h3 class="station-title">Abandoned Mission Dossiers</h3>
+            <p class="station-desc">Inspect classified NASA logs: Apollo 11 fuel math, Opportunity Sol 5111 decodes &amp; Voyager 1 Golden Record trajectory.</p>
+          </div>
+          <div class="station-action-pill">INSPECT DOSSIER ➔</div>
+        </div>
+
+        <!-- Station 2: Star Map Navigation Console -->
+        <div class="hab-station-card" id="hab-station-map" role="button">
+          <div class="station-icon-glow">🗺️</div>
+          <div class="station-meta">
+            <span class="station-badge">CELESTIAL RADAR</span>
+            <h3 class="station-title">Holographic Star Map</h3>
+            <p class="station-desc">View interactive interplanetary corridor: Earth to Moon (Sea of Tranquility), Mars (Endeavour Rim), and Interstellar Void.</p>
+          </div>
+          <div class="station-action-pill">VIEW STAR MAP ➔</div>
+        </div>
+
+        <!-- Station 3: Pressurized EVA Spacesuit Locker -->
+        <div class="hab-station-card locker-card" id="hab-station-suit">
+          <div class="station-icon-glow">👨‍🚀</div>
+          <div class="station-meta">
+            <span class="station-badge cyan">AIRLOCK LOCKER</span>
+            <h3 class="station-title">NASA EVA Spacesuit</h3>
+            <p class="station-desc">Equip high-durability thermal spacesuit equipped with heads-up display visor, oxygen recyclers and radio comms.</p>
+          </div>
+          <button class="suit-up-action-btn" id="btn-suit-up">
+            <span>👨‍🚀 EQUIP NASA EVA SPACESUIT</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Guide Robot Arrival & Ride Launch Banner (Appears after suiting up) -->
+    <div class="hab-robot-arrival-banner" id="hab-robot-arrival-banner">
+      <div class="robot-speech-group">
+        <div class="robot-avatar-mini" id="hab-robot-avatar-mini">🤖</div>
+        <div class="robot-speech-bubble-hab">
+          <strong id="hab-robot-speech">"ASTRO-BOT: Commander Asha! Your ride is ready, let's go for exploration!"</strong>
+          <span class="speech-sub">Select your planetary exploration vehicle destination:</span>
+        </div>
+      </div>
+
+      <div class="hab-ride-launch-buttons">
+        <button class="hab-launch-btn moon-btn" id="hab-launch-moon">
+          <span class="btn-icon">🌕</span>
+          <div class="btn-text-group">
+            <strong>EXPLORE MOON</strong>
+            <small>Apollo 11 Tranquility Base &amp; Lunar Buggy</small>
+          </div>
+        </button>
+        <button class="hab-launch-btn mars-btn" id="hab-launch-mars">
+          <span class="btn-icon">🔴</span>
+          <div class="btn-text-group">
+            <strong>EXPLORE MARS</strong>
+            <small>Opportunity, InSight &amp; Rocker-Bogie Rover</small>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DOSSIERS VIEWER -->
+  <div class="modal-backdrop" id="hab-dossier-modal">
+    <div class="modal-card wide-card">
+      <button class="modal-close-btn" id="hab-dossier-close">✕</button>
+      <div class="modal-header">
+        <div class="modal-type-badge">ABANDONED ARCHIVE DOSSIER</div>
+        <h2 class="modal-title">Classified NASA Exploration Files</h2>
+        <div class="modal-abbrev">Recovered from Spaceship Sector 7 Data Memory Banks</div>
+      </div>
+      <div class="modal-body scrollable-body">
+        <div class="dossier-items-list">
+          <div class="dossier-item">
+            <h4>🌕 APOLLO 11 FLIGHT MANIFEST (JULY 20, 1969)</h4>
+            <p>Lunar Module <em>Eagle</em> payload staging notes: "Descent Stage dry mass 2,150 kg jettisoned at Sea of Tranquility. Left behind as permanent monument to humanity's first footprint on another world."</p>
+          </div>
+          <div class="dossier-item">
+            <h4>🔴 OPPORTUNITY (MER-B) SOL 5111 TRANSCRIPT (JUNE 10, 2018)</h4>
+            <p>Final telemetry packet before historic global dust storm: "Tau peaked at 10.8. Solar array power dropped below critical threshold. Opportunity rested peacefully on Endeavour Crater rim."</p>
+          </div>
+          <div class="dossier-item">
+            <h4>💓 INSIGHT SEISMOLOGY LOG (MAY 4, 2022)</h4>
+            <p>Magnitude 4.7 Marsquake recorded by SEIS sensor under thermal protective dome. Liquid core diameter confirmed at 1,830 km.</p>
+          </div>
+          <div class="dossier-item">
+            <h4>🌌 VOYAGER 1 GOLDEN RECORD (SEPT 5, 1977)</h4>
+            <p>Interstellar artifact flying past Heliopause at 17.0 km/s. 55 human languages, greetings from UN, whale sounds and Bach concerto etched in gold-plated copper.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: HOLOGRAPHIC STAR MAP -->
+  <div class="modal-backdrop" id="hab-starmap-modal">
+    <div class="modal-card wide-card">
+      <button class="modal-close-btn" id="hab-starmap-close">✕</button>
+      <div class="modal-header">
+        <div class="modal-type-badge cyan">HOLOGRAPHIC RADAR</div>
+        <h2 class="modal-title">Interplanetary Exploration Map</h2>
+        <div class="modal-abbrev">Visualizing trajectory routes between Earth, Moon, Mars and Interstellar Space</div>
+      </div>
+      <div class="modal-body scrollable-body">
+        <div class="starmap-display-canvas">
+          <div class="starmap-node earth-node">
+            <span class="node-icon">🌍</span>
+            <strong>EARTH</strong>
+            <small>Dhaka &amp; Florida JDSN Ground Stations</small>
+          </div>
+          <div class="starmap-line"></div>
+          <div class="starmap-node moon-node">
+            <span class="node-icon">🌕</span>
+            <strong>MOON (384,400 KM)</strong>
+            <small>Tranquility Base • Apollo 11 LM</small>
+          </div>
+          <div class="starmap-line"></div>
+          <div class="starmap-node mars-node">
+            <span class="node-icon">🔴</span>
+            <strong>MARS (225M KM)</strong>
+            <small>Perseverance Valley • Opportunity &amp; InSight</small>
+          </div>
+          <div class="starmap-line"></div>
+          <div class="starmap-node voyager-node">
+            <span class="node-icon">🌌</span>
+            <strong>DEEP SPACE (24.3B KM)</strong>
+            <small>Interstellar Space • Voyager 1</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOL 5111 EMERGENCY CRASH & FIELD REPAIR WIDGET -->
+  <div class="storm-crash-repair-widget" id="storm-crash-repair-widget" style="display: none;">
+    <div class="repair-card-content">
+      <div class="repair-alert-header">
+        <span class="alert-pulse-icon">⚠️</span>
+        <div>
+          <h3>CRITICAL ACCIDENT: SOL 5111 DUST STORM COLLAPSE</h3>
+          <p>Violent 10.8 Tau hurricane winds have overturned the rover! Commander is thrown down and chassis rocker-bogie is damaged.</p>
+        </div>
+      </div>
+      <div class="repair-action-row">
+        <div class="repair-cost-badge">
+          <span>COINS REQUIRED:</span>
+          <strong>🪙 100 COSMIC COINS</strong>
+        </div>
+        <button class="repair-rover-action-btn" id="btn-repair-rover">
+          <span>🔧 FIELD REPAIR ROVER &amp; RIGHT UPRIGHT ➔</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOP HEADER HUD (In-Simulation) -->
   <header class="top-nav-bar">
-    <div class="brand-section">
+    <div class="brand-section" style="display: none;">
       <div class="nasa-meatball-badge">
         <span class="badge-dot"></span>
-        <span class="badge-text" id="top-badge-text">JUNIOR DEEP SPACE NETWORK • ASHA &amp; LEO</span>
+        <span class="badge-text" id="top-badge-text">MISSION CONTROL • JDSN</span>
       </div>
-      <h1 class="project-title" id="top-project-title">RELICS OF THE COSMIC DUST: THE LAST HANDSHAKE</h1>
-      <span class="project-subtitle" id="top-project-sub">APOLLO 11 • OPPORTUNITY • INSIGHT • VOYAGER 1</span>
     </div>
 
     <!-- Mode Navigation Tabs -->
@@ -373,9 +681,9 @@
       </button>
 
       <!-- Fullscreen / Sidebar Collapse Toggle -->
-      <button class="action-btn" id="toggle-sidebar-btn" title="Toggle HUD Panels for Fullscreen View">
-        <span id="sidebar-toggle-icon">🔲</span>
-        <span class="btn-text" id="lbl-sidebar-btn">Panels</span>
+      <button class="action-btn highlight-cyan-tab" id="toggle-sidebar-btn" title="Toggle Fullscreen Immersive Exploration Mode (Press F)">
+        <span id="sidebar-toggle-icon">⛶</span>
+        <span class="btn-text" id="lbl-sidebar-btn">Fullscreen</span>
       </button>
 
       <!-- Space Cadet Quiz -->
@@ -391,6 +699,86 @@
       </button>
     </div>
   </header>
+  <!-- FLOATING EXIT FULLSCREEN BUTTON (Active in Fullscreen Mode) -->
+  <button class="fullscreen-exit-floating-btn" id="btn-exit-fullscreen-floating" title="Exit Fullscreen Mode (Press ESC or F)">
+    <span class="exit-icon">⛶</span>
+    <span class="exit-text">EXIT FULLSCREEN (ESC)</span>
+  </button>
+
+
+  <!-- SPACEFLIGHT COCKPIT & FLIGHT AVIONICS HUD (Inspired by spaceflight.flexzonicgames.com) -->
+  <div class="spaceflight-hud-overlay" id="spaceflight-hud-overlay">
+    <!-- Top Avionics Heading Compass Tape -->
+    <div class="flight-compass-bar">
+      <div class="compass-marker-center">▼</div>
+      <div class="compass-tape-wrapper">
+        <div class="compass-tape" id="flight-compass-tape">
+          <span class="compass-point">N</span><span class="compass-tick">·</span>
+          <span class="compass-point">030</span><span class="compass-tick">·</span>
+          <span class="compass-point">060</span><span class="compass-tick">·</span>
+          <span class="compass-point">E</span><span class="compass-tick">·</span>
+          <span class="compass-point">120</span><span class="compass-tick">·</span>
+          <span class="compass-point">150</span><span class="compass-tick">·</span>
+          <span class="compass-point">S</span><span class="compass-tick">·</span>
+          <span class="compass-point">210</span><span class="compass-tick">·</span>
+          <span class="compass-point">240</span><span class="compass-tick">·</span>
+          <span class="compass-point">W</span><span class="compass-tick">·</span>
+          <span class="compass-point">300</span><span class="compass-tick">·</span>
+          <span class="compass-point">330</span><span class="compass-tick">·</span>
+        </div>
+      </div>
+      <div class="compass-readout" id="flight-compass-readout">HDG: 000° N</div>
+    </div>
+
+    <!-- Center Artificial Horizon / Pitch & Roll Gyro Attitude Ladder -->
+    <div class="flight-attitude-center" id="flight-attitude-center">
+      <div class="attitude-pitch-ladder" id="attitude-pitch-ladder">
+        <div class="pitch-line pos" data-deg="+20"><span>+20</span><div class="dash"></div><span>+20</span></div>
+        <div class="pitch-line pos" data-deg="+10"><span>+10</span><div class="dash"></div><span>+10</span></div>
+        <div class="pitch-line horizon" data-deg="0"><div class="dash horizon-dash"></div></div>
+        <div class="pitch-line neg" data-deg="-10"><span>-10</span><div class="dash"></div><span>-10</span></div>
+        <div class="pitch-line neg" data-deg="-20"><span>-20</span><div class="dash"></div><span>-20</span></div>
+      </div>
+      <div class="flight-crosshair-reticle">
+        <div class="reticle-bracket left"></div>
+        <div class="reticle-dot"></div>
+        <div class="reticle-bracket right"></div>
+      </div>
+    </div>
+
+    <!-- Left Avionics Speed & Flight Telemetry Flank -->
+    <div class="flight-avionics-left">
+      <div class="avionics-box">
+        <div class="avionics-label">SPEED</div>
+        <div class="avionics-val" id="flight-speed-val">0.0 <small>m/s</small></div>
+        <div class="avionics-bar"><div class="avionics-bar-fill" id="flight-speed-bar" style="width: 0%;"></div></div>
+      </div>
+      <div class="avionics-box">
+        <div class="avionics-label">G-FORCE</div>
+        <div class="avionics-val" id="flight-g-val">0.38 <small>G</small></div>
+      </div>
+      <div class="avionics-status-badge">
+        <span class="status-pulse-dot"></span>
+        <span id="flight-status-text">FLIGHT LINK: NOMINAL</span>
+      </div>
+    </div>
+
+    <!-- Right Avionics Altitude & Target Telemetry Flank -->
+    <div class="flight-avionics-right">
+      <div class="avionics-box">
+        <div class="avionics-label">ALTITUDE</div>
+        <div class="avionics-val" id="flight-alt-val">1.8 <small>m</small></div>
+      </div>
+      <div class="avionics-box">
+        <div class="avionics-label">TARGET RELIC</div>
+        <div class="avionics-val target-name" id="flight-target-val">OPPORTUNITY</div>
+        <div class="avionics-sub" id="flight-target-dist">DIST: 18.2m</div>
+      </div>
+      <button class="flight-hud-toggle-btn" id="flight-hud-toggle-btn" title="Toggle Cockpit Flight HUD">
+        <span>🛩️ HUD: ACTIVE</span>
+      </button>
+    </div>
+  </div>
 
   <!-- FLOATING WAYPOINT OBJECTIVE TRACKER HUD -->
   <div class="waypoint-tracker-hud" id="waypoint-tracker-hud">
@@ -812,8 +1200,10 @@
         </div>
       </div>
 
-      <div class="modal-footer centered">
-        <button class="modal-action-btn glow-gold" id="disc-dismiss-btn">CONTINUE MISSION ➔</button>
+      <div class="modal-footer modal-footer-dual centered">
+        <button class="modal-action-btn secondary-btn" id="disc-roadmap-btn">🗺️ VIEW LEVEL MAP</button>
+        <button class="modal-action-btn glow-gold" id="disc-next-level-btn">PLAY NEXT LEVEL ➔</button>
+        <button class="modal-action-btn" id="disc-dismiss-btn" style="display: none;">CONTINUE</button>
       </div>
     </div>
   </div>
@@ -967,6 +1357,98 @@
     </div>
   </div>
 
+  <!-- POPUP MODAL: GUIDE ROBOT CUSTOMIZER (Companion AI) -->
+  <div class="modal-backdrop" id="robot-customizer-backdrop">
+    <div class="modal-card robot-modal-card">
+      <button class="modal-close-btn" id="robot-customizer-close">✕</button>
+
+      <div class="modal-header">
+        <div class="modal-type-badge">JDSN COMPANION AI LAB</div>
+        <h2 class="modal-title">Customize Your Guide Robot</h2>
+        <div class="modal-abbrev">Personalize your autonomous companion robot that assists with science telemetry and driving!</div>
+      </div>
+
+      <div class="modal-body scrollable-body">
+        <div class="robot-customizer-layout">
+          <!-- Robot Live Preview -->
+          <div class="robot-preview-stage">
+            <div class="robot-preview-pod" id="robot-preview-pod">
+              <!-- Dynamically rendered SVG robot rig -->
+            </div>
+            <div class="robot-display-tag">
+              <span class="tag-label">CALLSIGN:</span>
+              <strong id="robot-display-name">ASTRO-BOT</strong>
+            </div>
+            <div class="robot-status-pill" id="robot-display-mode">🔬 SCIENCE GUIDE MODE</div>
+          </div>
+
+          <!-- Options Column -->
+          <div class="robot-options-col">
+            <!-- Name Input -->
+            <div class="custom-field">
+              <label class="custom-field-label">ROBOT CALLSIGN / NAME:</label>
+              <input type="text" class="custom-text-input" id="robot-name-input" value="ASTRO-BOT" maxlength="16" placeholder="Enter robot name..." />
+            </div>
+
+            <!-- Chassis Color -->
+            <div class="custom-field">
+              <label class="custom-field-label">CHASSIS &amp; SENSOR HUE:</label>
+              <div class="color-palette-grid">
+                <button class="color-chip active" data-color="#00e5ff" data-name="Cyber Cyan" style="--chip-color: #00e5ff;">
+                  <span class="chip-dot"></span> Cyber Cyan
+                </button>
+                <button class="color-chip" data-color="#ffb700" data-name="Solar Gold" style="--chip-color: #ffb700;">
+                  <span class="chip-dot"></span> Solar Gold
+                </button>
+                <button class="color-chip" data-color="#ff5e28" data-name="Mars Crimson" style="--chip-color: #ff5e28;">
+                  <span class="chip-dot"></span> Mars Crimson
+                </button>
+                <button class="color-chip" data-color="#c084fc" data-name="Plasma Violet" style="--chip-color: #c084fc;">
+                  <span class="chip-dot"></span> Plasma Violet
+                </button>
+                <button class="color-chip" data-color="#10b981" data-name="Apollo Emerald" style="--chip-color: #10b981;">
+                  <span class="chip-dot"></span> Apollo Emerald
+                </button>
+              </div>
+            </div>
+
+            <!-- Protocol Mode -->
+            <div class="custom-field">
+              <label class="custom-field-label">AI PROTOCOL &amp; ASSISTANCE MODE:</label>
+              <div class="protocol-cards-grid">
+                <div class="protocol-card selected" data-protocol="science" role="button">
+                  <span class="protocol-icon">🔬</span>
+                  <div class="protocol-text">
+                    <strong>Science &amp; Physics Guide</strong>
+                    <small>Real-time physics hints for Delta-v, APXS &amp; Marsquake analysis</small>
+                  </div>
+                </div>
+                <div class="protocol-card" data-protocol="radar" role="button">
+                  <span class="protocol-icon">📡</span>
+                  <div class="protocol-text">
+                    <strong>LiDAR Radar Scanner</strong>
+                    <small>Auto-detects hidden spacecraft relics &amp; historical monuments</small>
+                  </div>
+                </div>
+                <div class="protocol-card" data-protocol="story" role="button">
+                  <span class="protocol-icon">📖</span>
+                  <div class="protocol-text">
+                    <strong>Story Chronicler</strong>
+                    <small>Narrates astronaut memories, final Sol 5111 logs &amp; Carl Sagan lore</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="modal-action-btn glow-gold" id="btn-save-robot-config">CONFIRM &amp; ENGAGE COMPANION BOT ➔</button>
+      </div>
+    </div>
+  </div>
+
   <!-- POPUP MODAL: NASA JPL SCIENCE MINI-GAME WORKBENCH (4 FLAGSHIP MISSIONS) -->
   <div class="modal-backdrop" id="minigame-modal-backdrop">
     <div class="modal-card wide-card minigame-modal-card">
@@ -994,6 +1476,83 @@
 
       <div class="modal-footer">
         <button class="modal-action-btn" id="minigame-dismiss-btn">RETURN TO 3D TELEMETRY VIEW</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- =========================================================================
+       GUIDER IMMERSIVE EXPEDITION BRIEFING MODAL
+       ========================================================================= -->
+  <div class="modal-backdrop" id="guider-briefing-modal">
+    <div class="modal-card wide-card guider-briefing-card">
+      <button class="modal-close-btn" id="guider-briefing-close-btn">✕</button>
+
+      <div class="guider-briefing-header">
+        <div class="guider-avatar-circle pulse">
+          <span class="guider-avatar-emoji">🤖</span>
+        </div>
+        <div class="guider-header-meta">
+          <div class="modal-type-badge cyan-glow" id="guider-modal-bot-badge">ASTRO-BOT GUIDANCE PROTOCOL</div>
+          <h2 class="modal-title" id="guider-modal-title">Immersive Planetary Exploration Active!</h2>
+          <div class="modal-abbrev">JDSN Command Directive: Pilot, Collect, Scan &amp; Complete Missions</div>
+        </div>
+      </div>
+
+      <div class="modal-body scrollable-body guider-briefing-body">
+        <div class="guider-speech-callout">
+          <div class="speech-quote-icon">💬</div>
+          <p class="speech-text" id="guider-briefing-speech">
+            "Commander! Fullscreen Immersive Mode is now <strong>ACTIVE</strong>. All distracting telemetry panels have been retracted into the hull. Follow my flight guidance directives below to navigate the terrain, collect cosmic coins, scan NASA relics, and complete the expedition!"
+          </p>
+        </div>
+
+        <div class="guider-directives-grid">
+          <div class="directive-step-card">
+            <div class="step-num-pill">01</div>
+            <div class="step-icon">🕹️</div>
+            <div class="step-content">
+              <h4>PILOT &amp; FOLLOW THE BEACON</h4>
+              <p>Use <strong>[W] [A] [S] [D]</strong> or <strong>Arrow Keys</strong> to drive your rover across craters and hills. Follow my aerial escort path toward the tall glowing cyan beacon pillar!</p>
+            </div>
+          </div>
+
+          <div class="directive-step-card">
+            <div class="step-num-pill">02</div>
+            <div class="step-icon">🪙</div>
+            <div class="step-content">
+              <h4>COLLECT COSMIC COINS</h4>
+              <p>Gather floating gold coins scattered across the landscape. You will need them to fund <strong>Emergency Field Repairs</strong> if dangerous storms (like Sol 5111) roll your rover over!</p>
+            </div>
+          </div>
+
+          <div class="directive-step-card">
+            <div class="step-num-pill">03</div>
+            <div class="step-icon">📡</div>
+            <div class="step-content">
+              <h4>SCAN HISTORIC NASA RELICS</h4>
+              <p>When you approach a target (Surveyor 1, Apollo 11, Opportunity, InSight, Voyager 1), the radar card rings. Press <strong>[E]</strong> or click <strong>[SCAN ➔]</strong> to record the historic discovery!</p>
+            </div>
+          </div>
+
+          <div class="directive-step-card">
+            <div class="step-num-pill">04</div>
+            <div class="step-icon">🧪</div>
+            <div class="step-content">
+              <h4>SOLVE JPL LABS TO FINISH</h4>
+              <p>Solve interactive science labs (Rocket Δv Staging, APXS Spectroscopy, Marsquake Seismology). Finish all 6 mission levels across Moon and Mars to claim your Space Pioneer Master Certificate!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer modal-footer-dual centered">
+        <button class="modal-action-btn secondary-btn" id="btn-guider-view-roadmap">
+          <span>🗺️ VIEW MISSION ROADMAP (LEVELS)</span>
+        </button>
+        <button class="modal-action-btn glow-gold" id="btn-guider-lets-go">
+          <span>🚀 LET'S GO! (CONTINUE EXPEDITION) ➔</span>
+        </button>
       </div>
     </div>
   </div>

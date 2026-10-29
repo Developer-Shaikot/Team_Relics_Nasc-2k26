@@ -134,6 +134,46 @@ class MartianAudioSystem {
     this.windGain.gain.setTargetAtTime(targetGain, this.ctx.currentTime, 0.3);
   }
 
+  playClick() {
+    this.playScannerBeep(false);
+  }
+
+  playUiHover() {
+    if (this.isMuted || !this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1320, now);
+      osc.frequency.exponentialRampToValueAtTime(1760, now + 0.035);
+      gain.gain.setValueAtTime(0.035, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start();
+      osc.stop(now + 0.045);
+    } catch (e) {}
+  }
+
+  playUiSwitch() {
+    if (this.isMuted || !this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(1040, now + 0.07);
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start();
+      osc.stop(now + 0.085);
+    } catch (e) {}
+  }
+
   playScannerBeep(highPitch = false) {
     if (this.isMuted || !this.ctx) return;
     const osc = this.ctx.createOscillator();

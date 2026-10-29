@@ -13,6 +13,10 @@ import { Sol5111TimelineManager } from './systems/sol5111.js';
 import { PitchShowcaseDirector } from './systems/pitchMode.js';
 import { martianAudio } from './systems/audio.js';
 import { MissionQuestManager } from './systems/quests.js';
+import { CoinsManager } from './systems/coinsManager.js';
+import { GuideBotEscort } from './systems/guideBotEscort.js';
+import { SpaceshipHabManager } from './systems/spaceshipHab.js';
+import { AstronautCommander } from './systems/astronautCommander.js';
 import { MissionNewsCarouselManager } from './systems/missionNewsCarousel.js';
 import { SpaceCalendarManager } from './systems/spaceCalendar.js';
 import { QuizLeaderboardManager } from './systems/quizLeaderboard.js';
@@ -76,6 +80,11 @@ window.addEventListener('DOMContentLoaded', () => {
     camera,
     sceneManager
   );
+
+  // Setup Collectible Cosmic Coins on Terrain & Flying Guide Robot Escort
+  const coinsManager = new CoinsManager(scene);
+  const guideBotEscort = new GuideBotEscort(scene);
+  const astronautCommander = new AstronautCommander(scene);
 
   // 5. Setup Mission Quest Manager (100% English)
   const currentLanguage = 'en';
@@ -276,15 +285,27 @@ window.addEventListener('DOMContentLoaded', () => {
     if (planet === 'deepspace') {
       activeRoverGroup.position.set(0, 1.8, 0);
       setCameraMode('orbit');
-      setTarget(0, 1.8, 0);
-      camera.position.set(0, 3.2, 6.2);
+      sceneManager.flyTo({
+        target: { x: 0, y: 1.8, z: 0 },
+        radius: 6.2,
+        theta: 0.35,
+        phi: Math.PI / 3.2,
+        duration: 1.4
+      });
     } else {
       activeRoverGroup.position.set(
         roverController.position.x,
         activeGetTerrainHeight(roverController.position.x, roverController.position.z),
         roverController.position.z
       );
-      setTarget(roverController.position.x, roverController.position.y + 0.6, roverController.position.z);
+      setCameraMode('orbit');
+      sceneManager.flyTo({
+        target: { x: roverController.position.x, y: roverController.position.y + 0.6, z: roverController.position.z },
+        radius: planet === 'moon' ? 6.5 : 5.8,
+        theta: planet === 'moon' ? 0.2 : 0.3,
+        phi: Math.PI / 3,
+        duration: 1.3
+      });
     }
     scene.add(activeRoverGroup);
 
@@ -295,6 +316,13 @@ window.addEventListener('DOMContentLoaded', () => {
     if (planet !== 'deepspace') {
       roverController.setPlanet(planet, activeGetTerrainHeight, activeRoverGroup, activeWheels);
       questManager.setPlanet(planet);
+      coinsManager.spawnCoinsForPlanet(planet, activeGetTerrainHeight);
+      guideBotEscort.setVisible(true);
+      astronautCommander.setVisible(true);
+    } else {
+      coinsManager.clearCoins();
+      guideBotEscort.setVisible(false);
+      astronautCommander.setVisible(false);
     }
 
     // Update World Switcher Pills & Active World Pill
@@ -537,6 +565,10 @@ window.addEventListener('DOMContentLoaded', () => {
     if (currentPlanet === 'mars') {
       const opticalResult = marsAtmosphere.setAtmosphericTau(tau);
       marsRover.setDustAccumulation(tau);
+
+      if (tau >= 8.5 && !isRoverCrashedInStorm && currentMode === 'sol5111') {
+        triggerStormCrash();
+      }
       martianAudio.updateAtmosphereWind(tau);
 
       const hudTau = document.getElementById('hud-tau');
@@ -670,6 +702,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const openLabFromModalBtn = document.getElementById('modal-open-lab-btn');
   if (openLabFromModalBtn) {
     openLabFromModalBtn.addEventListener('click', () => {
+      document.getElementById('modal-backdrop')?.classList.remove('active');
       document.getElementById('scan-modal-backdrop')?.classList.remove('active');
       if (pendingScanLabKey) {
         miniGameManager.open(pendingScanLabKey);
@@ -761,7 +794,7 @@ window.addEventListener('DOMContentLoaded', () => {
       );
     }
 
-    const modal = document.getElementById('scan-modal-backdrop');
+    const modal = document.getElementById('modal-backdrop') || document.getElementById('scan-modal-backdrop');
     const badge = document.getElementById('modal-type-badge');
     const title = document.getElementById('modal-title');
     const abbrev = document.getElementById('modal-abbrev');
@@ -794,20 +827,97 @@ window.addEventListener('DOMContentLoaded', () => {
     if (modal) modal.classList.add('active');
   };
 
-  // Fullscreen HUD Panels Toggle
-  let hudPanelsVisible = true;
-  document.getElementById('toggle-sidebar-btn')?.addEventListener('click', () => {
-    hudPanelsVisible = !hudPanelsVisible;
-    const leftPanel = document.getElementById('telemetry-panel');
-    const rightPanel = document.getElementById('scanner-panel');
+    // =========================================================================
+  // IMMERSIVE FULLSCREEN MODE & GUIDER BRIEFING SYSTEM
+  // =========================================================================
+  let isFullscreenActive = false;
+
+  function setFullscreenMode(active, triggerGuiderModal = true) {
+    isFullscreenActive = active;
+    document.body.classList.toggle('fullscreen-mode-active', active);
+
     const icon = document.getElementById('sidebar-toggle-icon');
     const btnLabel = document.getElementById('lbl-sidebar-btn');
+    if (icon) icon.innerText = active ? '🔲' : '⛶';
+    if (btnLabel) btnLabel.innerText = active ? 'Exit Full' : 'Fullscreen';
 
-    if (leftPanel) leftPanel.style.display = hudPanelsVisible ? 'flex' : 'none';
-    if (rightPanel && currentMode === 'archaeologist')
-      rightPanel.style.display = hudPanelsVisible ? 'flex' : 'none';
-    if (icon) icon.innerText = hudPanelsVisible ? '🔲' : '🔳';
-    if (btnLabel) btnLabel.innerText = hudPanelsVisible ? 'Panels: ON' : 'Fullscreen';
+    if (active) {
+      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+      audioManager?.playUiSwitch();
+      if (triggerGuiderModal) {
+        showGuiderBriefingModal();
+      }
+    } else {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+      audioManager?.playUiSwitch();
+    }
+  }
+
+  function showGuiderBriefingModal() {
+    const modal = document.getElementById('guider-briefing-modal');
+    if (!modal) return;
+
+    const botBadge = document.getElementById('guider-modal-bot-badge');
+    const botTitle = document.getElementById('guider-modal-title');
+    const botSpeech = document.getElementById('guider-briefing-speech');
+    const curCmdr = typeof selectedCommander !== 'undefined' ? selectedCommander : (localStorage.getItem('jdsn_selected_commander') || 'asha');
+    const commanderTitle = curCmdr === 'asha' ? 'Asha (Dhaka)' : 'Leo (Florida)';
+    const robotName = (typeof savedRobotConfig !== 'undefined' && savedRobotConfig?.name) ? savedRobotConfig.name : 'ASTRO-BOT';
+
+    if (botBadge) botBadge.innerText = `${robotName} GUIDANCE PROTOCOL`;
+    if (botTitle) botTitle.innerText = `Commander ${commanderTitle}! Immersive Exploration Engaged`;
+    if (botSpeech) {
+      botSpeech.innerHTML = `"Commander ${commanderTitle}! Fullscreen Immersive Mode is now <strong>ACTIVE</strong>. All distracting telemetry consoles have retracted into the hull. Follow my guidance directives below to pilot your rover, collect cosmic coins, scan relics, and complete the expedition!"`;
+    }
+
+    modal.classList.add('active');
+    audioManager?.playUiAlert();
+  }
+
+  // Toggle button in header
+  document.getElementById('toggle-sidebar-btn')?.addEventListener('click', () => {
+    setFullscreenMode(!isFullscreenActive, true);
+  });
+
+  // Floating exit button in fullscreen mode
+  document.getElementById('btn-exit-fullscreen-floating')?.addEventListener('click', () => {
+    setFullscreenMode(false);
+  });
+
+  // Close Guider Modal buttons
+  document.getElementById('guider-briefing-close-btn')?.addEventListener('click', () => {
+    document.getElementById('guider-briefing-modal')?.classList.remove('active');
+    audioManager?.playUiClick();
+  });
+
+  document.getElementById('btn-guider-lets-go')?.addEventListener('click', () => {
+    document.getElementById('guider-briefing-modal')?.classList.remove('active');
+    audioManager?.playUiConfirm();
+    setMode('drive');
+  });
+
+  document.getElementById('btn-guider-view-roadmap')?.addEventListener('click', () => {
+    document.getElementById('guider-briefing-modal')?.classList.remove('active');
+    audioManager?.playUiClick();
+    document.getElementById('missions-modal-backdrop')?.classList.add('active');
+  });
+
+  // Keyboard shortcut: Press 'F' to toggle Fullscreen
+  window.addEventListener('keydown', (e) => {
+    if ((e.key === 'f' || e.key === 'F') && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+      setFullscreenMode(!isFullscreenActive, true);
+    }
+  });
+
+  // Detect when user exits browser fullscreen via ESC
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && isFullscreenActive) {
+      setFullscreenMode(false, false);
+    }
   });
 
   // UI Mode Setting
@@ -886,41 +996,304 @@ window.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('tab-home-hub')?.addEventListener('click', () => openGameHub());
 
-  // Hub Hero Triple Launch Actions (Moon, Mars, Deep Space)
-  document.getElementById('hub-hero-moon-btn')?.addEventListener('click', () => {
-    closeGameHub();
-    switchCelestialBody('moon');
-    setMode('archaeologist');
-    actorDirector.triggerCommsDialogue(
-      'asha',
-      'Asha (Dhaka): "We are at Tranquility Base! Look at Apollo 11\'s golden Descent Stage—click it or open the Δv Rocket Lab!"',
-      'MISSION 1 • MOON',
-      () => miniGameManager.open('apollo11')
-    );
+  // =========================================================================
+  // HERO STAGING DECK: CHARACTER SELECTION, GUIDE ROBOT & START MISSION
+  // =========================================================================
+  
+  // 1. Initialize Hero Character SVG Rigs
+  actorDirector.initHeroCharacterRigs();
+
+  // 2. Commander Selection State (Asha vs Leo)
+  let selectedCommander = localStorage.getItem('jdsn_selected_commander') || 'asha';
+  let selectedDestination = 'mars';
+
+  const charCardAsha = document.getElementById('char-card-asha');
+  const charCardLeo = document.getElementById('char-card-leo');
+  const startMissionBtn = document.getElementById('hero-start-mission-btn');
+  const startCommanderName = document.getElementById('lbl-start-commander-name');
+  const startDestSub = document.getElementById('lbl-start-dest-sub');
+  const hubUserName = document.getElementById('lbl-hub-user-name');
+
+  function updateCommanderUI() {
+    if (charCardAsha) charCardAsha.classList.toggle('selected', selectedCommander === 'asha');
+    if (charCardLeo) charCardLeo.classList.toggle('selected', selectedCommander === 'leo');
+
+    if (startCommanderName) {
+      startCommanderName.innerText = selectedCommander === 'asha' ? 'ASHA' : 'LEO';
+    }
+
+    if (startMissionBtn) {
+      startMissionBtn.classList.toggle('leo-active', selectedCommander === 'leo');
+    }
+
+    if (hubUserName) {
+      hubUserName.innerText = selectedCommander === 'asha' 
+        ? 'ASHA (DHAKA) • JDSN COMMANDER' 
+        : 'LEO (FLORIDA) • JDSN COMMANDER';
+    }
+
+    actorDirector.activeSpeaker = selectedCommander;
+  }
+
+  charCardAsha?.addEventListener('click', () => {
+    selectedCommander = 'asha';
+    localStorage.setItem('jdsn_selected_commander', 'asha');
+    updateCommanderUI();
+    martianAudio.playUiSwitch();
+    martianAudio.playVoiceCadence('asha');
   });
 
-  document.getElementById('hub-hero-mars-btn')?.addEventListener('click', () => {
-    closeGameHub();
-    switchCelestialBody('mars');
-    setMode('archaeologist');
-    actorDirector.triggerCommsDialogue(
-      'leo',
-      'Leo (Florida): "Welcome to Mars! Scan Opportunity\'s Hematite Blueberries (APXS) or InSight\'s SEIS dome to hear a Marsquake!"',
-      'MISSIONS 2 & 3 • MARS',
-      () => miniGameManager.open('opportunity')
-    );
+  charCardLeo?.addEventListener('click', () => {
+    selectedCommander = 'leo';
+    localStorage.setItem('jdsn_selected_commander', 'leo');
+    updateCommanderUI();
+    martianAudio.playUiSwitch();
+    martianAudio.playVoiceCadence('leo');
   });
 
-  document.getElementById('hub-hero-deepspace-btn')?.addEventListener('click', () => {
+  updateCommanderUI();
+
+  // 3. Destination Selector Pills
+  const destPills = {
+    mars: document.getElementById('dest-pill-mars'),
+    moon: document.getElementById('dest-pill-moon'),
+    deepspace: document.getElementById('dest-pill-deepspace')
+  };
+
+  const destSubLabels = {
+    mars: 'TO MARS: PERSEVERANCE VALLEY ➔',
+    moon: 'TO MOON: TRANQUILITY BASE ➔',
+    deepspace: 'TO DEEP SPACE: VOYAGER 1 ➔'
+  };
+
+  function setDestination(dest) {
+    if (!destPills[dest]) return;
+    selectedDestination = dest;
+    Object.keys(destPills).forEach(k => {
+      destPills[k]?.classList.toggle('active', k === dest);
+    });
+    if (startDestSub) {
+      startDestSub.innerText = destSubLabels[dest] || 'LAUNCH ➔';
+    }
+    martianAudio.playUiSwitch();
+  }
+
+  destPills.mars?.addEventListener('click', () => setDestination('mars'));
+  destPills.moon?.addEventListener('click', () => setDestination('moon'));
+  destPills.deepspace?.addEventListener('click', () => setDestination('deepspace'));
+
+  // Interactive Background Celestial Body Clicks
+  document.getElementById('hero-celestial-mars')?.addEventListener('click', () => {
+    setDestination('mars');
+    martianAudio.playScannerBeep(true);
+  });
+  document.getElementById('hero-celestial-moon')?.addEventListener('click', () => {
+    setDestination('moon');
+    martianAudio.playScannerBeep(true);
+  });
+  document.getElementById('hero-celestial-voyager')?.addEventListener('click', () => {
+    setDestination('deepspace');
+    martianAudio.playScannerBeep(true);
+  });
+
+  // 4. Guide Robot Customizer State & Modal Logic
+  let savedRobotConfig = {
+    name: 'ASTRO-BOT',
+    color: '#00e5ff',
+    protocol: 'science'
+  };
+  try {
+    const stored = localStorage.getItem('jdsn_guide_robot');
+    if (stored) savedRobotConfig = Object.assign(savedRobotConfig, JSON.parse(stored));
+  } catch (e) {}
+
+  const robotBackdrop = document.getElementById('robot-customizer-backdrop');
+  const robotPreviewPod = document.getElementById('robot-preview-pod');
+  const robotNameInput = document.getElementById('robot-name-input');
+  const robotDisplayName = document.getElementById('robot-display-name');
+  const robotDisplayMode = document.getElementById('robot-display-mode');
+  const miniBotName = document.getElementById('mini-bot-name-label');
+  const miniBotDot = document.getElementById('mini-bot-color-dot');
+
+  function renderRobotPreview() {
+    if (robotPreviewPod) {
+      robotPreviewPod.innerHTML = actorDirector.getRobotRigSVG('modal', savedRobotConfig.color);
+    }
+    if (robotDisplayName) robotDisplayName.innerText = savedRobotConfig.name;
+    if (miniBotName) miniBotName.innerText = savedRobotConfig.name;
+    if (miniBotDot) {
+      miniBotDot.style.background = savedRobotConfig.color;
+      miniBotDot.style.boxShadow = `0 0 8px ${savedRobotConfig.color}`;
+    }
+    if (robotDisplayMode) {
+      const modeNames = {
+        science: '🔬 SCIENCE GUIDE MODE',
+        radar: '📡 LIDAR RADAR SCANNER',
+        story: '📖 STORY CHRONICLER'
+      };
+      robotDisplayMode.innerText = modeNames[savedRobotConfig.protocol] || 'COMPANION AI';
+    }
+  }
+
+  renderRobotPreview();
+
+  // Open / Close Robot Customizer
+  document.getElementById('btn-open-robot-customizer')?.addEventListener('click', () => {
+    if (robotBackdrop) robotBackdrop.classList.add('active');
+    if (robotNameInput) robotNameInput.value = savedRobotConfig.name;
+    renderRobotPreview();
+    martianAudio.playUiSwitch();
+  });
+
+  document.getElementById('robot-customizer-close')?.addEventListener('click', () => {
+    if (robotBackdrop) robotBackdrop.classList.remove('active');
+  });
+
+  robotBackdrop?.addEventListener('click', (e) => {
+    if (e.target.id === 'robot-customizer-backdrop') {
+      robotBackdrop.classList.remove('active');
+    }
+  });
+
+  // Color Palette Selection
+  document.querySelectorAll('.color-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      savedRobotConfig.color = chip.dataset.color;
+      renderRobotPreview();
+      martianAudio.playClick();
+    });
+  });
+
+  // Protocol Selection
+  document.querySelectorAll('.protocol-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.protocol-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      savedRobotConfig.protocol = card.dataset.protocol;
+      renderRobotPreview();
+      martianAudio.playClick();
+    });
+  });
+
+  // Name Input Live Update
+  robotNameInput?.addEventListener('input', (e) => {
+    savedRobotConfig.name = e.target.value.trim().toUpperCase() || 'ASTRO-BOT';
+    if (robotDisplayName) robotDisplayName.innerText = savedRobotConfig.name;
+  });
+
+  // Save Robot Configuration
+  document.getElementById('btn-save-robot-config')?.addEventListener('click', () => {
+    if (robotNameInput) {
+      savedRobotConfig.name = robotNameInput.value.trim().toUpperCase() || 'ASTRO-BOT';
+    }
+    localStorage.setItem('jdsn_guide_robot', JSON.stringify(savedRobotConfig));
+    renderRobotPreview();
+    if (robotBackdrop) robotBackdrop.classList.remove('active');
+    martianAudio.playScannerBeep(true);
+  });
+
+  // 5. Spaceship Habitation Ready Room & Start Mission Flow
+  const spaceshipHab = new SpaceshipHabManager((destination, commander) => {
+    selectedDestination = destination;
+    selectedCommander = commander;
+    switchCelestialBody(destination);
+    setMode('drive');
+
+    guideBotEscort.setColor(savedRobotConfig.color);
+    guideBotEscort.setVisible(true);
+    astronautCommander.setCommander(commander);
+    astronautCommander.setVisible(true);
+    astronautCommander.setCrashState(false);
+
+    // Open the Mission Levels Roadmap modal for this planet first!
+    questManager.openRoadmapForPlanet(destination);
+
+    const greeting = commander === 'asha'
+      ? `Asha (Dhaka): "Welcome to ${destination === 'moon' ? 'the Moon' : 'Mars'}! Your mission levels roadmap is ready—pick Level 1 to begin!"`
+      : `Leo (Florida): "Commander Leo at ${destination === 'moon' ? 'Lunar' : 'Martian'} console! Expedition levels loaded. Click Level 1 to start!"`;
+
+    const missionBadge = destination === 'moon' ? 'MOON EXPEDITION' : 'MARS EXPEDITION';
+
+    setTimeout(() => {
+      actorDirector.triggerCommsDialogue(
+        commander,
+        greeting,
+        missionBadge
+      );
+    }, 400);
+  });
+
+  // START MISSION ACTION -> Enters Abandoned Spaceship Hab!
+  startMissionBtn?.addEventListener('click', () => {
+    martianAudio.playUiSwitch();
     closeGameHub();
-    switchCelestialBody('deepspace');
-    setMode('archaeologist');
-    actorDirector.triggerCommsDialogue(
-      'asha',
-      'Asha (Dhaka): "24.3 billion km from Earth... Voyager 1 is flying through interstellar darkness carrying the Golden Record!"',
-      'MISSION 4 • DEEP SPACE',
-      () => miniGameManager.open('voyager1')
-    );
+    spaceshipHab.setCommander(selectedCommander, savedRobotConfig);
+    spaceshipHab.open();
+  });
+
+  // Sol 5111 Rover Crash & Coin Repair System
+  let isRoverCrashedInStorm = false;
+
+  function triggerStormCrash() {
+    if (isRoverCrashedInStorm) return;
+    isRoverCrashedInStorm = true;
+
+    if (roverController?.rover) {
+      roverController.velocity = 0;
+      roverController.rover.rotation.z = Math.PI * 0.58;
+      roverController.rover.rotation.x = 0.35;
+      roverController.rover.position.y += 0.35;
+      astronautCommander.setCrashState(true, roverController.position);
+    }
+
+    martianAudio.playMarsquakeWave();
+
+    const repairWidget = document.getElementById('storm-crash-repair-widget');
+    if (repairWidget) repairWidget.style.display = 'block';
+  }
+
+  function repairRoverFromStorm() {
+    const success = coinsManager.spendCoins(100);
+    if (!success) {
+      coinsManager.showFloatingPickupText('⚠️ Need 100 Cosmic Coins! Drive & collect coins on the terrain 🪙');
+      return;
+    }
+
+    isRoverCrashedInStorm = false;
+    if (roverController?.rover) {
+      roverController.rover.rotation.z = 0;
+      roverController.rover.rotation.x = 0;
+      roverController.rover.position.y = activeGetTerrainHeight ? activeGetTerrainHeight(roverController.position.x, roverController.position.z) : 0;
+      astronautCommander.setCrashState(false);
+    }
+
+    const repairWidget = document.getElementById('storm-crash-repair-widget');
+    if (repairWidget) repairWidget.style.display = 'none';
+
+    martianAudio.playScannerBeep(true);
+    coinsManager.showFloatingPickupText('⚡ ROVER REPAIRED & REBOOTED! 100% HEALTH ⚡');
+  }
+
+  document.getElementById('btn-repair-rover')?.addEventListener('click', repairRoverFromStorm);
+
+  // Discovery / Level Complete Modal Actions
+  document.getElementById('disc-roadmap-btn')?.addEventListener('click', () => {
+    document.getElementById('mission-discovery-modal-backdrop')?.classList.remove('active');
+    questManager.openRoadmapForPlanet(currentPlanet);
+    martianAudio.playUiSwitch?.();
+  });
+
+  document.getElementById('disc-next-level-btn')?.addEventListener('click', () => {
+    document.getElementById('mission-discovery-modal-backdrop')?.classList.remove('active');
+    questManager.playNextLevel();
+    martianAudio.playUiSwitch?.();
+  });
+
+  document.getElementById('disc-dismiss-btn')?.addEventListener('click', () => {
+    document.getElementById('mission-discovery-modal-backdrop')?.classList.remove('active');
+    questManager.playNextLevel();
   });
 
   // Story Prologue Triggers
@@ -939,6 +1312,12 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-open-prologue')?.addEventListener('click', openPrologueHandler);
 
   // 4 JPL Science Labs Triggers
+  miniGameManager.onTabSwitchCallback = (mgKey) => {
+    if (mgKey === 'apollo11') switchCelestialBody('moon');
+    else if (mgKey === 'voyager1') switchCelestialBody('deepspace');
+    else switchCelestialBody('mars');
+  };
+
   const openLabsHandler = (defaultLab = 'apollo11') => {
     miniGameManager.open(defaultLab);
   };
@@ -1140,6 +1519,14 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('missions-modal-backdrop')?.classList.remove('active');
   });
 
+  document.getElementById('lang-toggle-btn')?.addEventListener('click', () => {
+    const lang = questManager.toggleLanguage();
+    quizManager.setLanguage(lang);
+    newsManager.setLanguage(lang);
+    calendarManager.setLanguage(lang);
+    martianAudio.playClick();
+  });
+
   document.getElementById('open-quiz-btn')?.addEventListener('click', () => {
     quizManager.render();
     document.getElementById('quiz-modal-backdrop')?.classList.add('active');
@@ -1176,18 +1563,50 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('mission-discovery-modal-backdrop')?.classList.remove('active');
   });
 
+  document.getElementById('celebration-close-btn')?.addEventListener('click', () => {
+    document.getElementById('celebration-modal-backdrop')?.classList.remove('active');
+  });
+  document.getElementById('celebration-dismiss-btn')?.addEventListener('click', () => {
+    document.getElementById('celebration-modal-backdrop')?.classList.remove('active');
+  });
   document.getElementById('cert-close-btn')?.addEventListener('click', () => {
-    document.getElementById('certificate-modal-backdrop')?.classList.remove('active');
+    document.getElementById('celebration-modal-backdrop')?.classList.remove('active');
   });
   document.getElementById('cert-dismiss-btn')?.addEventListener('click', () => {
-    document.getElementById('certificate-modal-backdrop')?.classList.remove('active');
+    document.getElementById('celebration-modal-backdrop')?.classList.remove('active');
   });
 
   document.getElementById('modal-close-btn')?.addEventListener('click', () => {
+    document.getElementById('modal-backdrop')?.classList.remove('active');
+    document.getElementById('scan-modal-backdrop')?.classList.remove('active');
+  });
+  document.getElementById('modal-action-btn')?.addEventListener('click', () => {
+    document.getElementById('modal-backdrop')?.classList.remove('active');
     document.getElementById('scan-modal-backdrop')?.classList.remove('active');
   });
   document.getElementById('modal-dismiss-btn')?.addEventListener('click', () => {
+    document.getElementById('modal-backdrop')?.classList.remove('active');
     document.getElementById('scan-modal-backdrop')?.classList.remove('active');
+  });
+
+  document.getElementById('rubric-btn')?.addEventListener('click', () => {
+    document.getElementById('rubric-modal-backdrop')?.classList.add('active');
+  });
+  document.getElementById('rubric-close-btn')?.addEventListener('click', () => {
+    document.getElementById('rubric-modal-backdrop')?.classList.remove('active');
+  });
+  document.getElementById('rubric-dismiss-btn')?.addEventListener('click', () => {
+    document.getElementById('rubric-modal-backdrop')?.classList.remove('active');
+  });
+
+  document.getElementById('dust-info-btn')?.addEventListener('click', () => {
+    document.getElementById('dust-modal-backdrop')?.classList.add('active');
+  });
+  document.getElementById('dust-close-btn')?.addEventListener('click', () => {
+    document.getElementById('dust-modal-backdrop')?.classList.remove('active');
+  });
+  document.getElementById('dust-dismiss-btn')?.addEventListener('click', () => {
+    document.getElementById('dust-modal-backdrop')?.classList.remove('active');
   });
 
   document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
@@ -1213,7 +1632,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Camera Buttons
   document.getElementById('cam-orbit')?.addEventListener('click', (e) => {
-    setActiveCamBtn(e.target);
+    setActiveCamBtn(e.currentTarget);
     setCameraMode('orbit');
     if (currentPlanet === 'deepspace') {
       setTarget(0, 1.8, 0);
@@ -1229,7 +1648,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('cam-pancam')?.addEventListener('click', (e) => {
-    setActiveCamBtn(e.target);
+    setActiveCamBtn(e.currentTarget);
     setCameraMode('pancam_fpp');
     fpp.eyePos.set(roverController.position.x, roverController.position.y + 1.4, roverController.position.z);
     fpp.yaw = roverController.heading;
@@ -1238,14 +1657,14 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('cam-top')?.addEventListener('click', (e) => {
-    setActiveCamBtn(e.target);
+    setActiveCamBtn(e.currentTarget);
     setCameraMode('top');
     camera.position.set(roverController.position.x, roverController.position.y + 18, roverController.position.z);
     camera.lookAt(roverController.position.x, roverController.position.y, roverController.position.z);
   });
 
   document.getElementById('cam-surface')?.addEventListener('click', (e) => {
-    setActiveCamBtn(e.target);
+    setActiveCamBtn(e.currentTarget);
     setCameraMode('surface');
     camera.position.set(
       roverController.position.x - 2.5,
@@ -1335,10 +1754,115 @@ window.addEventListener('DOMContentLoaded', () => {
   // 11. Main Animation Render Loop
   const clock = new THREE.Clock();
 
+  // Spaceflight Cockpit HUD Real-Time Telemetry Updater
+  let flightHudActive = true;
+  const flightHudOverlay = document.getElementById('spaceflight-hud-overlay');
+  const flightHudToggleBtn = document.getElementById('flight-hud-toggle-btn');
+  const compassTape = document.getElementById('flight-compass-tape');
+  const compassReadout = document.getElementById('flight-compass-readout');
+  const pitchLadder = document.getElementById('attitude-pitch-ladder');
+  const flightSpeedVal = document.getElementById('flight-speed-val');
+  const flightSpeedBar = document.getElementById('flight-speed-bar');
+  const flightGVal = document.getElementById('flight-g-val');
+  const flightAltVal = document.getElementById('flight-alt-val');
+  const flightTargetVal = document.getElementById('flight-target-val');
+  const flightTargetDist = document.getElementById('flight-target-dist');
+  const flightStatusText = document.getElementById('flight-status-text');
+
+  if (flightHudToggleBtn) {
+    flightHudToggleBtn.addEventListener('click', () => {
+      flightHudActive = !flightHudActive;
+      martianAudio.playUiSwitch();
+      if (flightHudOverlay) {
+        flightHudOverlay.style.opacity = flightHudActive ? '1' : '0';
+        flightHudOverlay.style.pointerEvents = flightHudActive ? 'none' : 'none';
+      }
+      flightHudToggleBtn.innerHTML = flightHudActive ? '<span>🛩️ HUD: ACTIVE</span>' : '<span>🛩️ HUD: OFF</span>';
+    });
+  }
+
+  function updateSpaceflightHUD() {
+    if (!flightHudOverlay || !flightHudActive) return;
+
+    const attitude = sceneManager.getCameraAttitude();
+    const heading = attitude.headingDeg;
+
+    // 1. Heading Compass Tape
+    if (compassTape) {
+      // Offset tape smoothly between 0% and -50%
+      const offsetPercent = ((heading % 360) / 360) * 50;
+      compassTape.style.transform = `translateX(-${offsetPercent}%)`;
+    }
+
+    if (compassReadout) {
+      let card = 'N';
+      if (heading >= 337.5 || heading < 22.5) card = 'N';
+      else if (heading < 67.5) card = 'NE';
+      else if (heading < 112.5) card = 'E';
+      else if (heading < 157.5) card = 'SE';
+      else if (heading < 202.5) card = 'S';
+      else if (heading < 247.5) card = 'SW';
+      else if (heading < 292.5) card = 'W';
+      else if (heading < 337.5) card = 'NW';
+      compassReadout.innerText = `HDG: ${Math.round(heading).toString().padStart(3, '0')}° ${card}`;
+    }
+
+    // 2. Artificial Horizon Pitch & Roll
+    if (pitchLadder) {
+      const pitchDeg = currentMode === 'drive' ? (roverController.currentSlopeDeg || attitude.pitchDeg) : attitude.pitchDeg;
+      const rollDeg = currentMode === 'drive' ? (roverController.rover ? -roverController.rover.rotation.z * (180 / Math.PI) : 0) : 0;
+      const pitchOffset = Math.max(-60, Math.min(60, pitchDeg * 1.8));
+      pitchLadder.style.transform = `translateY(${pitchOffset}px) rotate(${rollDeg.toFixed(1)}deg)`;
+    }
+
+    // 3. Speed, G-Force & Altitude
+    const speed = currentPlanet === 'deepspace' ? 17000 : Math.abs(roverController?.velocity || 0);
+    const speedDisplay = currentPlanet === 'deepspace' ? '17.0 km/s' : `${speed.toFixed(1)} m/s`;
+    if (flightSpeedVal) flightSpeedVal.innerHTML = `${speedDisplay}`;
+    if (flightSpeedBar) {
+      const pct = currentPlanet === 'deepspace' ? 100 : Math.min(100, (speed / (roverController?.maxSpeed || 2.4)) * 100);
+      flightSpeedBar.style.width = `${pct}%`;
+    }
+
+    if (flightGVal) {
+      flightGVal.innerHTML = currentPlanet === 'moon' ? '0.16 <small>G</small>' : currentPlanet === 'deepspace' ? '0.00 <small>G</small>' : '0.38 <small>G</small>';
+    }
+
+    if (flightAltVal) {
+      const alt = currentPlanet === 'deepspace' ? '163 AU' : `${attitude.altitudeM} m`;
+      flightAltVal.innerHTML = `${alt}`;
+    }
+
+    // 4. Target Relic & Distance
+    if (flightTargetVal && flightTargetDist) {
+      if (currentPlanet === 'moon') {
+        flightTargetVal.innerText = 'APOLLO 11 (LM EAGLE)';
+        flightTargetDist.innerText = 'TRANQUILITY BASE • HISTORIC SITE';
+      } else if (currentPlanet === 'deepspace') {
+        flightTargetVal.innerText = 'VOYAGER 1 & GOLDEN RECORD';
+        flightTargetDist.innerText = 'HELIOPAUSE • 24.3 BILLION KM';
+      } else {
+        flightTargetVal.innerText = 'OPPORTUNITY (MER-B)';
+        flightTargetDist.innerText = 'PERSEVERANCE VALLEY • CRATER RIM';
+      }
+    }
+  }
+
+  // Global Micro-Interaction Audio Synthesizer Triggers
+  document.addEventListener('pointerenter', (e) => {
+    const el = e.target.closest?.('button, .hub-quick-btn, .hub-game-card, .nav-tab, .mg-tab-pill');
+    if (el) {
+      martianAudio.playUiHover();
+    }
+  }, true);
+
   function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
     const elapsedTime = clock.getElapsedTime();
+
+    // 1. Smooth Camera Damping & Cosmic Stardust Particles
+    sceneManager.update(delta, elapsedTime);
 
     if (activeAtmosphere) {
       activeAtmosphere.update(delta, currentTau);
@@ -1349,7 +1873,12 @@ window.addEventListener('DOMContentLoaded', () => {
     actorDirector.update(delta, elapsedTime, currentPlanet, currentTau);
 
     if ((currentMode === 'drive' || currentMode === 'archaeologist') && currentPlanet !== 'deepspace') {
-      roverController.update(delta);
+      if (!isRoverCrashedInStorm) {
+        roverController.update(delta);
+      }
+      coinsManager.update(delta, elapsedTime, roverController.position);
+      guideBotEscort.update(delta, elapsedTime, roverController.position, roverController.heading);
+      astronautCommander.update(roverController.position, roverController.heading, currentPlanet);
     }
 
     if (currentMode === 'pitch') {
@@ -1364,6 +1893,9 @@ window.addEventListener('DOMContentLoaded', () => {
       fpp.eyePos.set(roverController.position.x, roverController.position.y + 1.4, roverController.position.z);
       sceneManager.updateCameraPosition();
     }
+
+    // 2. Real-Time Spaceflight Avionics & Cockpit HUD Update
+    updateSpaceflightHUD();
 
     renderer.render(scene, camera);
   }

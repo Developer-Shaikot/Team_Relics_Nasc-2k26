@@ -188,11 +188,57 @@ export class ActorAnimationDirector {
     `;
   }
 
+  getRobotRigSVG(prefix = "custom", color = "#00e5ff") {
+    return `
+      <svg class="actor-rig-svg robot-rig-svg" id="${prefix}-robot-svg" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="${prefix}-robot-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="${color}" stop-opacity="0.45"/>
+            <stop offset="100%" stop-color="#0a1120" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="70" cy="70" r="64" fill="url(#${prefix}-robot-glow)" />
+        <!-- Floating Thruster Base -->
+        <ellipse cx="70" cy="116" rx="22" ry="7" fill="${color}" opacity="0.6"/>
+        <ellipse cx="70" cy="118" rx="12" ry="4" fill="#ffffff" opacity="0.9"/>
+        <!-- Robot Torso -->
+        <rect x="44" y="74" width="52" height="38" rx="14" fill="#1e293b" stroke="${color}" stroke-width="2.5"/>
+        <line x1="56" y1="88" x2="84" y2="88" stroke="${color}" stroke-width="2" opacity="0.6"/>
+        <!-- Robot Antenna -->
+        <line x1="70" y1="36" x2="70" y2="48" stroke="#94a3b8" stroke-width="2.5"/>
+        <circle cx="70" cy="34" r="5" fill="${color}">
+          <animate attributeName="r" values="4.5;6.5;4.5" dur="1.4s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Robot Head Dome -->
+        <rect x="40" y="44" width="60" height="36" rx="16" fill="#0f172a" stroke="${color}" stroke-width="2.5"/>
+        <!-- Visor Face Screen -->
+        <rect x="46" y="50" width="48" height="22" rx="8" fill="#030712"/>
+        <!-- Animated LED Eyes -->
+        <ellipse cx="58" cy="61" rx="4.5" ry="4.5" fill="${color}">
+          <animate attributeName="ry" values="4.5;0.8;4.5" dur="3.5s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="82" cy="61" rx="4.5" ry="4.5" fill="${color}">
+          <animate attributeName="ry" values="4.5;0.8;4.5" dur="3.5s" repeatCount="indefinite"/>
+        </ellipse>
+      </svg>
+    `;
+  }
+
+  initHeroCharacterRigs() {
+    const heroAshaBox = document.getElementById('hero-asha-avatar-box');
+    const heroLeoBox = document.getElementById('hero-leo-avatar-box');
+    if (heroAshaBox) heroAshaBox.innerHTML = this.getAshaRigSVG('hero');
+    if (heroLeoBox) heroLeoBox.innerHTML = this.getLeoRigSVG('hero');
+  }
+
   initPrologueUI() {
     const ashaStage = document.getElementById('prologue-asha-rig-box');
     const leoStage = document.getElementById('prologue-leo-rig-box');
     if (ashaStage) ashaStage.innerHTML = this.getAshaRigSVG('prologue');
     if (leoStage) leoStage.innerHTML = this.getLeoRigSVG('prologue');
+
+    if (this._prologueBound) return;
+    this._prologueBound = true;
 
     document.getElementById('btn-open-prologue')?.addEventListener('click', () => {
       this.openPrologue();
@@ -201,8 +247,20 @@ export class ActorAnimationDirector {
       this.nextPrologueStep();
     });
     document.getElementById('prologue-skip-btn')?.addEventListener('click', () => {
-      this.closePrologue();
+      this.closePrologue(true);
     });
+    document.getElementById('prologue-close-btn')?.addEventListener('click', () => {
+      this.closePrologue(false);
+    });
+    document.getElementById('prologue-modal-backdrop')?.addEventListener('click', (e) => {
+      if (e.target.id === 'prologue-modal-backdrop') {
+        this.closePrologue(false);
+      }
+    });
+  }
+
+  initPrologueActors() {
+    this.initPrologueUI();
   }
 
   initCommsHUD() {
@@ -210,9 +268,24 @@ export class ActorAnimationDirector {
     const leoAvatarBox = document.getElementById('comms-leo-avatar');
     if (ashaAvatarBox) ashaAvatarBox.innerHTML = this.getAshaRigSVG('comms');
     if (leoAvatarBox) leoAvatarBox.innerHTML = this.getLeoRigSVG('comms');
+
+    if (!this._commsBound) {
+      this._commsBound = true;
+      document.getElementById('comms-minigame-btn')?.addEventListener('click', (e) => {
+        if (typeof this.currentCommsAction === 'function') {
+          e.stopImmediatePropagation();
+          this.currentCommsAction();
+        }
+      });
+    }
   }
 
-  openPrologue() {
+  initCommsAvatars() {
+    this.initCommsHUD();
+  }
+
+  openPrologue(onComplete = null) {
+    this.onPrologueComplete = typeof onComplete === 'function' ? onComplete : null;
     this.currentPrologueStep = 0;
     const modal = document.getElementById('prologue-modal-backdrop');
     if (modal) {
@@ -221,9 +294,14 @@ export class ActorAnimationDirector {
     }
   }
 
-  closePrologue() {
+  closePrologue(runCallback = true) {
     const modal = document.getElementById('prologue-modal-backdrop');
     if (modal) modal.classList.remove('active');
+    if (runCallback && typeof this.onPrologueComplete === 'function') {
+      const cb = this.onPrologueComplete;
+      this.onPrologueComplete = null;
+      cb();
+    }
   }
 
   nextPrologueStep() {
@@ -231,7 +309,7 @@ export class ActorAnimationDirector {
       this.currentPrologueStep++;
       this.renderPrologueStep();
     } else {
-      this.closePrologue();
+      this.closePrologue(true);
     }
   }
 
@@ -252,7 +330,7 @@ export class ActorAnimationDirector {
     if (tagEl) tagEl.innerText = scene.tag;
     if (titleEl) titleEl.innerText = scene.title;
     if (speakerEl) speakerEl.innerText = scene.speaker;
-    if ( textEl ) textEl.innerText = `"${scene.dialogue}"`;
+    if (textEl) textEl.innerText = `"${scene.dialogue}"`;
     if (noteEl) noteEl.innerText = `🔬 JPL Science Link: ${scene.scienceNote}`;
 
     if (nextBtn) {
@@ -266,22 +344,47 @@ export class ActorAnimationDirector {
       const isAsha = this.currentPrologueStep === 0 || this.currentPrologueStep === 2;
       const isLeo = this.currentPrologueStep === 1 || this.currentPrologueStep === 2;
       ashaCard.classList.toggle('speaking', isAsha);
+      ashaCard.classList.toggle('active-actor', isAsha);
       leoCard.classList.toggle('speaking', isLeo);
+      leoCard.classList.toggle('active-actor', isLeo);
     }
 
     martianAudio.playVoiceCadence(this.currentPrologueStep === 1 ? 'leo' : 'asha');
   }
 
   // Trigger Live Dual-Actor Comms Dialogue with Lip-Sync & Emotion Pose
-  triggerCommsDialogue({
-    speaker = 'asha', // 'asha' | 'leo' | 'both'
-    emotion = 'curious', // 'curious' | 'analytical' | 'emotional' | 'celebrating'
-    title = "ASHA • DHAKA ROOFTOP ANTENNA",
-    text = "",
-    missionId = null
-  }) {
+  // Supports both object syntax ({ speaker, emotion, title, text, missionId }) and positional syntax (speaker, text, badgeTitle, onActionCallback)
+  triggerCommsDialogue(arg1, arg2, arg3, arg4) {
+    let speaker = 'asha';
+    let emotion = 'curious';
+    let title = "ASHA • DHAKA ROOFTOP ANTENNA";
+    let text = "";
+    let missionId = null;
+    let onAction = null;
+
+    if (typeof arg1 === 'object' && arg1 !== null) {
+      speaker = arg1.speaker || 'asha';
+      emotion = arg1.emotion || 'curious';
+      title = arg1.title || (speaker === 'leo' ? "LEO • CAPE CANAVERAL GARAGE" : "ASHA • DHAKA ROOFTOP ANTENNA");
+      text = arg1.text || "";
+      missionId = arg1.missionId || null;
+      onAction = arg1.onAction || null;
+    } else {
+      speaker = arg1 || 'asha';
+      text = arg2 || "";
+      const customBadge = arg3 || "";
+      onAction = typeof arg4 === 'function' ? arg4 : null;
+      title = speaker === 'leo'
+        ? "LEO • CAPE CANAVERAL GARAGE"
+        : speaker === 'both'
+        ? "ASHA & LEO • JDSN LINK"
+        : "ASHA • DHAKA ROOFTOP ANTENNA";
+      emotion = customBadge || 'analytical';
+    }
+
     this.activeSpeaker = speaker;
     this.activeEmotion = emotion;
+    this.currentCommsAction = onAction;
 
     const widget = document.getElementById('companion-bot-widget');
     const bubble = document.getElementById('bot-speech-bubble');
@@ -289,11 +392,18 @@ export class ActorAnimationDirector {
     const textEl = document.getElementById('bot-speech-text');
     const emotionBadge = document.getElementById('comms-emotion-badge');
     const actionBtn = document.getElementById('comms-minigame-btn');
+    const ashaAvatar = document.getElementById('comms-asha-avatar');
+    const leoAvatar = document.getElementById('comms-leo-avatar');
 
     if (bubble) bubble.classList.add('visible');
     if (widget) {
       widget.dataset.speaker = speaker;
       widget.dataset.emotion = emotion;
+    }
+
+    if (ashaAvatar && leoAvatar) {
+      ashaAvatar.classList.toggle('active-speaker', speaker === 'asha' || speaker === 'both');
+      leoAvatar.classList.toggle('active-speaker', speaker === 'leo' || speaker === 'both');
     }
 
     if (labelEl) labelEl.innerText = title;
@@ -304,13 +414,17 @@ export class ActorAnimationDirector {
         emotional: "💛 HEARTFELT MEMORY",
         celebrating: "🎉 EUREKA MOMENT!"
       };
-      emotionBadge.innerText = emotionLabels[emotion] || "📡 LIVE LINK";
+      emotionBadge.innerText = emotionLabels[emotion] || emotion || "📡 LIVE LINK";
     }
 
     if (actionBtn) {
-      if (missionId) {
+      if (missionId || typeof onAction === 'function') {
         actionBtn.style.display = 'inline-flex';
-        actionBtn.dataset.missionId = missionId;
+        if (missionId) {
+          actionBtn.dataset.missionId = missionId;
+        } else {
+          delete actionBtn.dataset.missionId;
+        }
       } else {
         actionBtn.style.display = 'none';
       }

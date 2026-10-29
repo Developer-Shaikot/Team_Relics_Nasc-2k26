@@ -94,7 +94,7 @@ export function createDeepSpaceVoyager() {
     metalness: 0.75
   });
 
-  constbusFoilMat = new THREE.MeshStandardMaterial({
+  const busFoilMat = new THREE.MeshStandardMaterial({
     color: 0xadb5bd,
     roughness: 0.4,
     metalness: 0.85
@@ -126,7 +126,7 @@ export function createDeepSpaceVoyager() {
   busGroup.add(outerBus);
 
   const innerCoreGeo = new THREE.CylinderGeometry(0.55, 0.55, 0.52, 10);
-  const innerCore = new THREE.Mesh(innerCoreGeo, constbusFoilMat);
+  const innerCore = new THREE.Mesh(innerCoreGeo, busFoilMat);
   busGroup.add(innerCore);
   voyager.add(busGroup);
 
@@ -147,7 +147,7 @@ export function createDeepSpaceVoyager() {
     const angle = (i * Math.PI * 2) / 3;
     const strut = new THREE.Mesh(
       new THREE.CylinderGeometry(0.018, 0.018, 0.95, 8),
-      constbusFoilMat
+      busFoilMat
     );
     strut.position.set(Math.cos(angle) * 0.42, 0.45, Math.sin(angle) * 0.42);
     strut.rotation.z = Math.cos(angle) * 0.45;
@@ -263,7 +263,7 @@ export function createDeepSpaceVoyager() {
 
   const wideCam = new THREE.Mesh(
     new THREE.BoxGeometry(0.22, 0.18, 0.28),
-    constbusFoilMat
+    busFoilMat
   );
   wideCam.position.set(0.18, 0.08, 0);
   cameraHeadGroup.add(wideCam);
@@ -274,7 +274,7 @@ export function createDeepSpaceVoyager() {
   // G. Twin 10m Plasma Wave Subsystem (PWS) Whip Antennas
   const pws1 = new THREE.Mesh(
     new THREE.CylinderGeometry(0.008, 0.012, 3.8, 6),
-    constbusFoilMat
+    busFoilMat
   );
   pws1.position.set(-0.4, -0.6, 1.6);
   pws1.rotation.x = Math.PI / 2.4;
@@ -283,7 +283,7 @@ export function createDeepSpaceVoyager() {
 
   const pws2 = new THREE.Mesh(
     new THREE.CylinderGeometry(0.008, 0.012, 3.8, 6),
-    constbusFoilMat
+    busFoilMat
   );
   pws2.position.set(0.4, -0.6, 1.6);
   pws2.rotation.x = Math.PI / 2.4;
@@ -331,7 +331,7 @@ export function createDeepSpaceVoyager() {
     goldRecordMat.emissiveIntensity = spinning ? 0.9 : 0.45;
   }
 
-  function triggerHandshakeWave(active) {
+  function triggerHandshakeWave(active = true) {
     handshakePulseActive = active;
   }
 

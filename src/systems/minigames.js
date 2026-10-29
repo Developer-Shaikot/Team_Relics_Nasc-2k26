@@ -109,11 +109,32 @@ export class ScienceMiniGameManager {
     document.getElementById('minigame-close-btn')?.addEventListener('click', () => this.closeModal());
     document.getElementById('minigame-dismiss-btn')?.addEventListener('click', () => this.closeModal());
 
+    const backdrop = document.getElementById('minigame-modal-backdrop');
+    backdrop?.addEventListener('click', (e) => {
+      if (e.target.id === 'minigame-modal-backdrop') {
+        this.closeModal();
+        return;
+      }
+      const tabBtn = e.target.closest?.('.mg-tab-pill');
+      if (tabBtn && tabBtn.dataset.mg) {
+        e.preventDefault();
+        martianAudio.playScannerBeep?.(false);
+        this.openMiniGame(tabBtn.dataset.mg);
+        if (typeof this.onTabSwitchCallback === 'function') {
+          this.onTabSwitchCallback(this.activeMissionKey);
+        }
+      }
+    });
+
     // Quick Launch Buttons in HUD & Comms Bubble
     document.getElementById('comms-minigame-btn')?.addEventListener('click', (e) => {
       const mId = e.currentTarget.dataset.missionId || 'apollo11';
       this.openMiniGame(mId);
     });
+  }
+
+  open(missionKey = 'apollo11') {
+    this.openMiniGame(missionKey);
   }
 
   openMiniGame(missionKey) {
@@ -144,7 +165,11 @@ export class ScienceMiniGameManager {
 
     this.activeMissionKey = keyMap[missionKey] || 'apollo11';
     const backdrop = document.getElementById('minigame-modal-backdrop');
-    if (backdrop) backdrop.classList.add('active');
+    if (backdrop) {
+      backdrop.classList.add('active');
+      const scrollBody = backdrop.querySelector('.modal-body.scrollable-body');
+      if (scrollBody) scrollBody.scrollTop = 0;
+    }
 
     this.renderActiveMiniGame();
     this.startCanvasLoop();

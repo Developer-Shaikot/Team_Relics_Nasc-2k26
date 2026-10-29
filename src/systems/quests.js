@@ -33,6 +33,26 @@ export class MissionQuestManager {
     return this.currentPlanet === 'moon' ? KIDS_MISSIONS_MOON : KIDS_MISSIONS_MARS;
   }
 
+  openRoadmapForPlanet(planet) {
+    if (planet) this.setPlanet(planet);
+    this.renderMissionsList();
+    const modal = document.getElementById('missions-modal-backdrop');
+    if (modal) modal.classList.add('active');
+    martianAudio.playUiSwitch?.();
+  }
+
+  playNextLevel() {
+    const missions = this.activeMissionsList;
+    const nextUncompleted = missions.find(m => !this.completedMissions.has(m.id));
+    if (nextUncompleted) {
+      if (this.onMissionActionCallback) {
+        this.onMissionActionCallback(nextUncompleted.id);
+      }
+    } else {
+      this.openRoadmapForPlanet(this.currentPlanet);
+    }
+  }
+
   setPlanet(planet) {
     this.currentPlanet = planet;
     const missions = this.activeMissionsList;
@@ -661,7 +681,7 @@ export class MissionQuestManager {
               </div>
               <div class="badge-meta">
                 <span class="badge-tier-label" style="color: ${badge.color}">${isBn ? badge.tier_bn : badge.tier}</span>
-                <h4 class="badge-name">${isBn ? badge.name_bn : badge.name}</h4>
+                <h4 class="badge-name">${isBn ? badge.name_bn : (badge.name_en || badge.name)}</h4>
                 <p class="badge-cond">${isBn ? badge.unlockCondition_bn : badge.unlockCondition_en}</p>
                 <div class="badge-xp-req">
                   <span>${isBn ? 'প্রয়োজনীয় XP:' : 'Req XP:'} ${badge.minXP}</span>
