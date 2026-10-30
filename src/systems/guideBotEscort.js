@@ -92,7 +92,8 @@ export class GuideBotEscort {
   }
 
   setVisible(visible) {
-    this.botGroup.visible = visible;
+    // Disabled in favor of single chosen companion drone (KittyCompanionManager)
+    this.botGroup.visible = false;
   }
 
   update(delta, elapsedTime, roverPos, roverHeading = 0) {

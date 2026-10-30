@@ -134,9 +134,19 @@ export class RoverController {
     this.currentSlopeDeg = (Math.abs(pitch) * (180 / Math.PI)).toFixed(1);
     this.currentSpeedKmH = Math.abs(this.velocity * 3.6).toFixed(1);
 
-    // Dynamic Camera Tracking - Keep camera target locked to the rover when driving in orbit view
+    // Dynamic Camera Tracking - Keep camera target locked to the rover and smoothly align behind rover (Front Mode)
     if (this.sceneManager && this.sceneManager.isOrbitEnabled) {
       this.sceneManager.spherical.target.set(this.position.x, this.position.y + 0.6, this.position.z);
+      if (this.sceneManager.targetState) {
+        this.sceneManager.targetState.lookAt.set(this.position.x, this.position.y + 0.6, this.position.z);
+        // If user is not actively dragging the camera, keep camera directly behind rover in front view
+        if (!this.sceneManager.isDragging) {
+          let diff = this.heading - this.sceneManager.targetState.theta;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          this.sceneManager.targetState.theta += diff * Math.min(1.0, delta * 3.5);
+        }
+      }
       this.sceneManager.updateCameraPosition();
     }
 

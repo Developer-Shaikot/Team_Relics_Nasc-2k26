@@ -8,8 +8,14 @@ export class CoinsManager {
     this.coinsGroup = new THREE.Group();
     this.scene.add(this.coinsGroup);
 
-    // Coin balance
-    this.balance = parseInt(localStorage.getItem('jdsn_cosmic_dust') || '3125', 10);
+    // Coin balance: Default 1,000 Cosmic Dust Coins as per official game specs
+    const storedCoins = localStorage.getItem('jdsn_cosmic_dust');
+    if (!storedCoins || storedCoins === '3125' || storedCoins === '3875') {
+      this.balance = 1000;
+      localStorage.setItem('jdsn_cosmic_dust', '1000');
+    } else {
+      this.balance = parseInt(storedCoins, 10);
+    }
     this.updateDomBalance();
 
     // Reusable geometry and material
@@ -42,6 +48,15 @@ export class CoinsManager {
   addCoins(amount = 25) {
     this.balance += amount;
     this.updateDomBalance();
+
+    try {
+      const activeCmdr = localStorage.getItem('jdsn_selected_commander') || 'asha';
+      const key = `jdsn_${activeCmdr}_points`;
+      const cur = parseInt(localStorage.getItem(key) || (activeCmdr === 'asha' ? '3250' : '3410'), 10);
+      localStorage.setItem(key, (cur + amount).toString());
+      window.dispatchEvent(new CustomEvent('commanderPointsUpdated'));
+    } catch (e) {}
+
     this.showFloatingPickupText(`+${amount} Cosmic Dust 🪙`);
   }
 

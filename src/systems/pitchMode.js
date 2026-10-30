@@ -53,6 +53,9 @@ export class PitchShowcaseDirector {
     this.elapsedTime += delta;
     if (this.elapsedTime >= this.duration) {
       this.stop();
+      if (typeof this.onCompleteCallback === 'function') {
+        this.onCompleteCallback();
+      }
       return;
     }
 

@@ -52,6 +52,11 @@ export class PlanetaryScanner {
     this.rebuildArchaeologicalBeacons();
   }
 
+  setTerrainHeightFn(fn) {
+    this.getTerrainHeight = fn;
+    this.rebuildArchaeologicalBeacons();
+  }
+
   rebuildArchaeologicalBeacons() {
     // Remove existing beacon objects from interactiveObjects
     this.interactiveObjects = this.interactiveObjects.filter(obj => !obj.userData?.isArtifactBeacon);
@@ -68,8 +73,9 @@ export class PlanetaryScanner {
   createArchaeologicalBeacons() {
     const list = this.activeArtifacts;
     list.forEach(artifact => {
+      const terrainY = this.getTerrainHeight ? this.getTerrainHeight(artifact.coords.x, artifact.coords.z) : (artifact.coords.y || 0);
       const beaconSubGroup = new THREE.Group();
-      beaconSubGroup.position.set(artifact.coords.x, artifact.coords.y, artifact.coords.z);
+      beaconSubGroup.position.set(artifact.coords.x, terrainY, artifact.coords.z);
 
       const color = artifact.color || 0x00e5ff;
 

@@ -54,11 +54,12 @@ export class ActorAnimationDirector {
     this.initCommsHUD();
   }
 
-  register3DActors({ marsRover, moonRover, apolloLM, insightLander, voyager }) {
+  register3DActors({ marsRover, moonRover, apolloLM, insightLander, stormStation, voyager }) {
     this.marsRoverActor = marsRover;
     this.moonRoverActor = moonRover;
     this.apolloLMActor = apolloLM;
     this.insightActor = insightLander;
+    this.stormStationActor = stormStation;
     this.voyagerActor = voyager;
   }
 
@@ -213,13 +214,24 @@ export class ActorAnimationDirector {
         <rect x="40" y="44" width="60" height="36" rx="16" fill="#0f172a" stroke="${color}" stroke-width="2.5"/>
         <!-- Visor Face Screen -->
         <rect x="46" y="50" width="48" height="22" rx="8" fill="#030712"/>
-        <!-- Animated LED Eyes -->
-        <ellipse cx="58" cy="61" rx="4.5" ry="4.5" fill="${color}">
-          <animate attributeName="ry" values="4.5;0.8;4.5" dur="3.5s" repeatCount="indefinite"/>
-        </ellipse>
-        <ellipse cx="82" cy="61" rx="4.5" ry="4.5" fill="${color}">
-          <animate attributeName="ry" values="4.5;0.8;4.5" dur="3.5s" repeatCount="indefinite"/>
-        </ellipse>
+        <!-- Animated LED Eyes (with eye-left / eye-right for interactive cursor tracking) -->
+        <g class="robot-eyes-group">
+          <ellipse class="robot-led-eye eye-left" cx="58" cy="61" rx="4.5" ry="4.5" fill="${color}">
+            <animate attributeName="ry" values="4.5;0.8;4.5" dur="3.5s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse class="robot-led-eye eye-right" cx="82" cy="61" rx="4.5" ry="4.5" fill="${color}">
+            <animate attributeName="ry" values="4.5;0.8;4.5" dur="3.5s" repeatCount="indefinite"/>
+          </ellipse>
+        </g>
+        <!-- Friendly LED Smile -->
+        <path class="robot-smile" d="M64 66 Q70 70 76 66" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round"/>
+        <!-- Animated Thruster Flame Plume Underneath -->
+        <g class="robot-thruster-flame-group">
+          <path d="M62 122 Q70 138 78 122 Z" fill="${color}" opacity="0.8">
+            <animate attributeName="d" values="M62 122 Q70 138 78 122 Z;M64 122 Q70 144 76 122 Z;M62 122 Q70 138 78 122 Z" dur="0.4s" repeatCount="indefinite"/>
+          </path>
+          <circle cx="70" cy="128" r="3" fill="#ffffff" opacity="0.9"/>
+        </g>
       </svg>
     `;
   }
@@ -227,8 +239,19 @@ export class ActorAnimationDirector {
   initHeroCharacterRigs() {
     const heroAshaBox = document.getElementById('hero-asha-avatar-box');
     const heroLeoBox = document.getElementById('hero-leo-avatar-box');
+    const heroMascotBox = document.getElementById('home-floating-astrobot-svg');
+
     if (heroAshaBox) heroAshaBox.innerHTML = this.getAshaRigSVG('hero');
     if (heroLeoBox) heroLeoBox.innerHTML = this.getLeoRigSVG('hero');
+
+    if (heroMascotBox) {
+      let botColor = '#00e5ff';
+      try {
+        const stored = localStorage.getItem('jdsn_guide_robot');
+        if (stored) botColor = JSON.parse(stored).color || '#00e5ff';
+      } catch (e) {}
+      heroMascotBox.innerHTML = this.getRobotRigSVG('mascot-home', botColor);
+    }
   }
 
   initPrologueUI() {
@@ -250,11 +273,11 @@ export class ActorAnimationDirector {
       this.closePrologue(true);
     });
     document.getElementById('prologue-close-btn')?.addEventListener('click', () => {
-      this.closePrologue(false);
+      this.closePrologue(true);
     });
     document.getElementById('prologue-modal-backdrop')?.addEventListener('click', (e) => {
       if (e.target.id === 'prologue-modal-backdrop') {
-        this.closePrologue(false);
+        this.closePrologue(true);
       }
     });
   }
@@ -355,30 +378,36 @@ export class ActorAnimationDirector {
   // Trigger Live Dual-Actor Comms Dialogue with Lip-Sync & Emotion Pose
   // Supports both object syntax ({ speaker, emotion, title, text, missionId }) and positional syntax (speaker, text, badgeTitle, onActionCallback)
   triggerCommsDialogue(arg1, arg2, arg3, arg4) {
-    let speaker = 'asha';
+    const selectedCommander = localStorage.getItem('jdsn_selected_commander') || 'asha';
+    const isBn = this.currentLanguage === 'bn';
+    let speaker = selectedCommander;
     let emotion = 'curious';
-    let title = "ASHA • DHAKA ROOFTOP ANTENNA";
+    let title = speaker === 'leo'
+      ? (isBn ? "লিও • কেপ ক্যানাভেরাল গ্যারেজ" : "LEO • CAPE CANAVERAL GARAGE")
+      : (isBn ? "আশা • ঢাকা রুফটপ অ্যান্টেনা" : "ASHA • DHAKA ROOFTOP ANTENNA");
     let text = "";
     let missionId = null;
     let onAction = null;
 
     if (typeof arg1 === 'object' && arg1 !== null) {
-      speaker = arg1.speaker || 'asha';
+      speaker = arg1.speaker || selectedCommander;
       emotion = arg1.emotion || 'curious';
-      title = arg1.title || (speaker === 'leo' ? "LEO • CAPE CANAVERAL GARAGE" : "ASHA • DHAKA ROOFTOP ANTENNA");
+      title = arg1.title || (speaker === 'leo'
+        ? (isBn ? "লিও • কেপ ক্যানাভেরাল গ্যারেজ" : "LEO • CAPE CANAVERAL GARAGE")
+        : (isBn ? "আশা • ঢাকা রুফটপ অ্যান্টেনা" : "ASHA • DHAKA ROOFTOP ANTENNA"));
       text = arg1.text || "";
       missionId = arg1.missionId || null;
       onAction = arg1.onAction || null;
     } else {
-      speaker = arg1 || 'asha';
+      speaker = arg1 || selectedCommander;
       text = arg2 || "";
       const customBadge = arg3 || "";
       onAction = typeof arg4 === 'function' ? arg4 : null;
       title = speaker === 'leo'
-        ? "LEO • CAPE CANAVERAL GARAGE"
+        ? (isBn ? "লিও • কেপ ক্যানাভেরাল গ্যারেজ" : "LEO • CAPE CANAVERAL GARAGE")
         : speaker === 'both'
-        ? "ASHA & LEO • JDSN LINK"
-        : "ASHA • DHAKA ROOFTOP ANTENNA";
+        ? (isBn ? "আশা ও লিও • জেডিএসএন লিংক" : "ASHA & LEO • JDSN LINK")
+        : (isBn ? "আশা • ঢাকা রুফটপ অ্যান্টেনা" : "ASHA • DHAKA ROOFTOP ANTENNA");
       emotion = customBadge || 'analytical';
     }
 
@@ -460,6 +489,9 @@ export class ActorAnimationDirector {
       }
       if (this.insightActor?.update) {
         this.insightActor.update(delta, elapsedTime);
+      }
+      if (this.stormStationActor?.update) {
+        this.stormStationActor.update(delta, elapsedTime);
       }
     } else if (currentPlanet === 'moon') {
       if (this.moonRoverActor?.update) {

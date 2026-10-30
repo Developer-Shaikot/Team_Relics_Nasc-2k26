@@ -66,6 +66,7 @@ export function setupScene(container) {
   };
 
   let isDragging = false;
+  let enableIdleDrift = false; // Disabled by default in mission gameplay to keep rover in front view
   let prevMouse = { x: 0, y: 0 };
   let currentCameraMode = 'orbit'; // 'orbit', 'pancam_fpp', 'top', 'surface'
   let lastUserInteractionTime = Date.now();
@@ -273,9 +274,9 @@ export function setupScene(container) {
       return;
     }
 
-    // Idle Orbital Space Drift when user is not actively interacting
+    // Idle Orbital Space Drift when user is not actively interacting (disabled in mission driving)
     const idleTime = (Date.now() - lastUserInteractionTime) / 1000;
-    if (!isDragging && idleTime > 3.0 && currentCameraMode === 'orbit') {
+    if (enableIdleDrift && !isDragging && idleTime > 3.0 && currentCameraMode === 'orbit') {
       targetState.theta += 0.028 * dt; // slow, cinematic orbital drift
     }
 
@@ -284,7 +285,15 @@ export function setupScene(container) {
     const targetLerpFactor = Math.min(1.0, 1.0 - Math.exp(-14 * dt));
 
     spherical.radius += (targetState.radius - spherical.radius) * lerpFactor;
-    spherical.theta += (targetState.theta - spherical.theta) * lerpFactor;
+
+    // Normalize angular difference for theta so camera doesn't spin 360 degrees when crossing +/- PI
+    let dTheta = targetState.theta - spherical.theta;
+    while (dTheta > Math.PI) dTheta -= Math.PI * 2;
+    while (dTheta < -Math.PI) dTheta += Math.PI * 2;
+    spherical.theta += dTheta * lerpFactor;
+    while (spherical.theta > Math.PI) spherical.theta -= Math.PI * 2;
+    while (spherical.theta < -Math.PI) spherical.theta += Math.PI * 2;
+
     spherical.phi += (targetState.phi - spherical.phi) * lerpFactor;
     spherical.target.lerp(targetState.lookAt, targetLerpFactor);
 
@@ -343,7 +352,17 @@ export function setupScene(container) {
     camera,
     renderer,
     spherical,
+    targetState,
     fpp,
+    get isDragging() {
+      return isDragging;
+    },
+    setIdleDrift: (enabled) => {
+      enableIdleDrift = enabled;
+    },
+    cancelTransition: () => {
+      activeTransition = null;
+    },
     get isOrbitEnabled() {
       return currentCameraMode === 'orbit' || currentCameraMode === 'surface';
     },

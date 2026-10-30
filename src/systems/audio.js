@@ -4,7 +4,7 @@
 class MartianAudioSystem {
   constructor() {
     this.ctx = null;
-    this.isMuted = true;
+    this.isMuted = false; // Audio ON by default on load
     this.initialized = false;
     this.masterGain = null;
     this.windGain = null;
@@ -23,7 +23,8 @@ class MartianAudioSystem {
 
       // Master Gain
       this.masterGain = this.ctx.createGain();
-      this.masterGain.gain.setValueAtTime(0.0, this.ctx.currentTime);
+      const initialGain = this.isMuted ? 0.0 : 0.6;
+      this.masterGain.gain.setValueAtTime(initialGain, this.ctx.currentTime);
       this.masterGain.connect(this.ctx.destination);
 
       // Wind Noise Generator (Brownian / Lowpass filtered pink noise)
@@ -45,9 +46,8 @@ class MartianAudioSystem {
     if (this.ctx && this.ctx.state === "suspended") {
       this.ctx.resume();
     }
-    if (this.isMuted && this.masterGain && this.ctx) {
-      this.isMuted = false;
-      this.masterGain.gain.setTargetAtTime(0.6, this.ctx.currentTime, 0.12);
+    if (!this.isMuted && this.masterGain && this.ctx) {
+      this.masterGain.gain.setTargetAtTime(0.6, this.ctx.currentTime, 0.1);
     }
   }
 
@@ -112,6 +112,9 @@ class MartianAudioSystem {
       this.ctx.resume();
     }
     this.isMuted = !this.isMuted;
+    if (this.isMuted) {
+      this.stopFlute();
+    }
     if (this.masterGain && this.ctx) {
       const targetGain = this.isMuted ? 0.0 : 0.6;
       this.masterGain.gain.setTargetAtTime(targetGain, this.ctx.currentTime, 0.15);
@@ -237,8 +240,9 @@ class MartianAudioSystem {
 
   // Mission 1: Apollo 11 Ascent Stage Thruster & Pyrotechnic Staging Ignition
   playRocketIgnition(duration = 3.2) {
+    if (this.isMuted) return;
     this.ensureActive();
-    if (!this.ctx) return;
+    if (!this.ctx || this.isMuted) return;
     const now = this.ctx.currentTime;
 
     // 1. Pyrotechnic staging bolt snap
@@ -288,8 +292,9 @@ class MartianAudioSystem {
 
   // Mission 2: Opportunity APXS Alpha Particle X-Ray Fluorescence Pulse
   playAPXSSpectrometerBeam() {
+    if (this.isMuted) return;
     this.ensureActive();
-    if (!this.ctx) return;
+    if (!this.ctx || this.isMuted) return;
     const now = this.ctx.currentTime;
     const harmonicFreqs = [640, 706, 960, 1280, 1412, 1920];
     harmonicFreqs.forEach((f, idx) => {
@@ -311,8 +316,9 @@ class MartianAudioSystem {
 
   // Mission 3: NASA InSight Marsquake Acoustic Synthesizer (P-Wave + S-Wave Arrival)
   playMarsquakeWave() {
+    if (this.isMuted) return;
     this.ensureActive();
-    if (!this.ctx) return;
+    if (!this.ctx || this.isMuted) return;
     const now = this.ctx.currentTime;
 
     // 1. Distant Meteoroid Impact Flash Thump (t = 0.0s)
@@ -376,14 +382,19 @@ class MartianAudioSystem {
     sSource.stop(now + 2.35 + sDuration);
   }
 
-  // Mission 4: Voyager 1 Golden Record South Asian / Chakma Bamboo Flute Melody
-  playGoldenRecordFlute() {
-    this.ensureActive();
-    if (!this.ctx) return;
-
-    // Clear any running flute notes
+  stopFlute() {
     this.fluteTimers.forEach(t => clearTimeout(t));
     this.fluteTimers = [];
+  }
+
+  // Mission 4: Voyager 1 Golden Record South Asian / Chakma Bamboo Flute Melody
+  playGoldenRecordFlute() {
+    if (this.isMuted) return;
+    this.ensureActive();
+    if (!this.ctx || this.isMuted) return;
+
+    // Clear any running flute notes
+    this.stopFlute();
 
     // Soulful pentatonic bamboo flute phrase (D4, F4, G4, A4, C5, D5, C5, A4, G4, F4, D4)
     const notes = [
@@ -398,7 +409,7 @@ class MartianAudioSystem {
 
     notes.forEach(n => {
       const timer = setTimeout(() => {
-        if (!this.ctx) return;
+        if (!this.ctx || this.isMuted) return;
         const now = this.ctx.currentTime;
 
         // Fundamental flute sine + soft 2nd harmonic + gentle vibrato
@@ -440,6 +451,31 @@ class MartianAudioSystem {
       }, n.delay * 1000);
       this.fluteTimers.push(timer);
     });
+  }
+
+  // Expressive Spoken Voice Synthesis with Web Speech API
+  speakDialogue(text, speaker = 'kitty') {
+    this.playVoiceCadence(speaker === 'leo' ? 'leo' : 'asha');
+    if (this.isMuted || !window.speechSynthesis) return;
+
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      if (speaker === 'kitty') {
+        utterance.pitch = 1.3;
+        utterance.rate = 1.05;
+      } else if (speaker === 'asha') {
+        utterance.pitch = 1.15;
+        utterance.rate = 1.0;
+      } else if (speaker === 'leo') {
+        utterance.pitch = 0.95;
+        utterance.rate = 1.0;
+      }
+      utterance.volume = 0.9;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn("SpeechSynthesis error:", e);
+    }
   }
 
   // Expressive Character Voice Cadence Pip (Asha & Leo Comms)

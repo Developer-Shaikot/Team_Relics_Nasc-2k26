@@ -28,364 +28,391 @@
 
   <!-- FUTURISTIC GAME HUB LANDING SCREEN -->
   <div class="game-hub-screen active" id="game-hub-screen">
-    <!-- Hub Top Bar: Profile & Currencies -->
+    <!-- Hub Top Bar: Hamburger, Title, Profile Capsule, Currencies & Utilities in Single Seamless Bar -->
     <header class="hub-top-bar">
-      <!-- Player Profile Info -->
-      <div class="hub-profile-click hub-profile-chip" id="hub-profile-click" title="Click to view Badges & Stats">
-        <div class="hub-avatar-circle">🛰️</div>
+      <!-- Left: Hamburger Drawer Toggle & Brand Title -->
+      <div class="hub-top-left-brand">
+        <button class="hub-hamburger-btn" id="btn-toggle-hub-sidebar" title="Open Mission Operations Menu (Press M)" aria-label="Toggle Mission Operations Menu">
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+        </button>
+        <div class="hub-brand-logo" id="hub-brand-home-link" role="button" title="Relics of the Cosmic Dust Home">
+          <span class="brand-orbit-icon">🛰️</span>
+          <div class="brand-text-col">
+            <h1 class="brand-title">RELICS OF THE COSMIC DUST</h1>
+            <span class="brand-sub">JUNIOR DEEP SPACE NETWORK • NASA JPL</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: Cadet Profile Capsule -->
+      <div class="hub-center-profile-capsule hub-profile-click hub-profile-chip" id="hub-profile-click" title="Click to view Badges & Certificate">
+        <div class="hub-avatar-circle" id="hub-profile-avatar-icon">🧑‍🚀</div>
         <div class="hub-user-meta">
           <div class="hub-user-name-row">
-            <span class="hub-user-name" id="lbl-hub-user-name">ASHA &amp; LEO • JDSN</span>
-            <span class="hub-rank-badge" id="lbl-hub-rank">LVL 4 ARCHAEOLOGIST</span>
+            <span class="hub-user-name" id="lbl-hub-user-name">CADET EXPLORER</span>
+            <span class="hub-rank-badge" id="lbl-hub-rank">LVL 1 SPACE CADET</span>
           </div>
           <div class="hub-xp-container">
             <div class="hub-xp-bar-bg">
-              <div class="hub-xp-bar-fill" id="hub-xp-fill" style="width: 72%;"></div>
+              <div class="hub-xp-bar-fill" id="hub-xp-fill" style="width: 10%;"></div>
             </div>
-            <span class="hub-xp-label">1250 / 1400 XP</span>
+            <span class="hub-xp-label">0 / 350 XP</span>
           </div>
         </div>
-      </div>
-
-      <!-- Center In-Game Resources & Stats -->
-      <div class="hub-resources-row">
-        <div class="hub-stat-chip">
-          <span class="stat-icon">🪙</span>
-          <span class="stat-value" id="hub-dust-val">3,125</span>
-          <span class="stat-name" id="lbl-hub-dust">Cosmic Dust</span>
-        </div>
-        <div class="hub-stat-chip">
-          <span class="stat-icon">💎</span>
-          <span class="stat-value" id="hub-gems-val">120</span>
-          <span class="stat-name" id="lbl-hub-gems">Telemetry Gems</span>
-        </div>
-        <div class="hub-stat-chip battery-chip">
-          <span class="stat-icon">📡</span>
-          <span class="stat-value">JDSN</span>
-          <span class="stat-name">Dhaka ↔ Florida</span>
+        <div class="hub-nasa-badge" title="NASA Space Apps Challenge 2026">
+          <span>NASA SPACE APPS</span>
         </div>
       </div>
 
-      <!-- Right Utility Actions -->
-      <div class="hub-utility-group">
-        <button class="hub-util-btn highlight-prologue-btn" id="hub-prologue-btn" title="Watch Asha & Leo Story Prologue">
-          <span>🎭</span>
-          <span class="btn-text">Story Prologue</span>
-        </button>
-        <button class="hub-util-btn highlight-lab-btn" id="hub-minigames-btn" title="Open NASA JPL Science Labs">
-          <span>🧪</span>
-          <span class="btn-text">4 Science Labs</span>
-        </button>
-        <button class="hub-util-btn" id="hub-audio-toggle" title="Audio Soundscape">
-          <span id="hub-audio-icon">🔇</span>
-          <span class="btn-text" id="hub-audio-text">Audio: OFF</span>
-        </button>
-        <div class="hub-nasa-badge">
-          <span>NASA SPACE APPS • JDSN</span>
+      <!-- Right: Resources & Quick Utilities -->
+      <div class="hub-top-right-group">
+        <div class="hub-resources-row">
+          <div class="hub-stat-chip dust-chip" title="Cosmic Dust Coins collected from space exploration">
+            <span class="stat-icon">🪙</span>
+            <span class="stat-value" id="hub-dust-val">1,000</span>
+            <span class="stat-name" id="lbl-hub-dust">Dust</span>
+          </div>
+          <div class="hub-stat-chip gems-chip" title="Telemetry Gems earned from scientific discoveries">
+            <span class="stat-icon">💎</span>
+            <span class="stat-value" id="hub-gems-val">10</span>
+            <span class="stat-name" id="lbl-hub-gems">Gems</span>
+          </div>
+          <div class="hub-stat-chip battery-chip" title="Junior Deep Space Network: Dhaka ↔ Florida Ground Stations Link">
+            <span class="stat-icon pulse-dot">📡</span>
+            <span class="stat-value">JDSN</span>
+            <span class="stat-name hub-station-label">LINK</span>
+          </div>
+        </div>
+
+        <div class="hub-nav-divider"></div>
+
+        <div class="hub-utility-group">
+          <button class="hub-util-btn audio-active" id="hub-audio-toggle" title="Toggle Soundscape Audio (Procedural Web Audio Synthesizer)">
+            <span id="hub-audio-icon">🔊</span>
+            <span class="btn-text" id="hub-audio-text">Audio: ON</span>
+          </button>
+
+          <button class="hub-util-btn" id="hub-fullscreen-toggle" title="Toggle Fullscreen">
+            <span>⛶</span>
+            <span class="btn-text">Fullscreen</span>
+          </button>
         </div>
       </div>
     </header>
 
+    <!-- COLLAPSIBLE LEFT DRAWER SIDEBAR & BACKDROP OVERLAY -->
+    <div class="hub-drawer-backdrop" id="hub-drawer-backdrop"></div>
+    <aside class="hub-drawer-sidebar" id="hub-drawer-sidebar" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-brand">
+          <span class="drawer-logo-icon">🛰️</span>
+          <div>
+            <h2 class="drawer-title">MISSION OPERATIONS</h2>
+            <span class="drawer-subtitle">Junior Deep Space Network</span>
+          </div>
+        </div>
+        <button class="drawer-close-btn" id="btn-close-hub-sidebar" title="Close Menu (Esc)">✕</button>
+      </div>
 
-    <!-- Hub Center Stage: Quick Menu + Hero Art + Scrollable Action Cards -->
-    <main class="hub-main-stage">
-      <!-- Left Quick Menu Column -->
-      <aside class="hub-quick-col">
-        <button class="hub-quick-btn highlight-gold" id="hub-quick-prologue-btn">
-          <span class="q-icon">🎭</span>
-          <span class="q-label">THE DREAM PROJECT</span>
-          <span class="q-sub">Asha (Dhaka) &amp; Leo (Florida)</span>
-        </button>
-        <button class="hub-quick-btn" id="hub-daily-log-btn">
-          <span class="q-icon">📅</span>
-          <span class="q-label" id="lbl-hub-daily">SPACE CALENDAR</span>
-          <span class="q-sub">Landmark Dates &amp; Sol Logs</span>
-        </button>
-        <button class="hub-quick-btn" id="hub-news-btn">
-          <span class="q-icon">📰</span>
-          <span class="q-label" id="lbl-hub-news">MISSION ARCHIVE</span>
-          <span class="q-sub">Historic Hardware Logs</span>
-        </button>
-        <button class="hub-quick-btn" id="hub-quiz-btn">
-          <span class="q-icon">🏆</span>
-          <span class="q-label" id="lbl-hub-quiz">CADET QUIZ &amp; RANKS</span>
-          <span class="q-sub">Earn XP &amp; Leaderboard</span>
-        </button>
-        <button class="hub-quick-btn" id="hub-badges-btn">
-          <span class="q-icon">🏅</span>
-          <span class="q-label" id="lbl-hub-badges">BADGES SHOWCASE</span>
-          <span class="q-sub">Level-wise Trophies</span>
-        </button>
-      </aside>
+      <!-- Cadet Profile Card inside Drawer -->
+      <div class="drawer-cadet-card">
+        <div class="drawer-cadet-avatar" id="drawer-cadet-avatar">🧑‍🚀</div>
+        <div class="drawer-cadet-info">
+          <strong class="drawer-cadet-name" id="drawer-cadet-name-display">Cadet Explorer</strong>
+          <span class="drawer-cadet-rank" id="drawer-cadet-rank-display">LVL 1 Space Cadet</span>
+          <div class="drawer-cadet-stats">
+            <span>🪙 <strong id="drawer-dust-val">1,000</strong> Dust</span>
+            <span>💎 <strong id="drawer-gems-val">10</strong> Gems</span>
+          </div>
+        </div>
+      </div>
 
+      <!-- Cadet Customizer Deck inside Drawer -->
+      <div class="drawer-customizer-box">
+        <div class="drawer-custom-row">
+          <label class="drawer-field-label" for="drawer-callsign-input">CALL SIGN / NAME:</label>
+          <div class="drawer-callsign-wrap">
+            <input type="text" id="drawer-callsign-input" class="drawer-callsign-field" placeholder="Enter Call Sign..." maxlength="18" value="CADET EXPLORER">
+            <button type="button" class="drawer-random-btn" id="btn-drawer-random-callsign" title="Randomize Call Sign">🎲</button>
+          </div>
+        </div>
+
+        <div class="drawer-custom-row">
+          <span class="drawer-field-label">MISSION COMMANDER:</span>
+          <div class="drawer-commander-btns">
+            <button class="drawer-cmd-btn active" id="drawer-cmd-asha" data-character="asha" type="button">
+              <span>👩‍🚀</span> ASHA
+            </button>
+            <button class="drawer-cmd-btn" id="drawer-cmd-leo" data-character="leo" type="button">
+              <span>👨‍🚀</span> LEO
+            </button>
+          </div>
+        </div>
+
+        <div class="drawer-custom-row">
+          <span class="drawer-field-label">COMPANION DRONE:</span>
+          <button class="drawer-kitty-trigger" id="btn-drawer-open-kitty" type="button">
+            <span>🐱</span>
+            <strong id="drawer-kitty-name-label">ASTRO-BOT</strong>
+            <span class="drawer-kitty-dot" id="drawer-kitty-dot" style="background: #00e5ff;"></span>
+            <small>CHANGE ▾</small>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="drawer-nav-list">
+        <button class="drawer-nav-item active" id="drawer-nav-home">
+          <span class="d-icon">🏠</span>
+          <div class="d-text-col">
+            <span class="d-label">Mission Control Hub</span>
+            <span class="d-sub">Planetary Staging &amp; 3D Orrery</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item highlight-gold" id="drawer-nav-prologue">
+          <span class="d-icon">🎭</span>
+          <div class="d-text-col">
+            <span class="d-label">The Dream Project: Asha &amp; Leo</span>
+            <span class="d-sub">Rooftop Dhaka to KSC Florida</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-portal-moon">
+          <span class="d-icon">🌕</span>
+          <div class="d-text-col">
+            <span class="d-label">Explore the Moon</span>
+            <span class="d-sub">Tranquility Base &amp; Apollo 11</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-portal-mars">
+          <span class="d-icon">🔴</span>
+          <div class="d-text-col">
+            <span class="d-label">Explore Mars</span>
+            <span class="d-sub">Opportunity &amp; InSight Seismology</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-calendar">
+          <span class="d-icon">📅</span>
+          <div class="d-text-col">
+            <span class="d-label">Space Calendar</span>
+            <span class="d-sub">Landmark Dates &amp; Sol Logs</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-archive">
+          <span class="d-icon">📰</span>
+          <div class="d-text-col">
+            <span class="d-label">Mission Archive</span>
+            <span class="d-sub">Historical Hardware Relics</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-labs">
+          <span class="d-icon">🧪</span>
+          <div class="d-text-col">
+            <span class="d-label">4 JPL Science Labs</span>
+            <span class="d-sub">Delta-v, APXS, Seis &amp; Voyager</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-quiz">
+          <span class="d-icon">🏆</span>
+          <div class="d-text-col">
+            <span class="d-label">Cadet Quiz &amp; Leaderboard</span>
+            <span class="d-sub">Tiered Quizzes &amp; Top 50</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-badges">
+          <span class="d-icon">🏅</span>
+          <div class="d-text-col">
+            <span class="d-label">Badges Showcase</span>
+            <span class="d-sub">Trophies &amp; NASA Certificate</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-roadmap">
+          <span class="d-icon">🗺️</span>
+          <div class="d-text-col">
+            <span class="d-label">Expedition Roadmaps</span>
+            <span class="d-sub">12 Level Quest Progression</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-pitch">
+          <span class="d-icon">⚡</span>
+          <div class="d-text-col">
+            <span class="d-label">120s Pitch Mode</span>
+            <span class="d-sub">NASA Space Apps Demo Reel</span>
+          </div>
+        </button>
+      </nav>
+
+      <div class="drawer-footer">
+        <span class="drawer-footer-badge">NASA SPACE APPS 2026</span>
+        <small class="drawer-footer-meta">Junior Deep Space Network</small>
+      </div>
+    </aside>
+
+    <!-- Hub Center Stage: Full-Width 3D Canvas + Dual Gateways + Character & Kitty -->
+    <main class="hub-main-stage full-width-stage">
       <!-- Center Hero Showcase: Moving Celestial Background + Character Selector + Guide Robot + Start Mission -->
-      <section class="hub-hero-section">
+      <section class="hub-hero-section full-hero-section">
         <!-- Moving Space Background with Mars, Moon & Voyager Beacon -->
         <div class="hub-hero-bg">
-          <div class="hero-space-canvas">
-            <div class="space-starfield"></div>
-            <div class="space-nebula-glow"></div>
-          </div>
-
-          <!-- Animated Moving Celestial Bodies -->
-          <div class="hero-celestial-stage">
-            <!-- Floating Rotating Mars -->
-            <div class="celestial-body mars-body" id="hero-celestial-mars" title="Planet Mars • Destination of Opportunity & InSight">
-              <div class="planet-atmosphere-halo mars-halo"></div>
-              <div class="planet-sphere mars-sphere">
-                <div class="planet-shadow"></div>
-              </div>
-              <div class="planet-orbit-badge">🔴 MARS</div>
-            </div>
-
-            <!-- Floating Orbiting Moon -->
-            <div class="celestial-body moon-body" id="hero-celestial-moon" title="Earth's Moon • Apollo 11 Tranquility Base">
-              <div class="planet-atmosphere-halo moon-halo"></div>
-              <div class="planet-sphere moon-sphere">
-                <div class="planet-shadow"></div>
-              </div>
-              <div class="planet-orbit-badge">🌕 MOON</div>
-            </div>
-
-            <!-- Deep Space Voyager 1 Telemetry Beacon -->
-            <div class="celestial-body voyager-body" id="hero-celestial-voyager" title="Deep Space • 24.3 Billion KM • Voyager 1">
-              <div class="voyager-beacon-ring pulse"></div>
-              <div class="voyager-craft-icon">🛰️</div>
-              <div class="planet-orbit-badge">🌌 DEEP SPACE</div>
-            </div>
-          </div>
-
+          <!-- Real 3D Three.js WebGL Celestial Orrery Canvas Container -->
+          <div id="hero-3d-webgl-container" class="hero-3d-webgl-container"></div>
           <div class="hub-hero-overlay"></div>
           <div class="hero-flare-glow"></div>
         </div>
 
         <div class="hub-hero-content">
           <div class="hero-top-info">
-            <div class="hero-tag-badge">
-              <span class="hero-dot pulse"></span>
-              <span id="lbl-hero-tag">JUNIOR DEEP SPACE NETWORK • MISSION STAGING CONSOLE</span>
+            <div class="hero-top-meta-row">
+              <div class="hero-tag-badge">
+                <span class="hero-dot pulse"></span>
+                <span id="lbl-hero-tag">JUNIOR DEEP SPACE NETWORK • MISSION STAGING CONSOLE</span>
+              </div>
+              <div class="hero-meta-interactive-group">
+                <span class="hero-3d-hint-pill" id="hero-3d-hint-pill" title="Drag anywhere in space to orbit the 3D celestial bodies!">🎮 3D ORRERY • DRAG TO ROTATE</span>
+                <!-- Interactive Stardust Hunter Counter for Children! -->
+                <div class="hero-dust-hunter-badge" id="hero-dust-hunter-badge" title="Click floating crystals in 3D space to collect Cosmic Dust!">
+                  <span class="mote-icon pulse">✨</span>
+                  <span class="mote-text">STARDUST CRYSTALS: <strong id="hero-stardust-collected">0</strong> 🪙</span>
+                </div>
+              </div>
             </div>
-            <h1 class="hero-game-title" id="lbl-hero-title">RELICS OF THE COSMIC DUST</h1>
-            <p class="hero-game-subtitle" id="lbl-hero-sub">
-              "When we leave something behind on the Moon or Mars, it is not 'Space Junk'—it is a permanent monument to human curiosity etched into the cosmos."
-            </p>
+
+            <!-- Title Row with Quote -->
+            <div class="hero-title-wrap centered-title">
+              <h1 class="hero-game-title" id="lbl-hero-title">RELICS OF THE COSMIC DUST</h1>
+              <p class="hero-game-subtitle" id="lbl-hero-sub">
+                "When we leave something behind on the Moon or Mars, it is not 'Space Junk'—it is a permanent monument to human curiosity etched into the cosmos."
+              </p>
+            </div>
           </div>
 
-          <!-- INTERACTIVE CHARACTER SELECTION DECK (2 Characters + Guide Robot) -->
-          <div class="hero-character-selection-deck">
-            <div class="deck-header-row">
-              <span class="deck-label">SELECT YOUR MISSION COMMANDER:</span>
-              <button class="customize-robot-trigger-btn" id="btn-open-robot-customizer" title="Customize Companion Guide Robot">
-                <span class="bot-icon-mini" id="mini-bot-icon">🤖</span>
-                <span class="bot-btn-text">CUSTOMIZE GUIDE BOT: <strong id="mini-bot-name-label">ASTRO-BOT</strong></span>
-                <span class="bot-color-dot" id="mini-bot-color-dot" style="background: #00e5ff;"></span>
-              </button>
+          <!-- FIRST PAGE: MISSION COMMANDER SELECTION DECK -->
+          <div class="hub-commander-selection-deck" id="hub-commander-selection-deck">
+            <div class="cmd-deck-label-row">
+              <span class="cmd-deck-tag">👨‍🚀 CHOOSE MISSION COMMANDER</span>
+              <span class="cmd-deck-hint">Selected character leads all expeditions, collects points on the Leaderboard &amp; earns your NASA Master Certificate!</span>
             </div>
-
-            <div class="character-cards-grid">
-              <!-- Character 1: Asha -->
-              <div class="character-select-card selected" id="char-card-asha" data-character="asha" role="button" tabindex="0">
-                <div class="char-selection-indicator">
-                  <span class="check-icon">✓</span>
-                  <span class="status-text">ACTIVE COMMANDER</span>
+            <div class="cmd-deck-cards-grid">
+              <!-- Commander Asha Card -->
+              <div class="hub-commander-card active" id="hub-cmd-card-asha" data-commander="asha" role="button" tabindex="0">
+                <div class="cmd-card-avatar-wrap asha-avatar-wrap">
+                  <span class="cmd-avatar-icon">👩‍🚀</span>
+                  <span class="cmd-online-pulse"></span>
                 </div>
-                <div class="char-card-inner">
-                  <div class="char-avatar-pod asha-pod">
-                    <div class="char-svg-box" id="hero-asha-avatar-box"></div>
-                    <span class="char-origin-flag">🇧🇩 DHAKA</span>
+                <div class="cmd-card-content">
+                  <div class="cmd-card-topline">
+                    <strong class="cmd-card-name">COMMANDER ASHA</strong>
+                    <span class="cmd-card-status-badge active-lead" id="badge-status-asha">✓ ACTIVE LEAD</span>
                   </div>
-                  <div class="char-meta">
-                    <div class="char-name-row">
-                      <h3 class="char-name">ASHA</h3>
-                      <span class="char-title-tag asha-tag">ASTROPHYSICIST</span>
-                    </div>
-                    <p class="char-bio">Rooftop RF hacker. Tracks S-Band carrier waves &amp; calibrated Oppy's APXS spectrometer.</p>
-                    <div class="char-perks">
-                      <span class="perk-badge">📡 +40% RF Signal Boost</span>
-                      <span class="perk-badge">🧪 APXS Spectrometry</span>
-                    </div>
+                  <span class="cmd-card-location">Dhaka, Bangladesh • Rooftop Antenna Ground Station</span>
+                  <div class="cmd-card-stats-row">
+                    <span class="cmd-stat-pill">🪙 <strong id="asha-points-val">3,250</strong> PTS</span>
+                    <span class="cmd-stat-pill gold">🏆 RANK <strong id="asha-rank-val">#1</strong></span>
+                    <span class="cmd-stat-pill cyan">📡 RF Signals</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Character 2: Leo -->
-              <div class="character-select-card" id="char-card-leo" data-character="leo" role="button" tabindex="0">
-                <div class="char-selection-indicator">
-                  <span class="check-icon">✓</span>
-                  <span class="status-text">ACTIVE COMMANDER</span>
+              <!-- Commander Leo Card -->
+              <div class="hub-commander-card" id="hub-cmd-card-leo" data-commander="leo" role="button" tabindex="0">
+                <div class="cmd-card-avatar-wrap leo-avatar-wrap">
+                  <span class="cmd-avatar-icon">👨‍🚀</span>
+                  <span class="cmd-online-pulse"></span>
                 </div>
-                <div class="char-card-inner">
-                  <div class="char-avatar-pod leo-pod">
-                    <div class="char-svg-box" id="hero-leo-avatar-box"></div>
-                    <span class="char-origin-flag">🇺🇸 FLORIDA</span>
+                <div class="cmd-card-content">
+                  <div class="cmd-card-topline">
+                    <strong class="cmd-card-name">COMMANDER LEO</strong>
+                    <span class="cmd-card-status-badge" id="badge-status-leo">SELECT LEAD</span>
                   </div>
-                  <div class="char-meta">
-                    <div class="char-name-row">
-                      <h3 class="char-name">LEO</h3>
-                      <span class="char-title-tag leo-tag">ROVER PILOT</span>
-                    </div>
-                    <p class="char-bio">KSC robotics engineer. Expert in rocker-bogie chassis dynamics &amp; InSight seismology.</p>
-                    <div class="char-perks">
-                      <span class="perk-badge">🕹️ +40% Driving Handling</span>
-                      <span class="perk-badge">💓 InSight Seismogram</span>
-                    </div>
+                  <span class="cmd-card-location">Cape Canaveral, Florida • Flight Telemetry &amp; Robotics</span>
+                  <div class="cmd-card-stats-row">
+                    <span class="cmd-stat-pill">🪙 <strong id="leo-points-val">3,410</strong> PTS</span>
+                    <span class="cmd-stat-pill gold">🏆 RANK <strong id="leo-rank-val">#2</strong></span>
+                    <span class="cmd-stat-pill cyan">🕹️ Robotics</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- MISSION DESTINATION & START MISSION LAUNCH BAR -->
-          <div class="hero-mission-launch-bar">
-            <div class="destination-pills-row">
-              <span class="dest-label">DESTINATION:</span>
-              <button class="dest-pill active" data-dest="mars" id="dest-pill-mars">
-                <span>🔴</span> Mars (Oppy &amp; InSight)
-              </button>
-              <button class="dest-pill" data-dest="moon" id="dest-pill-moon">
-                <span>🌕</span> Moon (Apollo 11)
-              </button>
-              <button class="dest-pill" data-dest="deepspace" id="dest-pill-deepspace">
-                <span>🌌</span> Deep Space (Voyager 1)
-              </button>
+          <!-- DUAL PRIMARY EXPLORATION GATEWAYS (MOON & MARS) -->
+          <div class="hero-primary-portals-grid" role="region" aria-label="Choose Planetary Destination">
+            <!-- Portal 1: Explore the Moon -->
+            <div class="exploration-portal-card moon-portal" id="portal-explore-moon" role="button" tabindex="0">
+              <div class="portal-badge-pill moon-pill">🌕 MOON EXPEDITION</div>
+              <div class="portal-icon-wrap">
+                <div class="portal-halo moon-halo"></div>
+                <span class="portal-big-icon">🌕</span>
+              </div>
+              <div class="portal-info-col">
+                <h2 class="portal-title">EXPLORE THE MOON</h2>
+                <p class="portal-desc">Tranquility Base • Apollo 11 Ascent Staging &amp; Surveyor Soft Landers</p>
+                <div class="portal-meta-tags">
+                  <span class="p-tag">🚀 6 Lunar Relics</span>
+                  <span class="p-tag">⭐ Delta-v Staging</span>
+                </div>
+              </div>
+              <div class="portal-action-col">
+                <button class="portal-launch-btn moon-btn" type="button">
+                  <span>ENTER LUNAR BASE ➔</span>
+                </button>
+              </div>
             </div>
 
-            <button class="hero-start-mission-btn" id="hero-start-mission-btn">
-              <span class="btn-glow-pulse"></span>
-              <span class="start-btn-icon">🚀</span>
-              <span class="start-btn-text">START MISSION AS <strong id="lbl-start-commander-name">ASHA</strong></span>
-              <span class="start-btn-sub" id="lbl-start-dest-sub">TO MARS ➔</span>
+            <!-- Portal 2: Explore Mars -->
+            <div class="exploration-portal-card mars-portal active" id="portal-explore-mars" role="button" tabindex="0">
+              <div class="portal-badge-pill mars-pill">🔴 MARS EXPEDITION</div>
+              <div class="portal-icon-wrap">
+                <div class="portal-halo mars-halo"></div>
+                <span class="portal-big-icon">🔴</span>
+              </div>
+              <div class="portal-info-col">
+                <h2 class="portal-title">EXPLORE MARS</h2>
+                <p class="portal-desc">Perseverance Valley • Opportunity 5,111 Sols &amp; InSight Seismology</p>
+                <div class="portal-meta-tags">
+                  <span class="p-tag">🤖 MER-B Hematite</span>
+                  <span class="p-tag">💓 Marsquake Waves</span>
+                </div>
+              </div>
+              <div class="portal-action-col">
+                <button class="portal-launch-btn mars-btn" type="button">
+                  <span>ENTER MARTIAN VALLEY ➔</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Deep Space Voyager 1 Quick Link -->
+          <div class="hero-deepspace-strip">
+            <button class="deepspace-strip-btn" id="portal-explore-voyager" type="button">
+              <span class="strip-icon">🌌</span>
+              <span class="strip-label">INTERSTELLAR EXPEDITION: <strong>VOYAGER 1 &amp; THE GOLDEN RECORD</strong> (24.3 BILLION KM)</span>
+              <span class="strip-arrow">➔</span>
             </button>
           </div>
-        </div>
-      </section>
 
-      <!-- Right Scrollable Game Mode Cards Column -->
-      <section class="hub-cards-col scrollable-cards-col">
-        <!-- Card 0: Story Prologue - Asha & Leo -->
-        <div class="hub-game-card" id="hub-card-prologue" role="button">
-          <div class="card-thumb" style="background-image: url('./thumb_roadmap.jpg');">
-            <div class="card-thumb-overlay"></div>
-            <span class="card-category-badge">🎭 STORY PROLOGUE</span>
-          </div>
-          <div class="card-details">
-            <h3 class="card-title">The Dream Project: Asha &amp; Leo</h3>
-            <p class="card-desc">Meet Asha on a rooftop in Dhaka with her homemade copper radio antenna and Leo near Kennedy Space Center in Florida as they build the Junior Deep Space Network.</p>
-            <div class="card-action-row">
-              <span class="play-link">Watch Story &amp; Actors ➔</span>
-              <span class="card-status-indicator unlocked">PROLOGUE</span>
-            </div>
-          </div>
-        </div>
+          <!-- ARCADE TITLE ACTION STACK -->
+          <div class="hero-arcade-action-stack">
+            <!-- 2 Arcade Action Buttons (LEVEL & MENU) -->
+            <div class="arcade-buttons-group">
+              <button class="arcade-btn btn-arcade-level" id="btn-arcade-level" type="button" title="Select Mission Level & Roadmap">
+                <span class="arcade-btn-label">LEVEL</span>
+              </button>
 
-        <!-- Card 1: Mission 1 - Apollo 11 Rocket Equation -->
-        <div class="hub-game-card" id="hub-card-apollo11" role="button">
-          <div class="card-thumb" style="background-image: url('./hero_astronaut_mars.jpg');">
-            <div class="card-thumb-overlay"></div>
-            <span class="card-category-badge moon-badge">🌕 MISSION 1 • ROCKET EQUATION</span>
-          </div>
-          <div class="card-details">
-            <h3 class="card-title" id="lbl-card-moon-title">Apollo 11: The Staging Sacrifice</h3>
-            <p class="card-desc" id="lbl-card-moon-desc">Why did Neil Armstrong leave the golden Descent Stage behind? Balance mass &amp; fuel in the Tsiolkovsky Delta-v Lab to launch the Ascent Stage home!</p>
-            <div class="card-action-row">
-              <span class="play-link" id="lbl-card-moon-btn">Launch Delta-v Lab ➔</span>
-              <span class="card-status-indicator unlocked">JPL LAB 1</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 2: Mission 2 - Opportunity APXS Spectroscopy -->
-        <div class="hub-game-card" id="hub-card-archaeology" role="button">
-          <div class="card-thumb" style="background-image: url('./thumb_archaeology.jpg');">
-            <div class="card-thumb-overlay"></div>
-            <span class="card-category-badge">🔴 MISSION 2 • X-RAY SPECTROSCOPY</span>
-          </div>
-          <div class="card-details">
-            <h3 class="card-title" id="lbl-card-arch-title">Opportunity: Blueberries of Life</h3>
-            <p class="card-desc" id="lbl-card-arch-desc">Aim Oppy's Curium-244 APXS spectrometer at Martian spherules and align Fe Kα (6.40 keV) &amp; Kβ (7.06 keV) spectral peaks to prove ancient liquid water!</p>
-            <div class="card-action-row">
-              <span class="play-link" id="lbl-card-arch-btn">Launch APXS Lab ➔</span>
-              <span class="card-status-indicator unlocked">JPL LAB 2</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 3: Mission 3 - InSight Planetary Seismology -->
-        <div class="hub-game-card" id="hub-card-insight" role="button">
-          <div class="card-thumb" style="background-image: url('./thumb_storm.jpg');">
-            <div class="card-thumb-overlay"></div>
-            <span class="card-category-badge storm-badge">🔴 MISSION 3 • SEISMOLOGY</span>
-          </div>
-          <div class="card-details">
-            <h3 class="card-title">InSight: Heartbeat of Mars</h3>
-            <p class="card-desc">Put on your headphones! A meteoroid strikes Mars—align the P-Wave and S-Wave arrivals on the SEIS seismogram to measure Mars's liquid core.</p>
-            <div class="card-action-row">
-              <span class="play-link">Launch Seismology Lab ➔</span>
-              <span class="card-status-indicator unlocked">JPL LAB 3</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 4: Mission 4 - Voyager 1 & The Golden Record -->
-        <div class="hub-game-card" id="hub-card-voyager" role="button">
-          <div class="card-thumb" style="background-image: url('./thumb_roadmap.jpg');">
-            <div class="card-thumb-overlay"></div>
-            <span class="card-category-badge roadmap-badge">🌌 MISSION 4 • 24.3 BILLION KM</span>
-          </div>
-          <div class="card-details">
-            <h3 class="card-title">Voyager 1: The Dying Candle</h3>
-            <p class="card-desc">Manage decaying Pu-238 RTG nuclear power, experience the 22h 34m light-speed handshake delay, and spin the Golden Record in interstellar space.</p>
-            <div class="card-action-row">
-              <span class="play-link">Launch Voyager Lab ➔</span>
-              <span class="card-status-indicator unlocked">JPL LAB 4</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 5: The Sol 5111 Mars Storm -->
-        <div class="hub-game-card" id="hub-card-storm" role="button">
-          <div class="card-thumb" style="background-image: url('./thumb_storm.jpg');">
-            <div class="card-thumb-overlay"></div>
-            <span class="card-category-badge storm-badge">🌪️ ATMOSPHERIC PHYSICS</span>
-          </div>
-          <div class="card-details">
-            <h3 class="card-title" id="lbl-card-storm-title">The Sol 5111 Dust Storm</h3>
-            <p class="card-desc" id="lbl-card-storm-desc">Witness the record 2018 global dust storm, slide Optical Depth Tau (τ) to 10.8, and experience Oppy's final solar power collapse.</p>
-            <div class="card-action-row">
-              <span class="play-link" id="lbl-card-storm-btn">Play Storm ➔</span>
-              <span class="card-status-indicator unlocked">ACTIVE</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 6: Expedition Dual Roadmap -->
-        <div class="hub-game-card" id="hub-card-roadmap" role="button">
-          <div class="card-thumb" style="background-image: url('./thumb_roadmap.jpg');">
-            <div class="card-thumb-overlay"></div>
-            <span class="card-category-badge roadmap-badge">🗺️ EXPEDITION ROADMAPS</span>
-          </div>
-          <div class="card-details">
-            <h3 class="card-title" id="lbl-card-road-title">Moon &amp; Mars Roadmaps</h3>
-            <p class="card-desc" id="lbl-card-road-desc">Progress across 12 historical Moon and Mars archaeological missions to unlock the NASA Grand Master Certificate.</p>
-            <div class="card-action-row">
-              <span class="play-link" id="lbl-card-road-btn">View Roadmaps ➔</span>
-              <span class="card-status-indicator unlocked">ACTIVE</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 7: Drive Lunar Buggy / Mars Rover -->
-        <div class="hub-game-card" id="hub-card-drive-mode" role="button">
-          <div class="card-thumb" style="background-image: url('./thumb_archaeology.jpg');">
-            <div class="card-thumb-overlay"></div>
-            <span class="card-category-badge drive-badge">🕹️ DRIVE VEHICLES</span>
-          </div>
-          <div class="card-details">
-            <h3 class="card-title" id="lbl-card-drive-title">Drive Rovers &amp; Lunar Buggy</h3>
-            <p class="card-desc" id="lbl-card-drive-desc">Take the wheel of the Apollo Lunar Roving Vehicle (LRV) in 1/6th gravity or Opportunity on Mars with 6-wheel rocker-bogie physics.</p>
-            <div class="card-action-row">
-              <span class="play-link" id="lbl-card-drive-btn">Drive Now ➔</span>
-              <span class="card-status-indicator unlocked">ACTIVE</span>
+              <button class="arcade-btn btn-arcade-menu" id="btn-arcade-menu" type="button" title="Open Operations Menu & Settings">
+                <span class="arcade-btn-label">MENU</span>
+              </button>
             </div>
           </div>
         </div>
@@ -430,9 +457,9 @@
   </div>
 
   <!-- =========================================================================
-       ABANDONED SPACESHIP HABITATION & READY ROOM SCREEN
+       ABANDONED SPACESHIP HABITATION & READY ROOM SCREEN (DISABLED / BYPASSED)
        ========================================================================= -->
-  <div class="spaceship-hab-screen" id="spaceship-hab-screen">
+  <div class="spaceship-hab-screen" id="spaceship-hab-screen" style="display: none !important;">
     <!-- Atmospheric Hab Interior Background with Bulkheads & Flickering Consoles -->
     <div class="hab-interior-bg">
       <div class="hab-bulkhead-grid"></div>
@@ -693,9 +720,9 @@
       </button>
 
       <!-- Audio Toggle -->
-      <button class="action-btn" id="audio-toggle-btn" title="Toggle Atmospheric Soundscape">
-        <span id="audio-icon">🔇</span>
-        <span class="btn-text" id="lbl-audio-btn">Audio: OFF</span>
+      <button class="action-btn audio-active" id="audio-toggle-btn" title="Toggle Atmospheric Soundscape">
+        <span id="audio-icon">🔊</span>
+        <span class="btn-text" id="lbl-audio-btn">Audio: ON</span>
       </button>
     </div>
   </header>
@@ -704,6 +731,46 @@
     <span class="exit-icon">⛶</span>
     <span class="exit-text">EXIT FULLSCREEN (ESC)</span>
   </button>
+
+  <!-- HOLOGRAPHIC MISSION RELIC HISTORY BILLBOARD -->
+  <div class="mission-billboard-overlay" id="mission-billboard-overlay" style="display: none;">
+    <div class="billboard-holo-card">
+      <div class="billboard-holo-header">
+        <div class="billboard-tag-row">
+          <span class="billboard-live-dot pulse"></span>
+          <span class="billboard-archive-tag">NASA HISTORICAL EXPLORATION ARCHIVE</span>
+          <span class="billboard-coords-tag" id="billboard-coords-tag">LOC: OCEANUS PROCELLARUM</span>
+        </div>
+        <button class="billboard-close-btn" id="billboard-close-btn" title="Dismiss Billboard">✕</button>
+      </div>
+
+      <div class="billboard-body">
+        <div class="billboard-relic-badge">
+          <span class="relic-icon-holo" id="billboard-relic-icon">🛰️</span>
+          <div class="relic-meta-col">
+            <h2 class="billboard-relic-title" id="billboard-relic-title">Apollo 11 Lunar Module Descent Stage</h2>
+            <span class="billboard-relic-year" id="billboard-relic-year">TRANQUILITY BASE • JULY 20, 1969</span>
+          </div>
+        </div>
+
+        <!-- Word-by-Word Typewriter History Text Screen -->
+        <div class="billboard-history-screen">
+          <div class="typewriter-text-content" id="billboard-typewriter-text"></div>
+          <span class="typewriter-cursor" id="billboard-typewriter-cursor">▋</span>
+        </div>
+      </div>
+
+      <div class="billboard-footer">
+        <div class="billboard-status-tag" id="billboard-status-tag">
+          <span class="status-icon">🎯</span>
+          <span id="billboard-status-msg">ARCHAEOLOGICAL RELIC TARGET LOCKED • READY FOR SCAN</span>
+        </div>
+        <button class="billboard-scan-action-btn glow-gold pulse" id="btn-billboard-scan">
+          <span>🔍 SCAN RELIC &amp; COMPLETE MISSION ➔</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
 
   <!-- SPACEFLIGHT COCKPIT & FLIGHT AVIONICS HUD (Inspired by spaceflight.flexzonicgames.com) -->
@@ -730,20 +797,28 @@
       <div class="compass-readout" id="flight-compass-readout">HDG: 000° N</div>
     </div>
 
-    <!-- Center Artificial Horizon / Pitch & Roll Gyro Attitude Ladder -->
-    <div class="flight-attitude-center" id="flight-attitude-center">
-      <div class="attitude-pitch-ladder" id="attitude-pitch-ladder">
-        <div class="pitch-line pos" data-deg="+20"><span>+20</span><div class="dash"></div><span>+20</span></div>
-        <div class="pitch-line pos" data-deg="+10"><span>+10</span><div class="dash"></div><span>+10</span></div>
-        <div class="pitch-line horizon" data-deg="0"><div class="dash horizon-dash"></div></div>
-        <div class="pitch-line neg" data-deg="-10"><span>-10</span><div class="dash"></div><span>-10</span></div>
-        <div class="pitch-line neg" data-deg="-20"><span>-20</span><div class="dash"></div><span>-20</span></div>
+    <!-- Center Artificial Horizon / Pitch & Roll Gyro Attitude Ladder (REMOVED for clean rover view) -->
+    <div class="flight-attitude-center" id="flight-attitude-center" style="display: none !important;"></div>
+
+    <!-- DYNAMIC FLOATING COMPANION KITTY SPEECH BUBBLE (Audible Web Speech TTS) -->
+    <div class="hud-companion-speech" id="hud-companion-speech">
+      <div class="bubble-arrow-left"></div>
+      <div class="bubble-bot-avatar">🐱</div>
+      <div class="bubble-content">
+        <span class="bubble-speaker" id="hud-companion-speech-name">ASTRO-BOT (COMPANION)</span>
+        <p class="bubble-message" id="hud-companion-speech-text">Welcome to the surface, Commander! Follow my beacon to Opportunity's resting place.</p>
       </div>
-      <div class="flight-crosshair-reticle">
-        <div class="reticle-bracket left"></div>
-        <div class="reticle-dot"></div>
-        <div class="reticle-bracket right"></div>
+    </div>
+
+    <!-- DYNAMIC INCOMING RADIO TRANSMISSION ALERT PILL (Asha & Leo Radio) -->
+    <div class="hud-comms-alert-pill" id="hud-comms-alert-pill" style="display: none;">
+      <div class="comms-radio-wave pulse">📡</div>
+      <div class="comms-alert-text">
+        <strong id="comms-alert-caller">ASHA • DHAKA ROOFTOP</strong>
+        <span id="comms-alert-msg">Incoming telemetry transmission detected!</span>
       </div>
+      <button class="comms-open-action-btn" id="btn-comms-open-action">OPEN ➔</button>
+      <button class="comms-dismiss-btn" id="btn-comms-dismiss">✕</button>
     </div>
 
     <!-- Left Avionics Speed & Flight Telemetry Flank -->
@@ -1053,6 +1128,7 @@
       <span class="pitch-act-tag" id="pitch-act-tag">ACT I</span>
       <span class="pitch-act-title" id="pitch-act-title">The Storm That Stole the Light</span>
       <span class="pitch-timer" id="pitch-timer">00:00 / 02:00</span>
+      <button class="pitch-exit-hub-btn" id="btn-exit-pitch-to-hub" type="button" title="Return to Game Hub">✕ RETURN TO HUB</button>
     </div>
     <p class="pitch-narration-text" id="pitch-narration-text">
       "In 2004, Opportunity landed on Mars for a 90-sol mission. It endured for 15 years. Then, on Sol 5111, an unprecedented global dust storm stole its light."
@@ -1176,24 +1252,128 @@
     </div>
   </div>
 
-  <!-- POPUP MODAL: MISSION DISCOVERY & CELEBRATION -->
+  <!-- =========================================================================
+       MAGAZINE-STYLE EDITORIAL PRE-MISSION STORY MODAL
+       ========================================================================= -->
+  <div class="modal-backdrop" id="mission-story-modal">
+    <div class="modal-card wide-card story-editorial-card">
+      <button class="modal-close-btn" id="story-modal-close-btn">✕</button>
+
+      <div class="story-article-header">
+        <div class="story-meta-tags-row">
+          <span class="story-badge-pill" id="story-article-badge">🌕 NASA HISTORICAL ARCHIVE</span>
+          <span class="story-read-time" id="story-article-readtime">3 MIN READ</span>
+        </div>
+        <h1 class="story-article-title" id="story-article-title">Why Apollo 11 Left Its Golden Base on the Lunar Dust</h1>
+        <div class="story-byline-row">
+          <span class="story-author-icon">✍️</span>
+          <span class="story-author-name" id="story-article-author">NASA Historical Office • Neil A. Armstrong Heritage</span>
+        </div>
+      </div>
+
+      <div class="modal-body scrollable-body story-article-body">
+        <div class="story-hero-image-wrap">
+          <img id="story-article-hero-img" src="./hero_astronaut_mars.jpg" alt="Mission Archival Hero" class="story-hero-img">
+          <div class="story-image-caption" id="story-article-caption">Archival hardware resting in the cosmic dust.</div>
+        </div>
+
+        <div class="story-summary-callout" id="story-article-summary">
+          <!-- Summary paragraph -->
+        </div>
+
+        <div class="story-paragraphs-container" id="story-article-paragraphs">
+          <!-- Formatted editorial story text -->
+        </div>
+
+        <div class="story-fast-facts-card" id="story-article-facts">
+          <!-- Fast Facts Grid -->
+        </div>
+      </div>
+
+      <div class="modal-footer modal-footer-dual centered">
+        <button class="modal-action-btn secondary-btn" id="story-btn-workbench">
+          <span>🔬 OPEN SCIENCE WORKBENCH</span>
+        </button>
+        <button class="modal-action-btn glow-gold" id="story-btn-launch-3d">
+          <span>🚀 LAUNCH 3D SIMULATION ➔</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       COMPANION KITTY GUIDE ROBOT SELECTION CAROUSEL MODAL
+       ========================================================================= -->
+  <div class="modal-backdrop" id="kitty-carousel-modal">
+    <div class="modal-card wide-card kitty-carousel-card">
+      <button class="modal-close-btn" id="kitty-modal-close-btn">✕</button>
+
+      <div class="modal-header centered">
+        <div class="modal-type-badge cyan-glow">EXPEDITION COMPANION PROTOCOL</div>
+        <h2 class="modal-title">CHOOSE YOUR COMPANION DRONE</h2>
+        <p class="modal-desc">Select an autonomous robotic guide equipped with voice telemetry and scientific scanners.</p>
+      </div>
+
+      <div class="kitty-carousel-stage">
+        <button class="carousel-nav-btn prev-btn" id="kitty-carousel-prev" title="Previous Companion (Left Arrow)">‹</button>
+
+        <div class="kitty-cards-track" id="kitty-cards-track">
+          <!-- Rendered dynamically by KittyCompanionManager -->
+        </div>
+
+        <button class="carousel-nav-btn next-btn" id="kitty-carousel-next" title="Next Companion (Right Arrow)">›</button>
+      </div>
+
+      <div class="kitty-detail-panel" id="kitty-detail-panel">
+        <!-- Perks & Stats rendered by KittyCompanionManager -->
+      </div>
+
+      <div class="modal-footer centered">
+        <button class="modal-action-btn glow-gold wide-btn" id="btn-confirm-kitty">
+          <span>CONFIRM COMPANION &amp; SYNC TELEMETRY 🐾 ➔</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP MODAL: MISSION DISCOVERY & 3-STAR VICTORY CELEBRATION -->
   <div class="modal-backdrop" id="mission-discovery-modal-backdrop">
-    <div class="modal-card celebration-card">
+    <div class="modal-card celebration-card victory-celebration-card">
       <button class="modal-close-btn" id="disc-close-btn">✕</button>
 
-      <div class="discovery-hero-wrap">
-        <div class="discovery-icon-halo pulse" id="disc-modal-icon">🏅</div>
-        <div class="discovery-xp-tag" id="disc-modal-xp">+150 XP</div>
+      <div class="victory-stars-row" id="disc-stars-row">
+        <span class="star-icon star-1 glow">⭐</span>
+        <span class="star-icon star-2 glow big-star">⭐</span>
+        <span class="star-icon star-3 glow">⭐</span>
       </div>
 
       <div class="modal-header centered">
-        <div class="modal-type-badge glow-gold" id="disc-modal-badge">MISSION COMPLETED!</div>
+        <div class="modal-type-badge glow-gold" id="disc-modal-badge">GREAT JOB! MISSION COMPLETED!</div>
         <h2 class="modal-title" id="disc-modal-title">Ancient Water Detective</h2>
         <p class="modal-desc" id="disc-modal-desc">You've successfully scanned and decoded the historical relic.</p>
       </div>
 
+      <!-- Victory Score Breakdown -->
+      <div class="victory-score-breakdown">
+        <div class="score-chip xp-chip">
+          <span class="score-icon">⚡</span>
+          <span class="score-val" id="disc-modal-xp">+150 XP</span>
+          <span class="score-name">Experience</span>
+        </div>
+        <div class="score-chip dust-chip">
+          <span class="score-icon">🪙</span>
+          <span class="score-val" id="disc-modal-dust">+150</span>
+          <span class="score-name">Cosmic Dust</span>
+        </div>
+        <div class="score-chip gems-chip">
+          <span class="score-icon">💎</span>
+          <span class="score-val" id="disc-modal-gems">+2</span>
+          <span class="score-name">Telemetry Gems</span>
+        </div>
+      </div>
+
       <div class="discovery-bot-speech">
-        <div class="dialogue-avatar">🛰️</div>
+        <div class="dialogue-avatar" id="disc-modal-icon">🐱</div>
         <div class="dialogue-text">
           <strong>Junior Deep Space Network Log:</strong>
           <p id="disc-modal-fact">"Hematite blueberries proved liquid water lakes existed on Mars billions of years ago!"</p>
@@ -1201,8 +1381,12 @@
       </div>
 
       <div class="modal-footer modal-footer-dual centered">
-        <button class="modal-action-btn secondary-btn" id="disc-roadmap-btn">🗺️ VIEW LEVEL MAP</button>
-        <button class="modal-action-btn glow-gold" id="disc-next-level-btn">PLAY NEXT LEVEL ➔</button>
+        <button class="modal-action-btn secondary-btn" id="disc-quiz-btn">
+          <span>📝 TEST KNOWLEDGE / PLAY QUIZ</span>
+        </button>
+        <button class="modal-action-btn glow-gold" id="disc-next-level-btn">
+          <span>PROCEED TO NEXT MISSION ➔</span>
+        </button>
         <button class="modal-action-btn" id="disc-dismiss-btn" style="display: none;">CONTINUE</button>
       </div>
     </div>
@@ -1224,12 +1408,12 @@
         </p>
         <div class="cert-footer-row">
           <div class="cert-sig">
-            <div class="sig-line">Apollo 11 &amp; Surveyor 3</div>
-            <span>Sea of Tranquility</span>
+            <div class="sig-line" id="cert-sig-commander">COMMANDER ASHA</div>
+            <span id="cert-sig-role">Mission Lead Explorer</span>
           </div>
           <div class="cert-sig">
-            <div class="sig-line">Opportunity &amp; InSight</div>
-            <span>Mars Monuments</span>
+            <div class="sig-line">Apollo &amp; Opportunity</div>
+            <span>Historic Monuments</span>
           </div>
           <div class="cert-sig">
             <div class="sig-line">Voyager 1 (24.3B km)</div>
@@ -1239,7 +1423,7 @@
       </div>
 
       <div class="modal-footer">
-        <button class="modal-action-btn" id="cert-dismiss-btn">CONGRATULATIONS! KEEP EXPLORING</button>
+        <button class="modal-action-btn" id="cert-dismiss-btn">CONGRATULATIONS! RETURN TO HUB ➔</button>
       </div>
     </div>
   </div>
@@ -1351,7 +1535,7 @@
       </div>
 
       <div class="modal-footer modal-footer-dual">
-        <button class="modal-action-btn secondary-btn" id="prologue-skip-btn">SKIP TO SIMULATOR</button>
+        <button class="modal-action-btn secondary-btn" id="prologue-skip-btn">✕ RETURN TO HUB</button>
         <button class="modal-action-btn glow-gold" id="prologue-next-btn">NEXT SCENE (2/4) ➔</button>
       </div>
     </div>

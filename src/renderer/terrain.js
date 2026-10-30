@@ -133,50 +133,54 @@ export function createMartianTerrain() {
     group.add(rock);
   }
 
-  // 3. Hematite "Blueberries" (MER-B Discovery at Eagle/Endeavour)
+  // 3. Hematite "Blueberries" (MER-B Discovery at Eagle/Endeavour at X: 18, Z: 14)
   const blueberryGroup = new THREE.Group();
   blueberryGroup.name = "artifact_hematite_blueberries";
+  blueberryGroup.userData = { subsystemId: "hematite_blueberries", artifactId: "hematite_blueberries", missionId: "mission_blueberries" };
   const bbMaterial = new THREE.MeshStandardMaterial({
     color: 0x3d4b5c, // distinctive bluish-gray hematite luster
     metalness: 0.7,
     roughness: 0.35
   });
-  const bbGeo = new THREE.SphereGeometry(0.04, 12, 12);
+  const bbGeo = new THREE.SphereGeometry(0.06, 12, 12);
 
-  // Scatter cluster near (3.2, 2.5)
-  for (let b = 0; b < 35; b++) {
+  // Scatter cluster near (18.0, 14.0)
+  for (let b = 0; b < 45; b++) {
     const bb = new THREE.Mesh(bbGeo, bbMaterial);
-    const bx = 3.2 + (Math.random() - 0.5) * 1.6;
-    const bz = 2.5 + (Math.random() - 0.5) * 1.6;
-    const by = getTerrainHeight(bx, bz) + 0.03;
+    const bx = 18.0 + (Math.random() - 0.5) * 2.5;
+    const bz = 14.0 + (Math.random() - 0.5) * 2.5;
+    const by = getTerrainHeight(bx, bz) + 0.04;
     bb.position.set(bx, by, bz);
-    bb.scale.setScalar(0.7 + Math.random() * 0.6);
+    bb.scale.setScalar(0.8 + Math.random() * 0.7);
+    bb.userData = { isArtifact: true, id: "hematite_blueberries" };
     blueberryGroup.add(bb);
   }
   group.add(blueberryGroup);
 
-  // 4. RAT Rock Abrasion Target ('Esperance-class' rock with circular grind mark)
+  // 4. RAT Rock Abrasion Target ('Esperance-class' rock with circular grind mark at X: -18, Z: 12)
   const ratRockGroup = new THREE.Group();
   ratRockGroup.name = "artifact_rat_grind_spot";
+  ratRockGroup.userData = { subsystemId: "rat_grind_spot", artifactId: "rat_grind_spot", missionId: "mission_rat" };
   const ratRockMesh = new THREE.Mesh(
-    new THREE.DodecahedronGeometry(0.55, 1),
+    new THREE.DodecahedronGeometry(0.75, 1),
     new THREE.MeshStandardMaterial({ color: 0x5a3120, roughness: 0.9 })
   );
   ratRockMesh.scale.set(1.4, 0.6, 1.2);
-  const ratY = getTerrainHeight(-1.8, 1.2);
-  ratRockGroup.position.set(-1.8, ratY + 0.15, 1.2);
+  const ratY = getTerrainHeight(-18.0, 12.0);
+  ratRockGroup.position.set(-18.0, ratY + 0.2, 12.0);
   ratRockGroup.add(ratRockMesh);
 
   // Circular grind mark
-  const grindGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.03, 32);
+  const grindGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.04, 32);
   const grindMat = new THREE.MeshStandardMaterial({
     color: 0x8a9ca8, // unweathered light clay-rich core
     roughness: 0.4,
     metalness: 0.2
   });
   const grindMesh = new THREE.Mesh(grindGeo, grindMat);
-  grindMesh.position.set(0, 0.3, 0.1);
+  grindMesh.position.set(0, 0.4, 0.1);
   grindMesh.rotation.x = 0.2;
+  grindMesh.userData = { isArtifact: true, id: "rat_grind_spot" };
   ratRockGroup.add(grindMesh);
   group.add(ratRockGroup);
 
@@ -207,7 +211,13 @@ export function createMartianTerrain() {
   insightActor.group.position.set(-12, inY, -18);
   group.add(insightActor.group);
 
-  return { group, getTerrainHeight, insightActor };
+  // 7. Sol 5111 High Rim Atmospheric Weather Station & Dust Storm Monitoring Mast (at X: 16, Z: -20)
+  const stormStationActor = createStormStationModel();
+  const stormY = getTerrainHeight(16, -20);
+  stormStationActor.group.position.set(16, stormY, -20);
+  group.add(stormStationActor.group);
+
+  return { group, getTerrainHeight, insightActor, stormStationActor };
 }
 
 // Mars InSight Lander 3D Articulated Actor: Twin Fan Solar Wings, IDA Robotic Arm, Golden SEIS Dome & 3D P/S Seismic Waves
@@ -393,6 +403,154 @@ function createInSightLanderModel() {
   return {
     group: insight,
     triggerMarsquake3D,
+    update
+  };
+}
+
+// Sol 5111 High Rim Atmospheric Weather Station & Dust Storm Monitoring Mast (Mission 5)
+function createStormStationModel() {
+  const station = new THREE.Group();
+  station.name = "artifact_storm_station";
+  station.userData = { subsystemId: "storm_station", artifactId: "storm_station", missionId: "mission_storm" };
+
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xdfa133, roughness: 0.35, metalness: 0.85 });
+  const darkMetalMat = new THREE.MeshStandardMaterial({ color: 0x242830, roughness: 0.65, metalness: 0.8 });
+  const hazardMat = new THREE.MeshStandardMaterial({ color: 0xff5e28, roughness: 0.4, metalness: 0.6 });
+  const amberLedMat = new THREE.MeshBasicMaterial({ color: 0xff9f1c });
+  const solarPanelMat = new THREE.MeshStandardMaterial({
+    color: 0x5a2d1e, // dust-covered solar silicon
+    roughness: 0.7,
+    metalness: 0.5
+  });
+
+  // 1. Heavy Base Pedestal (Hexagonal anchored foundation)
+  const baseMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.4, 0.28, 6), darkMetalMat);
+  baseMesh.position.y = 0.14;
+  baseMesh.castShadow = true;
+  baseMesh.receiveShadow = true;
+  baseMesh.userData = { isArtifact: true, id: "storm_station" };
+  station.add(baseMesh);
+
+  // 4 Stabilizer Outrigger Feet with anchoring spikes
+  for (let i = 0; i < 4; i++) {
+    const angle = (i * Math.PI) / 2 + 0.35;
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.12, 0.6), darkMetalMat);
+    foot.position.set(Math.cos(angle) * 1.35, 0.06, Math.sin(angle) * 1.35);
+    foot.rotation.y = angle;
+    foot.userData = { isArtifact: true, id: "storm_station" };
+    station.add(foot);
+  }
+
+  // 2. Central Electronics Enclosure & Telemetry Terminal Box
+  const terminalBox = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.85, 0.6), goldMat);
+  terminalBox.position.set(0, 0.65, 0);
+  terminalBox.castShadow = true;
+  terminalBox.userData = { isArtifact: true, id: "storm_station" };
+  station.add(terminalBox);
+
+  // Diagnostic Screen (Flickering Amber Telemetry)
+  const screenMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.45, 0.3), amberLedMat);
+  screenMesh.position.set(0, 0.75, 0.31);
+  station.add(screenMesh);
+
+  // 3. Vertical Atmospheric Tower Mast (3.4 meters tall)
+  const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.09, 3.4, 8), darkMetalMat);
+  mast.position.set(0, 2.3, 0);
+  mast.castShadow = true;
+  mast.userData = { isArtifact: true, id: "storm_station" };
+  station.add(mast);
+
+  // Cross-Arms for Meteorological Sensors
+  const arm1 = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.2, 8), darkMetalMat);
+  arm1.rotation.z = Math.PI / 2;
+  arm1.position.set(0, 2.2, 0);
+  station.add(arm1);
+
+  const arm2 = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.9, 8), darkMetalMat);
+  arm2.rotation.x = Math.PI / 2;
+  arm2.position.set(0, 3.2, 0);
+  station.add(arm2);
+
+  // 4. Optical Depth Tau Pyranometer Sensor Dome (Upward facing)
+  const pyranometer = new THREE.Mesh(
+    new THREE.SphereGeometry(0.14, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+    new THREE.MeshStandardMaterial({ color: 0x00e5ff, roughness: 0.1, metalness: 0.9 })
+  );
+  pyranometer.position.set(0.5, 2.2, 0);
+  pyranometer.userData = { isArtifact: true, id: "storm_station" };
+  station.add(pyranometer);
+
+  // 5. Slanted Dust-Coated Solar Array (Opportunity's fatal storm monitor)
+  const solarFrame = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.04, 0.8), darkMetalMat);
+  solarFrame.position.set(-0.65, 1.45, 0);
+  solarFrame.rotation.z = 0.45; // 25 degree tilt
+  station.add(solarFrame);
+
+  const solarCells = new THREE.Mesh(new THREE.PlaneGeometry(1.12, 0.72), solarPanelMat);
+  solarCells.position.set(-0.65, 1.48, 0);
+  solarCells.rotation.x = -Math.PI / 2;
+  solarCells.rotation.y = -0.45;
+  solarCells.userData = { isArtifact: true, id: "storm_station" };
+  station.add(solarCells);
+
+  // 6. 3-Cup Spinning Anemometer Rotor on Mast Peak
+  const anemometerGroup = new THREE.Group();
+  anemometerGroup.position.set(0, 3.85, 0);
+  station.add(anemometerGroup);
+
+  const spindle = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.25, 8), darkMetalMat);
+  anemometerGroup.add(spindle);
+
+  for (let c = 0; c < 3; c++) {
+    const angle = (c * Math.PI * 2) / 3;
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.35, 6), darkMetalMat);
+    rod.rotation.z = Math.PI / 2;
+    rod.position.set(Math.cos(angle) * 0.175, 0.08, Math.sin(angle) * 0.175);
+    rod.rotation.y = -angle;
+    anemometerGroup.add(rod);
+
+    const cup = new THREE.Mesh(
+      new THREE.SphereGeometry(0.065, 8, 8, 0, Math.PI),
+      hazardMat
+    );
+    cup.position.set(Math.cos(angle) * 0.35, 0.08, Math.sin(angle) * 0.35);
+    cup.rotation.y = angle + Math.PI / 2;
+    anemometerGroup.add(cup);
+  }
+
+  // 7. Swirling Atmospheric Dust Storm Vortex Ring & Flare
+  const vortexGeo = new THREE.RingGeometry(1.0, 3.2, 32);
+  const vortexMat = new THREE.MeshBasicMaterial({
+    color: 0xff5e28,
+    transparent: true,
+    opacity: 0.45,
+    side: THREE.DoubleSide,
+    depthWrite: false
+  });
+  const vortexRing = new THREE.Mesh(vortexGeo, vortexMat);
+  vortexRing.rotation.x = -Math.PI / 2;
+  vortexRing.position.y = 0.08;
+  station.add(vortexRing);
+
+  // Top Warning Strobe Light
+  const strobeLight = new THREE.PointLight(0xff5e28, 2.5, 14);
+  strobeLight.position.set(0, 3.95, 0);
+  station.add(strobeLight);
+
+  function update(delta, elapsedTime = 0) {
+    // Spin wind anemometer cups continuously
+    anemometerGroup.rotation.y += delta * 7.5;
+    // Pulse dust vortex ring
+    const scale = 1.0 + Math.sin(elapsedTime * 2.5) * 0.12;
+    vortexRing.scale.set(scale, scale, 1.0);
+    vortexRing.rotation.z += delta * 0.8;
+    // Strobe light pulse
+    strobeLight.intensity = 1.8 + Math.sin(elapsedTime * 8) * 1.2;
+    amberLedMat.color.setRGB(1.0, 0.6 + Math.sin(elapsedTime * 10) * 0.2, 0.1);
+  }
+
+  return {
+    group: station,
     update
   };
 }

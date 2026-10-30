@@ -32,6 +32,22 @@ export class QuizLeaderboardManager {
     return CADET_QUIZ_LEVELS[this.currentTier] || CADET_QUIZ_LEVELS.junior;
   }
 
+  isTierUnlocked(tier) {
+    const xp = this.questManager ? this.questManager.userXP : 0;
+    if (tier === 'junior') return true;
+    if (tier === 'intermediate') return xp >= 500;
+    if (tier === 'senior') return xp >= 1000;
+    if (tier === 'expert') return xp >= 1500;
+    return true;
+  }
+
+  getTierLockMessage(tier) {
+    if (tier === 'intermediate') return "🔒 Level 2 (500+ XP) Required! Complete Moon & Mars levels to unlock.";
+    if (tier === 'senior') return "🔒 Level 3 (1,000+ XP) Required! Solve science labs to unlock.";
+    if (tier === 'expert') return "🔒 Level 4 (1,500+ XP) Required! Master all historical relics to unlock.";
+    return "";
+  }
+
   render() {
     const modalBody = document.getElementById('quiz-modal-container');
     if (!modalBody) return;
@@ -46,21 +62,25 @@ export class QuizLeaderboardManager {
     const questions = this.currentQuestionList;
     const qData = questions[this.currentQuestionIdx];
 
+    const interLocked = !this.isTierUnlocked('intermediate');
+    const seniorLocked = !this.isTierUnlocked('senior');
+    const expertLocked = !this.isTierUnlocked('expert');
+
     modalBody.innerHTML = `
       <!-- Quiz Navigation Tabs: Difficulty Layers + Leaderboard Switcher -->
       <div class="quiz-top-nav-bar">
         <div class="quiz-tier-selector">
-          <button class="quiz-tier-btn ${this.currentTier === 'junior' ? 'active' : ''}" data-tier="junior">
+          <button class="quiz-tier-btn ${this.currentTier === 'junior' ? 'active' : ''}" data-tier="junior" title="Open to all cadets">
             🟢 ${isBn ? 'জুনিয়র' : 'Junior'}
           </button>
-          <button class="quiz-tier-btn ${this.currentTier === 'intermediate' ? 'active' : ''}" data-tier="intermediate">
-            🟡 ${isBn ? 'ইন্টারমিডিয়েট' : 'Intermediate'}
+          <button class="quiz-tier-btn ${this.currentTier === 'intermediate' ? 'active' : ''} ${interLocked ? 'locked' : ''}" data-tier="intermediate" title="${interLocked ? 'Unlocks at Level 2 (500 XP)' : 'Intermediate Level'}">
+            ${interLocked ? '🔒' : '🟡'} ${isBn ? 'ইন্টারমিডিয়েট' : 'Intermediate'}
           </button>
-          <button class="quiz-tier-btn ${this.currentTier === 'senior' ? 'active' : ''}" data-tier="senior">
-            🟠 ${isBn ? 'সিনিয়র' : 'Senior'}
+          <button class="quiz-tier-btn ${this.currentTier === 'senior' ? 'active' : ''} ${seniorLocked ? 'locked' : ''}" data-tier="senior" title="${seniorLocked ? 'Unlocks at Level 3 (1,000 XP)' : 'Senior Level'}">
+            ${seniorLocked ? '🔒' : '🟠'} ${isBn ? 'সিনিয়র' : 'Senior'}
           </button>
-          <button class="quiz-tier-btn ${this.currentTier === 'expert' ? 'active' : ''}" data-tier="expert">
-            🔴 ${isBn ? 'এক্সপার্ট' : 'Expert'}
+          <button class="quiz-tier-btn ${this.currentTier === 'expert' ? 'active' : ''} ${expertLocked ? 'locked' : ''}" data-tier="expert" title="${expertLocked ? 'Unlocks at Level 4 (1,500 XP)' : 'Expert Level'}">
+            ${expertLocked ? '🔒' : '🔴'} ${isBn ? 'এক্সপার্ট' : 'Expert'}
           </button>
         </div>
 
@@ -114,34 +134,183 @@ export class QuizLeaderboardManager {
 
   renderLeaderboard(container) {
     const isBn = this.currentLanguage === 'bn';
-    const playerXP = this.questManager ? this.questManager.userXP : 1250;
+    const playerXP = this.questManager ? this.questManager.userXP : 0;
     const playerBadges = this.questManager ? this.questManager.completedMissions.size : 0;
+    const customCallSign = localStorage.getItem('nasa_player_callsign') || 'Cadet Shaikot';
+    const activeCommander = localStorage.getItem('jdsn_selected_commander') || 'asha';
 
-    // Update player rank dynamically in the leaderboard
+    const ashaXP = parseInt(localStorage.getItem('jdsn_asha_points') || '3250', 10);
+    const leoXP = parseInt(localStorage.getItem('jdsn_leo_points') || '3410', 10);
+    const ashaMissions = parseInt(localStorage.getItem('jdsn_asha_missions') || '8', 10);
+    const leoMissions = parseInt(localStorage.getItem('jdsn_leo_missions') || '9', 10);
+    const totalDuelXP = Math.max(1, ashaXP + leoXP);
+    const ashaPercent = Math.round((ashaXP / totalDuelXP) * 100);
+    const leoPercent = 100 - ashaPercent;
+
+    const leaderDiffText = ashaXP === leoXP
+      ? (isBn ? 'উভয়ে সমানে সমান!' : 'Tied for 1st Place!')
+      : ashaXP > leoXP
+      ? (isBn ? `আশা ${(ashaXP - leoXP).toLocaleString()} পয়েন্টে এগিয়ে!` : `Asha leads by ${(ashaXP - leoXP).toLocaleString()} pts!`)
+      : (isBn ? `লিও ${(leoXP - ashaXP).toLocaleString()} পয়েন্টে এগিয়ে!` : `Leo leads by ${(leoXP - ashaXP).toLocaleString()} pts!`);
+
+    // Update player and commander scores dynamically in the leaderboard
     const updatedBoard = this.leaderboard.map(item => {
-      if (item.name.includes("You")) {
+      if (item.name.includes("You") || item.name.includes("Player")) {
+        const cmdrLabel = activeCommander === 'asha' ? 'Asha' : 'Leo';
         return {
           ...item,
+          name: `${customCallSign} • ${cmdrLabel} (You)`,
+          avatar: activeCommander === 'asha' ? '👩‍🚀' : '👨‍🚀',
           xp: playerXP,
           badges: playerBadges,
-          title: playerXP >= 1500 ? "Cosmic Commander" : playerXP >= 1000 ? "Senior Specialist" : "Junior Cadet"
+          title: playerXP >= 1500 ? "Cosmic Commander" : playerXP >= 1000 ? "Senior Specialist" : playerXP >= 500 ? "Field Archaeologist" : "Junior Space Cadet"
+        };
+      }
+      if (item.name.includes("Asha Rahman")) {
+        return {
+          ...item,
+          xp: ashaXP,
+          badges: ashaMissions
+        };
+      }
+      if (item.name.includes("Leo Vance")) {
+        return {
+          ...item,
+          xp: leoXP,
+          badges: leoMissions
         };
       }
       return item;
     }).sort((a, b) => b.xp - a.xp);
+
+    const top1 = updatedBoard[0];
+    const top2 = updatedBoard[1];
+    const top3 = updatedBoard[2];
 
     container.innerHTML = `
       <div class="leaderboard-view-container">
         <div class="leaderboard-header-row">
           <div>
             <h3 class="lb-title">🏆 ${isBn ? 'গ্লোবাল স্পেস ক্যাডেট লিডারবোর্ড' : 'Global Space Cadet Leaderboard'}</h3>
-            <p class="lb-sub">${isBn ? 'কুইজ ও মিশন সম্পন্ন করে শীর্ষস্থান অর্জন করো!' : 'Answer quizzes and complete missions to climb the ranks!'}</p>
+            <p class="lb-sub">${isBn ? 'কুইজ ও মিশন সম্পন্ন করে শীর্ষস্থান অর্জন করো!' : 'Top 50 global explorers — complete missions & quizzes to climb the ranks!'}</p>
           </div>
-          <button class="lb-back-btn" id="btn-back-to-quiz">
-            🧩 ${isBn ? 'কুইজে ফিরুন' : 'Back to Quiz'}
-          </button>
+          <div class="lb-header-controls">
+            <input type="text" id="lb-search-input" class="lb-search-field" placeholder="Search cadet or station...">
+            <button class="lb-back-btn" id="btn-back-to-quiz">
+              🧩 ${isBn ? 'কুইজে ফিরুন' : 'Back to Quiz'}
+            </button>
+          </div>
         </div>
 
+        <!-- COMMANDER POINTS SHOWDOWN & DUAL LEADERBOARD -->
+        <div class="cmd-showdown-card">
+          <div class="cmd-showdown-header">
+            <div>
+              <span class="showdown-badge">⚡ ${isBn ? 'মিশন কমান্ডার পয়েন্ট লড়াই' : 'MISSION COMMANDERS POINTS SHOWDOWN'}</span>
+              <h4 class="showdown-title">${isBn ? 'কে বেশি পয়েন্ট সংগ্রহ করেছে?' : 'Who Collected More Points Across the Cosmos?'}</h4>
+            </div>
+            <span class="showdown-live-tag">LIVE STANDINGS</span>
+          </div>
+
+          <div class="cmd-showdown-duel-grid">
+            <!-- Asha Card -->
+            <div class="duel-character-card asha-duel ${activeCommander === 'asha' ? 'is-active-commander' : ''}">
+              <div class="duel-avatar-col">
+                <span class="duel-avatar">👩‍🚀</span>
+                ${activeCommander === 'asha' ? `<span class="your-cmdr-badge">${isBn ? 'আপনার লিড' : 'YOUR LEAD'}</span>` : ''}
+              </div>
+              <div class="duel-info-col">
+                <div class="duel-name-row">
+                  <strong>COMMANDER ASHA</strong>
+                  <span class="duel-rank-pill ${ashaXP >= leoXP ? 'leader' : ''}">${ashaXP >= leoXP ? (isBn ? '👑 ১ম স্থান' : '👑 RANK #1') : (isBn ? '🥈 ২য় স্থান' : '🥈 RANK #2')}</span>
+                </div>
+                <small class="duel-location">Dhaka Ground Station • JDSN 1</small>
+                <div class="duel-score-row">
+                  <span class="duel-points-total">${ashaXP.toLocaleString()} XP</span>
+                  <span class="duel-missions-tag">${ashaMissions} ${isBn ? 'মিশন সম্পন্ন' : 'Missions'}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- VS Divider -->
+            <div class="duel-vs-divider">
+              <span class="vs-text">VS</span>
+            </div>
+
+            <!-- Leo Card -->
+            <div class="duel-character-card leo-duel ${activeCommander === 'leo' ? 'is-active-commander' : ''}">
+              <div class="duel-avatar-col">
+                <span class="duel-avatar">👨‍🚀</span>
+                ${activeCommander === 'leo' ? `<span class="your-cmdr-badge">${isBn ? 'আপনার লিড' : 'YOUR LEAD'}</span>` : ''}
+              </div>
+              <div class="duel-info-col">
+                <div class="duel-name-row">
+                  <strong>COMMANDER LEO</strong>
+                  <span class="duel-rank-pill ${leoXP > ashaXP ? 'leader' : ''}">${leoXP > ashaXP ? (isBn ? '👑 ১ম স্থান' : '👑 RANK #1') : (isBn ? '🥈 ২য় স্থান' : '🥈 RANK #2')}</span>
+                </div>
+                <small class="duel-location">Cape Canaveral • Florida KSC</small>
+                <div class="duel-score-row">
+                  <span class="duel-points-total">${leoXP.toLocaleString()} XP</span>
+                  <span class="duel-missions-tag">${leoMissions} ${isBn ? 'মিশন সম্পন্ন' : 'Missions'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Points Comparison Meter Bar -->
+          <div class="cmd-points-meter-wrap">
+            <div class="points-meter-bar">
+              <div class="meter-fill asha-fill" style="width: ${ashaPercent}%;"></div>
+              <div class="meter-fill leo-fill" style="width: ${leoPercent}%;"></div>
+            </div>
+            <div class="meter-labels-row">
+              <span class="meter-lbl asha-lbl">👩‍🚀 Asha: ${ashaXP.toLocaleString()} XP (${ashaPercent}%)</span>
+              <span class="meter-lbl diff-lbl">${leaderDiffText}</span>
+              <span class="meter-lbl leo-lbl">👨‍🚀 Leo: ${leoXP.toLocaleString()} XP (${leoPercent}%)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOP 3 PODIUM CARDS WITH CROWNS & GLOW -->
+        <div class="lb-podium-grid">
+          <!-- 2nd Place -->
+          <div class="podium-card rank-2-silver">
+            <div class="podium-crown-badge silver">🥈 2ND PLACE</div>
+            <div class="podium-avatar-ring silver-glow">
+              <span class="podium-emoji">${top2.avatar}</span>
+            </div>
+            <h4 class="podium-name">${top2.name}</h4>
+            <span class="podium-title">${top2.title}</span>
+            <small class="podium-region">${top2.region}</small>
+            <div class="podium-score"><strong>${top2.xp.toLocaleString()}</strong> XP</div>
+          </div>
+
+          <!-- 1st Place (Center / Taller) -->
+          <div class="podium-card rank-1-gold">
+            <div class="podium-crown-badge gold">👑 1ST CHAMPION</div>
+            <div class="podium-avatar-ring gold-glow">
+              <span class="podium-emoji">${top1.avatar}</span>
+            </div>
+            <h4 class="podium-name">${top1.name}</h4>
+            <span class="podium-title">${top1.title}</span>
+            <small class="podium-region">${top1.region}</small>
+            <div class="podium-score"><strong>${top1.xp.toLocaleString()}</strong> XP</div>
+          </div>
+
+          <!-- 3rd Place -->
+          <div class="podium-card rank-3-bronze">
+            <div class="podium-crown-badge bronze">🥉 3RD PLACE</div>
+            <div class="podium-avatar-ring bronze-glow">
+              <span class="podium-emoji">${top3.avatar}</span>
+            </div>
+            <h4 class="podium-name">${top3.name}</h4>
+            <span class="podium-title">${top3.title}</span>
+            <small class="podium-region">${top3.region}</small>
+            <div class="podium-score"><strong>${top3.xp.toLocaleString()}</strong> XP</div>
+          </div>
+        </div>
+
+        <!-- TOP 50 TABLE SCROLL -->
         <div class="leaderboard-table-wrap">
           <div class="lb-table-head">
             <span class="col-rank">${isBn ? 'র‍্যাংক' : 'Rank'}</span>
@@ -151,13 +320,13 @@ export class QuizLeaderboardManager {
             <span class="col-xp">${isBn ? 'এক্সপি' : 'XP Points'}</span>
           </div>
 
-          <div class="lb-table-body">
+          <div class="lb-table-body" id="lb-table-rows">
             ${updatedBoard.map((item, index) => {
               const isPlayer = item.name.includes("You");
               return `
-                <div class="lb-row ${isPlayer ? 'player-row' : ''} rank-${index + 1}">
+                <div class="lb-row ${isPlayer ? 'player-row' : ''} rank-${index + 1}" data-name="${item.name.toLowerCase()}" data-region="${item.region.toLowerCase()}">
                   <span class="col-rank">
-                    ${index === 0 ? '🥇 1' : index === 1 ? '🥈 2' : index === 2 ? '🥉 3' : `#${index + 1}`}
+                    ${index === 0 ? '👑 1' : index === 1 ? '🥈 2' : index === 2 ? '🥉 3' : `#${index + 1}`}
                   </span>
                   <div class="col-cadet cadet-info">
                     <span class="cadet-avatar">${item.avatar}</span>
@@ -181,12 +350,34 @@ export class QuizLeaderboardManager {
       this.activeTab = 'quiz';
       this.render();
     });
+
+    // Real-time table search
+    const searchInput = document.getElementById('lb-search-input');
+    searchInput?.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      document.querySelectorAll('#lb-table-rows .lb-row').forEach(row => {
+        const name = row.dataset.name || '';
+        const region = row.dataset.region || '';
+        if (!q || name.includes(q) || region.includes(q)) {
+          row.style.display = 'flex';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
   }
 
   bindQuizEvents() {
     document.querySelectorAll('.quiz-tier-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        this.setTier(btn.dataset.tier);
+        const tier = btn.dataset.tier;
+        if (!this.isTierUnlocked(tier)) {
+          const lockMsg = this.getTierLockMessage(tier);
+          alert(lockMsg);
+          martianAudio.playClick();
+          return;
+        }
+        this.setTier(tier);
       });
     });
 

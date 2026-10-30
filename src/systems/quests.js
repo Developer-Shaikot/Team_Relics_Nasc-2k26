@@ -7,9 +7,9 @@ export class MissionQuestManager {
     this.completedMissions = new Set();
     this.currentLanguage = 'en'; // 'en' or 'bn'
     this.currentPlanet = 'mars'; // 'mars' or 'moon'
-    this.userXP = 1250;
-    this.userGems = 120;
-    this.userLevel = 4;
+    this.userXP = 0;
+    this.userGems = 10;
+    this.userLevel = 1;
     this.updateUI = updateUICallback;
     this.currentFunFactIndex = 0;
     this.currentViewMode = 'roadmap'; // 'roadmap' | 'list'
@@ -18,10 +18,26 @@ export class MissionQuestManager {
     this.onXPChangeCallback = null;
     this.onPlanetChangeCallback = null;
 
-    // Load saved XP from localStorage if available
+    // Load saved XP from localStorage if available (reset legacy default 1250/1758)
     try {
       const savedXP = localStorage.getItem('nasa_cadet_xp');
-      if (savedXP) this.userXP = parseInt(savedXP, 10);
+      if (savedXP && savedXP !== '1250' && savedXP !== '1758') {
+        this.userXP = parseInt(savedXP, 10);
+      } else {
+        this.userXP = 0;
+        localStorage.setItem('nasa_cadet_xp', '0');
+      }
+
+      const savedGems = localStorage.getItem('nasa_cadet_gems');
+      if (savedGems && savedGems !== '120') {
+        this.userGems = parseInt(savedGems, 10);
+      } else {
+        this.userGems = 10;
+        localStorage.setItem('nasa_cadet_gems', '10');
+      }
+
+      this.userLevel = Math.max(1, Math.floor(this.userXP / 500) + 1);
+
       const savedCompleted = localStorage.getItem('nasa_completed_missions');
       if (savedCompleted) {
         JSON.parse(savedCompleted).forEach(id => this.completedMissions.add(id));
@@ -34,6 +50,8 @@ export class MissionQuestManager {
   }
 
   openRoadmapForPlanet(planet) {
+    // If holographic history billboard is active, do not display roadmap modal in the background!
+    if (window.__isBillboardActive) return;
     if (planet) this.setPlanet(planet);
     this.renderMissionsList();
     const modal = document.getElementById('missions-modal-backdrop');
@@ -78,7 +96,15 @@ export class MissionQuestManager {
 
     try {
       localStorage.setItem('nasa_cadet_xp', this.userXP.toString());
+      localStorage.setItem('nasa_cadet_gems', this.userGems.toString());
       localStorage.setItem('nasa_completed_missions', JSON.stringify([...this.completedMissions]));
+
+      // Accrue points to the selected commander
+      const activeCmdr = localStorage.getItem('jdsn_selected_commander') || 'asha';
+      const storageKey = `jdsn_${activeCmdr}_points`;
+      const curPts = parseInt(localStorage.getItem(storageKey) || (activeCmdr === 'asha' ? '3250' : '3410'), 10);
+      localStorage.setItem(storageKey, (curPts + amount).toString());
+      window.dispatchEvent(new CustomEvent('commanderPointsUpdated'));
     } catch (e) {}
 
     // Update Top & Hub UI bars
@@ -103,7 +129,10 @@ export class MissionQuestManager {
     if (xpFill) xpFill.style.width = `${pct}%`;
     if (xpLabel) xpLabel.innerText = `${this.userXP} / ${nextLevelXP} XP`;
     if (gemsVal) gemsVal.innerText = this.userGems.toLocaleString();
-    if (dustVal) dustVal.innerText = (1250 + Math.floor(this.userXP * 1.5)).toLocaleString();
+    if (dustVal) {
+      const storedCoins = localStorage.getItem('jdsn_cosmic_dust');
+      dustVal.innerText = storedCoins ? parseInt(storedCoins, 10).toLocaleString() : '1,000';
+    }
 
     if (rankLabel) {
       const isBn = this.currentLanguage === 'bn';
@@ -126,9 +155,17 @@ export class MissionQuestManager {
     this.renderMissionsList();
   }
 
-  markMissionCompleted(missionId) {
+  markMissionCompleted(missionId, showDiscoveryModal = false) {
     if (this.completedMissions.has(missionId)) return;
     this.completedMissions.add(missionId);
+
+    try {
+      const activeCmdr = localStorage.getItem('jdsn_selected_commander') || 'asha';
+      const missionKey = `jdsn_${activeCmdr}_missions`;
+      const curMissions = parseInt(localStorage.getItem(missionKey) || (activeCmdr === 'asha' ? '8' : '9'), 10);
+      localStorage.setItem(missionKey, (curMissions + 1).toString());
+      window.dispatchEvent(new CustomEvent('commanderPointsUpdated'));
+    } catch (e) {}
 
     const mission = [...KIDS_MISSIONS_MARS, ...KIDS_MISSIONS_MOON].find(m => m.id === missionId);
     const xpReward = mission?.rewardXP || 150;
@@ -138,8 +175,10 @@ export class MissionQuestManager {
     martianAudio.playTelemetryTransmission();
     this.triggerConfetti();
 
-    // Show celebratory Discovery Popup Dialog
-    this.showMissionDiscoveryModal(mission);
+    // Show celebratory Discovery Popup Dialog if explicitly requested
+    if (showDiscoveryModal) {
+      this.showMissionDiscoveryModal(mission);
+    }
 
     // Show bot notification
     const botText = this.currentLanguage === 'bn' ? COMPANION_BOT_LINES.mission_done_bn : COMPANION_BOT_LINES.mission_done_en;
@@ -158,8 +197,13 @@ export class MissionQuestManager {
 
     const allMarsDone = KIDS_MISSIONS_MARS.every(m => this.completedMissions.has(m.id));
     const allMoonDone = KIDS_MISSIONS_MOON.every(m => this.completedMissions.has(m.id));
+    const isCurrentWorldDone = this.currentPlanet === 'moon'
+      ? allMoonDone
+      : (this.currentPlanet === 'deepspace'
+         ? this.completedMissions.has('mission_blackbox')
+         : allMarsDone);
 
-    if (allMarsDone && allMoonDone) {
+    if (isCurrentWorldDone) {
       setTimeout(() => {
         const winText = this.currentLanguage === 'bn' ? COMPANION_BOT_LINES.all_completed_bn : COMPANION_BOT_LINES.all_completed_en;
         this.showBotDialogue(winText, true);
@@ -179,13 +223,17 @@ export class MissionQuestManager {
     const discDesc = document.getElementById('disc-modal-desc');
     const discFact = document.getElementById('disc-modal-fact');
     const discXp = document.getElementById('disc-modal-xp');
+    const discDust = document.getElementById('disc-modal-dust');
+    const discGems = document.getElementById('disc-modal-gems');
     const discIcon = document.getElementById('disc-modal-icon');
 
-    if (discBadge) discBadge.innerText = isBn ? `মিশন ${mission.level} সম্পন্ন!` : `MISSION ${mission.level} COMPLETED!`;
+    if (discBadge) discBadge.innerText = isBn ? `মিশন ${mission.level} সম্পন্ন!` : `GREAT JOB! MISSION COMPLETED!`;
     if (discTitle) discTitle.innerText = isBn ? mission.title_bn : mission.title_en;
     if (discDesc) discDesc.innerText = isBn ? mission.desc_bn : mission.desc_en;
     if (discFact) discFact.innerText = isBn ? (mission.discoveryFact_bn || '') : (mission.discoveryFact_en || '');
     if (discXp) discXp.innerText = `+${mission.rewardXP || 150} XP`;
+    if (discDust) discDust.innerText = `+${mission.rewardXP || 150}`;
+    if (discGems) discGems.innerText = `+2`;
     if (discIcon) discIcon.innerText = mission.badge || '🏅';
 
     if (discModal) discModal.classList.add('active');
@@ -465,6 +513,15 @@ export class MissionQuestManager {
               `;
             }).join('')}
           </div>
+
+          <!-- Animated Flying Rocket between Roadmap Levels -->
+          <div class="roadmap-flying-rocket" id="roadmap-flying-rocket" style="display: none;">
+            <div class="rocket-sprite">🚀</div>
+            <div class="rocket-thruster-fire"></div>
+          </div>
+
+          <!-- Toast Banner for Level Progression -->
+          <div class="roadmap-level-advance-toast" id="roadmap-level-advance-toast" style="display: none;"></div>
         </div>
 
         <!-- Selected Mission HUD Details Panel -->
@@ -735,6 +792,214 @@ export class MissionQuestManager {
 
   showCertificateModal() {
     const modal = document.getElementById('certificate-modal-backdrop');
-    if (modal) modal.classList.add('active');
+    if (!modal) return;
+
+    const isBn = this.currentLanguage === 'bn';
+    const allMarsDone = KIDS_MISSIONS_MARS.every(m => this.completedMissions.has(m.id));
+    const allMoonDone = KIDS_MISSIONS_MOON.every(m => this.completedMissions.has(m.id));
+
+    const titleEl = modal.querySelector('.cert-title');
+    const tagEl = modal.querySelector('.cert-nasa-tag');
+    const nameEl = document.getElementById('cert-player-name');
+    const descEl = document.getElementById('cert-player-desc');
+    const dismissBtn = document.getElementById('cert-dismiss-btn');
+    const sigCmdrEl = document.getElementById('cert-sig-commander');
+
+    const activeCmdr = localStorage.getItem('jdsn_selected_commander') || 'asha';
+    const isAsha = activeCmdr === 'asha';
+    const cmdrTitle = isAsha ? (isBn ? 'কমান্ডার আশা' : 'COMMANDER ASHA') : (isBn ? 'কমান্ডার লিও' : 'COMMANDER LEO');
+    const customCall = localStorage.getItem('nasa_player_callsign');
+    const recipientName = customCall && customCall !== 'CADET EXPLORER'
+      ? `${customCall} (${cmdrTitle})`
+      : cmdrTitle;
+
+    if (sigCmdrEl) {
+      sigCmdrEl.innerText = cmdrTitle;
+    }
+
+    if (this.currentPlanet === 'deepspace') {
+      if (tagEl) tagEl.innerText = isBn ? 'নাসা স্পেস অ্যাপস • ইন্টারস্টেলার একাডেমি' : 'NASA SPACE APPS • INTERSTELLAR MISSION ACADEMY';
+      if (titleEl) titleEl.innerText = isBn ? 'ইন্টারস্টেলার এক্সপেডিশন মাস্টার সার্টিফিকেট' : 'INTERSTELLAR EXPEDITION MASTER CERTIFICATE';
+      if (nameEl) nameEl.innerText = `${recipientName} • ${isBn ? 'ইন্টারস্টেলার মাস্টার পায়োনিয়ার' : 'INTERSTELLAR MASTER PIONEER'}`;
+      if (descEl) {
+        descEl.innerText = isBn
+          ? `${cmdrTitle} মহাবিশ্বের ২৪.৩ বিলিয়ন কিলোমিটার (১৬২ এইউ) দূরে হেলিওপজ অতিক্রমকারী ভয়েজার ১ মহাকাশযানের পিউ-২৩৮ নিউক্লিয়ার ব্যাটারি ব্যালেন্স করে এবং ২২ ঘণ্টা ৩৪ মিনিটের রেডিও লিঙ্ক অতিক্রম করে গোল্ডেন রেকর্ড হ্যান্ডশেক সফলভাবে সম্পন্ন করেছেন!`
+          : `certifies that ${cmdrTitle} has successfully mastered the Interstellar Expedition across 24.3 billion kilometers (162 AU)—balancing Voyager 1's decaying Pu-238 RTG nuclear power, establishing the 22h 34m light-speed radio link past the Heliopause, and broadcasting the Golden Record across the cosmos!`;
+      }
+    } else if (this.currentPlanet === 'moon' && !allMarsDone) {
+      if (tagEl) tagEl.innerText = isBn ? 'নাসা স্পেস অ্যাপস • চন্দ্রাভিযান একাডেমি' : 'NASA SPACE APPS • LUNAR EXPEDITION ACADEMY';
+      if (titleEl) titleEl.innerText = isBn ? 'লুনার এক্সপেডিশন মাস্টার সার্টিফিকেট' : 'LUNAR EXPEDITION MASTER CERTIFICATE';
+      if (nameEl) nameEl.innerText = `${recipientName} • ${isBn ? 'মাস্টার লুনার এক্সপ্লোরার' : 'MASTER LUNAR EXPLORER'}`;
+      if (descEl) {
+        descEl.innerText = isBn
+          ? `${cmdrTitle} শান্ত সাগর ও চন্দ্রপৃষ্ঠের সার্ভেয়ার ১, অ্যাপোলো ১১ শান্ত সাগর ট্রাঙ্কুইলিটি বেস, সার্ভেয়ার ৩ রিট্রিভাল, এলআরভি বাগি রান, এলক্রস মেরু বরফ এবং আর্টেমিস বেস ক্যাম্প—সবকটি লুনার প্রত্নতাত্ত্বিক মিশন সফলভাবে সম্পন্ন করে এই মাস্টার সার্টিফিকেট অর্জন করেছেন।`
+          : `certifies that ${cmdrTitle} has successfully mastered all 6 Lunar Archaeology Missions—touching down with Surveyor 1, preserving Tranquility Base with Apollo 11, retrieving historic hardware with Surveyor 3, navigating the LRV Buggy, confirming Cabeus polar ice with LCROSS, and establishing Artemis Base Camp!`;
+      }
+    } else if (this.currentPlanet === 'mars' && !allMoonDone) {
+      if (tagEl) tagEl.innerText = isBn ? 'নাসা স্পেস অ্যাপস • মঙ্গল অভিযান একাডেমি' : 'NASA SPACE APPS • MARS EXPEDITION ACADEMY';
+      if (titleEl) titleEl.innerText = isBn ? 'মার্টিয়ান এক্সপেডিশন মাস্টার সার্টিফিকেট' : 'MARTIAN EXPEDITION MASTER CERTIFICATE';
+      if (nameEl) nameEl.innerText = `${recipientName} • ${isBn ? 'মাস্টার মার্টিয়ান এক্সপ্লোরার' : 'MASTER MARTIAN EXPLORER'}`;
+      if (descEl) {
+        descEl.innerText = isBn
+          ? `${cmdrTitle} পারসিভেরেন্স ভ্যালিতে অপরচুনিটি রোভার অনুসন্ধান, হেমাটাইট ব্লুবেরি এপিএক্সএস স্পেকট্রোস্কোপি, ডায়মন্ড র‍্যাট ড্রিলিং, ইনসাইট সেইসমোলজি মার্সকোয়েক এবং সল ৫১১১ ধূলিঝড়—সবকটি মঙ্গল প্রত্নতাত্ত্বিক মিশন সফলভাবে সম্পন্ন করে এই মাস্টার সার্টিফিকেট অর্জন করেছেন।`
+          : `certifies that ${cmdrTitle} has successfully mastered all 6 Martian Archaeology Missions—locating Opportunity at Perseverance Valley, proving past hydrology with APXS Hematite Blueberries, drilling with the diamond RAT, triangulating Marsquake waves with InSight SEIS, and surviving the fateful Sol 5111 dust storm!`;
+      }
+    } else {
+      if (tagEl) tagEl.innerText = isBn ? 'নাসা স্পেস অ্যাপস • জুনিয়র ডিপ স্পেস নেটওয়ার্ক' : 'NASA SPACE APPS • JUNIOR DEEP SPACE NETWORK';
+      if (titleEl) titleEl.innerText = isBn ? 'গ্র্যান্ড মাস্টার সার্টিফিকেট' : 'GRAND MASTER CERTIFICATE';
+      if (nameEl) nameEl.innerText = `${recipientName} • ${isBn ? 'গ্র্যান্ড মাস্টার এক্সপ্লোরার' : 'GRAND MASTER EXPLORER'}`;
+      if (descEl) {
+        descEl.innerText = isBn
+          ? `${cmdrTitle} চাঁদ ও মঙ্গলের সকল ঐতিহাসিক নাসা জেপিএল প্রত্নতাত্ত্বিক মিশন সাফল্যের সাথে সম্পন্ন করে মহাবিশ্বের ২৪.৩ বিলিয়ন কিলোমিটার দূরের ভয়েজার ১-এর সাথে গোল্ডেন রেকর্ড হ্যান্ডশেক সম্পন্ন করেছেন।`
+          : `certifies that ${cmdrTitle} has successfully mastered the complete NASA Moon & Mars Expedition roadmaps across both worlds and completed the Interstellar Handshake with Voyager 1 across 24.3 billion kilometers!`;
+      }
+    }
+
+    if (dismissBtn) {
+      dismissBtn.innerText = isBn ? 'অভিনন্দন! মিশন হাবে ফিরে যান ➔' : 'CONGRATULATIONS! RETURN TO HUB ➔';
+    }
+
+    const closeBtn = document.getElementById('cert-close-btn') || modal.querySelector('.modal-close-btn');
+    if (closeBtn && this.onCloseCertificate) {
+      closeBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.onCloseCertificate();
+      };
+    }
+    if (dismissBtn && this.onCloseCertificate) {
+      dismissBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.onCloseCertificate();
+      };
+    }
+
+    modal.classList.add('active');
+    martianAudio.playTelemetryTransmission?.();
+    this.triggerBigConfetti();
+  }
+
+  animateRocketProgression(fromId, toId, onComplete) {
+    const canvas = document.querySelector('.space-roadmap-canvas');
+    if (!canvas) {
+      if (onComplete) onComplete();
+      return;
+    }
+
+    const fromNode = canvas.querySelector(`.roadmap-station-node[data-node-id="${fromId}"]`) ||
+                     canvas.querySelector('.roadmap-station-node[data-node-id="node_start"]') ||
+                     canvas.querySelector('.roadmap-station-node');
+    const toNode = canvas.querySelector(`.roadmap-station-node[data-node-id="${toId}"]`);
+
+    if (!fromNode || !toNode) {
+      if (onComplete) onComplete();
+      return;
+    }
+
+    const canvasRect = canvas.getBoundingClientRect();
+    const fromRect = fromNode.getBoundingClientRect();
+    const toRect = toNode.getBoundingClientRect();
+
+    const startX = (fromRect.left + fromRect.width / 2) - canvasRect.left;
+    const startY = (fromRect.top + fromRect.height / 2) - canvasRect.top;
+
+    const endX = (toRect.left + toRect.width / 2) - canvasRect.left;
+    const endY = (toRect.top + toRect.height / 2) - canvasRect.top;
+
+    const rocket = document.getElementById('roadmap-flying-rocket');
+    if (!rocket) {
+      if (onComplete) onComplete();
+      return;
+    }
+
+    // Flight angle
+    const angleRad = Math.atan2(endY - startY, endX - startX);
+    const angleDeg = (angleRad * 180 / Math.PI) + 45; // rotate rocket icon to face flight vector
+
+    rocket.style.display = 'flex';
+    rocket.style.transition = 'none';
+    rocket.style.left = `${startX}px`;
+    rocket.style.top = `${startY}px`;
+    rocket.style.transform = `translate(-50%, -50%) rotate(${angleDeg}deg)`;
+
+    // Thruster ignition audio
+    martianAudio.playRocketIgnition?.(2.0);
+
+    setTimeout(() => {
+      rocket.style.transition = 'left 1.9s cubic-bezier(0.25, 1, 0.45, 1), top 1.9s cubic-bezier(0.25, 1, 0.45, 1), transform 0.4s ease';
+      rocket.style.left = `${endX}px`;
+      rocket.style.top = `${endY}px`;
+    }, 60);
+
+    setTimeout(() => {
+      martianAudio.playTelemetryTransmission?.();
+      this.triggerConfetti();
+
+      // Visually unlock toNode
+      toNode.classList.remove('locked');
+      toNode.classList.add('active', 'active-unlocked-pulse');
+      const badgeIcon = toNode.querySelector('.station-badge-icon');
+      if (badgeIcon) {
+        badgeIcon.className = 'station-badge-icon pulse';
+        badgeIcon.innerText = '▶';
+      }
+
+      const nextMission = this.activeMissionsList.find(m => m.id === toId);
+      const toast = document.getElementById('roadmap-level-advance-toast');
+      const isBn = this.currentLanguage === 'bn';
+
+      if (toast && nextMission) {
+        toast.style.display = 'flex';
+        toast.innerHTML = `
+          <div class="toast-content" style="display:flex; flex-direction:column; gap:2px;">
+            <span class="advance-toast-text" style="color:#ffb700; font-size:12px; font-weight:800;">
+              🚀 ${isBn ? `লেভেল ${nextMission.level} আনলক!` : `LEVEL ${nextMission.level} UNLOCKED!`} — ${isBn ? nextMission.title_bn : nextMission.title_en}
+            </span>
+            <span class="toast-countdown" id="launch-countdown-text" style="color:#94a3b8; font-size:10px; font-family:var(--font-mono);">
+              ${isBn ? '৩ সেকেন্ডে মিশন শুরু হচ্ছে...' : 'LAUNCHING LEVEL IN 3s...'}
+            </span>
+          </div>
+          <button class="advance-toast-start-btn glow-gold pulse" id="toast-btn-launch-now">
+            ${isBn ? 'এখনই শুরু করো ➔' : 'START NOW ➔'}
+          </button>
+        `;
+
+        let secondsLeft = 3;
+        let timer = null;
+        const doLaunch = () => {
+          if (timer) clearInterval(timer);
+          timer = null;
+          toast.style.display = 'none';
+          rocket.style.display = 'none';
+          const modal = document.getElementById('missions-modal-backdrop');
+          if (modal) modal.classList.remove('active');
+          if (onComplete) onComplete();
+        };
+
+        document.getElementById('toast-btn-launch-now')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          doLaunch();
+        });
+
+        timer = setInterval(() => {
+          secondsLeft--;
+          const countElem = document.getElementById('launch-countdown-text');
+          if (countElem) {
+            countElem.innerText = isBn ? `${secondsLeft} সেকেন্ডে মিশন শুরু হচ্ছে...` : `LAUNCHING LEVEL IN ${secondsLeft}s...`;
+          }
+          if (secondsLeft <= 0) {
+            doLaunch();
+          }
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          rocket.style.display = 'none';
+          const modal = document.getElementById('missions-modal-backdrop');
+          if (modal) modal.classList.remove('active');
+          if (onComplete) onComplete();
+        }, 1200);
+      }
+    }, 2050);
   }
 }
