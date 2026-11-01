@@ -102,6 +102,12 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // App Lifecycle States
+  let isFullscreenActive = false;
+  let isHubActive = true;
+  let isSplashActive = true;
+  window.__isSplashActive = true;
+
   // 5. Setup Mission Quest Manager (100% English)
   const currentLanguage = 'en';
   const questManager = new MissionQuestManager(() => {});
@@ -526,6 +532,11 @@ window.addEventListener('DOMContentLoaded', () => {
       questManager.markMissionCompleted('moon_quest_lrv_buggy');
     }
 
+    // CRITICAL BUG FIX: Proximity triggers and in-game HUDs ONLY run during active fullscreen gameplay!
+    if (!isFullscreenActive || isHubActive || isSplashActive || window.__isSplashActive) {
+      return;
+    }
+
     const activeMission = getActiveMission();
     const artifact = getActiveMissionArtifact(activeMission?.id);
     if (artifact && !questManager.completedMissions.has(activeMission.id)) {
@@ -685,6 +696,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function showRelicBillboard(artifact) {
     if (!artifact || isAdvancingMission) return;
+    if (!isFullscreenActive || isHubActive || isSplashActive || window.__isSplashActive) return;
 
     window.__isBillboardActive = true;
 
@@ -757,6 +769,8 @@ window.addEventListener('DOMContentLoaded', () => {
     if (overlay) overlay.style.display = 'none';
     activeBillboardArtifact = null;
   }
+  // Guarantee billboard starts completely hidden
+  hideRelicBillboard();
 
   let isAdvancingMission = false;
   function advanceMissionWithRocketProgression(currentMissionId) {
@@ -1338,7 +1352,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
   // IMMERSIVE FULLSCREEN MODE & GUIDER BRIEFING SYSTEM
   // =========================================================================
-  let isFullscreenActive = false;
+  isFullscreenActive = false;
 
   function setFullscreenMode(active, triggerGuiderModal = false) {
     isFullscreenActive = active;
@@ -1506,7 +1520,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Game Hub Management
   const gameHubScreen = document.getElementById('game-hub-screen');
-  let isHubActive = true;
+  isHubActive = true;
   let heroInteractions = null;
   let hero3DOrrery = null;
 
@@ -2150,19 +2164,208 @@ window.addEventListener('DOMContentLoaded', () => {
   // 3 Arcade Action Buttons (PLAY, LEVEL, MENU)
   document.getElementById('btn-arcade-play')?.addEventListener('click', (e) => {
     e.preventDefault();
-    launchExpedition(selectedDestination);
+    openAquaGuidedModal(1);
   });
 
   document.getElementById('btn-arcade-level')?.addEventListener('click', (e) => {
     e.preventDefault();
-    martianAudio.playUiSwitch?.();
-    questManager.openRoadmapForPlanet(selectedDestination);
-    document.getElementById('missions-modal-backdrop')?.classList.add('active');
+    openAquaGuidedModal(3);
   });
 
   document.getElementById('btn-arcade-menu')?.addEventListener('click', (e) => {
     e.preventDefault();
     openDrawerSidebar();
+  });
+
+  // =========================================================================
+  // AQUA EXPLORER TITLE & SPLASH SCREEN CONTROLLER (FIRST ENTRY SCREEN)
+  // =========================================================================
+  const aquaSplashScreen = document.getElementById('aqua-splash-screen');
+  const btnAquaSplashStart = document.getElementById('btn-aqua-splash-start');
+
+  function dismissAquaSplash() {
+    if (!aquaSplashScreen) return;
+    martianAudio.ensureActive?.();
+    martianAudio.playUiSwitch?.();
+
+    aquaSplashScreen.classList.add('fading-out');
+    aquaSplashScreen.classList.remove('active');
+    isSplashActive = false;
+    window.__isSplashActive = false;
+
+    setTimeout(() => {
+      aquaSplashScreen.style.display = 'none';
+    }, 450);
+
+    // Launch Aqua Explorer Guided Game Wizard at Step 1 (Mission Story)
+    openAquaGuidedModal(1);
+  }
+
+  function showAquaSplash() {
+    if (!aquaSplashScreen) return;
+    isSplashActive = true;
+    window.__isSplashActive = true;
+    aquaSplashScreen.style.display = 'flex';
+    requestAnimationFrame(() => {
+      aquaSplashScreen.classList.remove('fading-out');
+      aquaSplashScreen.classList.add('active');
+    });
+  }
+
+  btnAquaSplashStart?.addEventListener('click', (e) => {
+    e.preventDefault();
+    dismissAquaSplash();
+  });
+
+  // =========================================================================
+  // AQUA EXPLORER GUIDED GAME CONTROLLER (STORY ➔ CADET ➔ LEVELS)
+  // =========================================================================
+  const aquaModal = document.getElementById('aqua-guided-modal-backdrop');
+  let currentAquaStep = 1;
+
+  function updateAquaStars() {
+    const starConfigs = [
+      { elId: 'aqua-stars-lvl-1', missionId: 'moon_mission_locate' },
+      { elId: 'aqua-stars-lvl-2', missionId: 'mission_blueberries' },
+      { elId: 'aqua-stars-lvl-3', missionId: 'mission_dust_clean' },
+      { elId: 'aqua-stars-lvl-4', missionId: 'voyager1' }
+    ];
+
+    starConfigs.forEach(({ elId, missionId }) => {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      const isCompleted = questManager?.completedMissions.has(missionId);
+      el.innerHTML = isCompleted ? '⭐⭐⭐' : '⭐⭐☆';
+      el.style.opacity = isCompleted ? '1' : '0.8';
+    });
+  }
+
+  function syncAquaCommanderCards() {
+    const isAsha = selectedCommander === 'asha';
+    const cardAsha = document.getElementById('aqua-char-card-asha');
+    const cardLeo = document.getElementById('aqua-char-card-leo');
+    const statusAsha = document.getElementById('aqua-asha-select-status');
+    const statusLeo = document.getElementById('aqua-leo-select-status');
+
+    if (cardAsha) cardAsha.classList.toggle('active', isAsha);
+    if (cardLeo) cardLeo.classList.toggle('active', !isAsha);
+    if (statusAsha) statusAsha.innerText = isAsha ? '✓ SELECTED' : 'SELECT';
+    if (statusLeo) statusLeo.innerText = !isAsha ? '✓ SELECTED' : 'SELECT';
+
+    const ashaPts = localStorage.getItem('jdsn_asha_points') || '4,850';
+    const leoPts = localStorage.getItem('jdsn_leo_points') || '3,410';
+    const ashaPtsEl = document.getElementById('aqua-asha-pts');
+    const leoPtsEl = document.getElementById('aqua-leo-pts');
+    if (ashaPtsEl) ashaPtsEl.innerText = ashaPts;
+    if (leoPtsEl) leoPtsEl.innerText = leoPts;
+  }
+
+  function setAquaStep(step) {
+    currentAquaStep = Math.max(1, Math.min(3, step));
+
+    // Update Step Indicators
+    for (let i = 1; i <= 3; i++) {
+      const node = document.getElementById(`aqua-step-indicator-${i}`);
+      const panel = document.getElementById(`aqua-step-${i}-panel`);
+      if (node) {
+        node.classList.toggle('active', i === currentAquaStep);
+        node.classList.toggle('completed', i < currentAquaStep);
+      }
+      if (panel) {
+        panel.classList.toggle('active', i === currentAquaStep);
+      }
+    }
+
+    const conn1 = document.getElementById('aqua-step-conn-1');
+    const conn2 = document.getElementById('aqua-step-conn-2');
+    if (conn1) conn1.classList.toggle('filled', currentAquaStep >= 2);
+    if (conn2) conn2.classList.toggle('filled', currentAquaStep >= 3);
+
+    if (currentAquaStep === 2) {
+      const nameInput = document.getElementById('aqua-cadet-name-input');
+      const savedCall = localStorage.getItem('nasa_player_callsign') || 'Cadet Explorer';
+      if (nameInput) nameInput.value = savedCall;
+      syncAquaCommanderCards();
+    } else if (currentAquaStep === 3) {
+      updateAquaStars();
+    }
+
+    martianAudio.playUiSwitch?.();
+  }
+
+  function openAquaGuidedModal(step = 1) {
+    if (!aquaModal) return;
+    setAquaStep(step);
+    aquaModal.classList.add('active');
+    martianAudio.playUiAlert?.();
+  }
+
+  function closeAquaGuidedModal() {
+    if (!aquaModal) return;
+    aquaModal.classList.remove('active');
+    martianAudio.playUiSwitch?.();
+  }
+
+  // Aqua Modal Controls Wire-up
+  document.getElementById('btn-aqua-modal-close')?.addEventListener('click', closeAquaGuidedModal);
+  document.getElementById('btn-aqua-finish-close')?.addEventListener('click', closeAquaGuidedModal);
+
+  document.getElementById('btn-aqua-step1-next')?.addEventListener('click', () => setAquaStep(2));
+  document.getElementById('btn-aqua-skip-to-levels')?.addEventListener('click', () => setAquaStep(3));
+
+  document.getElementById('btn-aqua-step2-back')?.addEventListener('click', () => setAquaStep(1));
+  document.getElementById('btn-aqua-step2-next')?.addEventListener('click', () => setAquaStep(3));
+
+  document.getElementById('btn-aqua-step3-back')?.addEventListener('click', () => setAquaStep(2));
+
+  // Stepper Header Buttons
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById(`aqua-step-indicator-${i}`)?.addEventListener('click', () => {
+      setAquaStep(i);
+    });
+  }
+
+  // Cadet Name Input Sync
+  const aquaNameInput = document.getElementById('aqua-cadet-name-input');
+  if (aquaNameInput) {
+    aquaNameInput.addEventListener('input', (e) => {
+      const val = e.target.value.trim() || 'Cadet Explorer';
+      localStorage.setItem('nasa_player_callsign', val);
+      if (hubUserName) {
+        hubUserName.innerText = `${val} • JDSN (${selectedCommander.toUpperCase()})`;
+      }
+    });
+  }
+
+  // Character Card Selection in Modal
+  document.getElementById('aqua-char-card-asha')?.addEventListener('click', () => {
+    handleSelectAsha();
+    syncAquaCommanderCards();
+  });
+
+  document.getElementById('aqua-char-card-leo')?.addEventListener('click', () => {
+    handleSelectLeo();
+    syncAquaCommanderCards();
+  });
+
+  // Level Card Launch Buttons in Step 3
+  document.querySelectorAll('.aqua-lvl-launch-btn, .aqua-level-card').forEach((el) => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const card = el.classList.contains('aqua-level-card') ? el : el.closest('.aqua-level-card');
+      const dest = card?.dataset.dest || 'mars';
+      const missionId = card?.dataset.missionId;
+
+      closeAquaGuidedModal();
+
+      if (dest === 'deepspace' || missionId === 'voyager1') {
+        launchExpedition('deepspace');
+      } else if (missionId) {
+        spawnRoverForMission(missionId);
+      } else {
+        launchExpedition(dest);
+      }
+    });
   });
 
   // Top Bar Utilities
@@ -2195,6 +2398,10 @@ window.addEventListener('DOMContentLoaded', () => {
       const certModal = document.getElementById('certificate-modal-backdrop');
       if (certModal?.classList.contains('active')) {
         handleCloseCertificateAndReturnToHub();
+        return;
+      }
+      if (aquaModal?.classList.contains('active')) {
+        closeAquaGuidedModal();
         return;
       }
       if (drawerSidebar?.classList.contains('active')) {
@@ -2341,11 +2548,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const portalVoyager = document.getElementById('portal-explore-voyager');
 
   portalMoon?.addEventListener('click', (e) => {
-    if (e.target.closest('.portal-launch-btn')) {
-      launchExpedition('moon');
-    } else {
-      setDestination('moon', true);
-    }
+    e.preventDefault();
+    setDestination('moon', true);
+    launchExpedition('moon');
   });
 
   portalMoon?.addEventListener('mouseenter', () => {
@@ -2355,11 +2560,9 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   portalMars?.addEventListener('click', (e) => {
-    if (e.target.closest('.portal-launch-btn')) {
-      launchExpedition('mars');
-    } else {
-      setDestination('mars', true);
-    }
+    e.preventDefault();
+    setDestination('mars', true);
+    launchExpedition('mars');
   });
 
   portalMars?.addEventListener('mouseenter', () => {
