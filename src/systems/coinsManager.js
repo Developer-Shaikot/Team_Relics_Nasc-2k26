@@ -5,6 +5,7 @@ export class CoinsManager {
   constructor(scene) {
     this.scene = scene;
     this.coins = [];
+    this.coinsGroup.visible = false;
     this.coinsGroup = new THREE.Group();
     this.scene.add(this.coinsGroup);
 
@@ -75,12 +76,17 @@ export class CoinsManager {
       this.coinsGroup.remove(obj);
     }
     this.coins = [];
+    this.coinsGroup.visible = false;
   }
 
   spawnCoinsForPlanet(planet, getTerrainHeightFn) {
     this.clearCoins();
     // No arcade coins in interstellar deep space (maintains scientific authenticity)
-    if (planet === 'deepspace') return;
+    if (planet === 'deepspace') {
+      this.coinsGroup.visible = false;
+      return;
+    }
+    this.coinsGroup.visible = true;
 
     const mat = planet === 'moon' ? this.moonCoinMat : this.marsCoinMat;
     const count = 18;

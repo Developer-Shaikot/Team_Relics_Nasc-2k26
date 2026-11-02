@@ -54,7 +54,7 @@
 
       <!-- Vibrant Rounded Pill Action Button: START GAME -->
       <div class="aqua-splash-action-row">
-        <button class="aqua-splash-start-btn" id="btn-aqua-splash-start" type="button" title="Start Game &amp; Begin Journey">
+        <button class="aqua-splash-start-btn" id="btn-aqua-splash-start" type="button" onclick="window.dismissAquaSplash &amp;&amp; window.dismissAquaSplash(event)" title="Start Game &amp; Begin Journey">
           <span>START GAME</span>
         </button>
       </div>
@@ -65,6 +65,43 @@
       </div>
     </div>
   </div>
+
+  <script>
+    // Fail-safe immediate handler for Start Game button
+    window.dismissAquaSplash = function(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const splash = document.getElementById('aqua-splash-screen');
+      if (splash) {
+        splash.classList.add('fading-out');
+        splash.classList.remove('active');
+        splash.style.pointerEvents = 'none';
+        splash.style.display = 'none';
+      }
+      window.__isSplashActive = false;
+      if (typeof window.openAquaGuidedModal === 'function') {
+        window.openAquaGuidedModal(1);
+      } else {
+        const modal = document.getElementById('aqua-guided-modal-backdrop');
+        if (modal) modal.classList.add('active');
+        const hub = document.getElementById('game-hub-screen');
+        if (hub) {
+          hub.style.display = 'grid';
+          hub.classList.add('active');
+        }
+      }
+    };
+    window.startGame = window.dismissAquaSplash;
+    window.handleStartGameClick = window.dismissAquaSplash;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const btn = document.getElementById('btn-aqua-splash-start');
+      if (btn) {
+        btn.addEventListener('click', window.dismissAquaSplash);
+        btn.addEventListener('pointerdown', window.dismissAquaSplash);
+        btn.addEventListener('touchend', window.dismissAquaSplash);
+      }
+    });
+  </script>
 
   <!-- FUTURISTIC GAME HUB LANDING SCREEN -->
   <div class="game-hub-screen active" id="game-hub-screen">
@@ -1948,7 +1985,7 @@
 
           <div class="aqua-levels-grid">
             <!-- Level 1: Moon Apollo 11 -->
-            <div class="aqua-level-card moon-card" id="aqua-lvl-card-1" data-dest="moon" data-mission-id="moon_mission_locate">
+            <div class="aqua-level-card moon-card" id="aqua-lvl-card-1" data-dest="moon" data-mission-id="moon_quest_apollo11">
               <div class="aqua-lvl-top-row">
                 <span class="aqua-lvl-badge moon-badge">🌕 LEVEL 1 • MOON</span>
                 <div class="aqua-lvl-stars" id="aqua-stars-lvl-1">⭐⭐⭐</div>
@@ -1960,7 +1997,7 @@
                 <span>⭐ +25 XP</span>
                 <span>🧪 Rocket Δv Lab</span>
               </div>
-              <button class="aqua-lvl-launch-btn moon-btn" type="button" data-dest="moon" data-mission-id="moon_mission_locate">
+              <button class="aqua-lvl-launch-btn moon-btn" type="button" data-dest="moon" data-mission-id="moon_quest_apollo11">
                 <span>🚀 START NOW ➔</span>
               </button>
             </div>
@@ -1984,7 +2021,7 @@
             </div>
 
             <!-- Level 3: Mars InSight -->
-            <div class="aqua-level-card mars-card" id="aqua-lvl-card-3" data-dest="mars" data-mission-id="mission_dust_clean">
+            <div class="aqua-level-card mars-card" id="aqua-lvl-card-3" data-dest="mars" data-mission-id="mission_mossbauer">
               <div class="aqua-lvl-top-row">
                 <span class="aqua-lvl-badge mars-badge">🔴 LEVEL 3 • MARS</span>
                 <div class="aqua-lvl-stars" id="aqua-stars-lvl-3">⭐⭐⭐</div>
@@ -1996,13 +2033,13 @@
                 <span>⭐ +75 XP</span>
                 <span>💓 Seismometer Lab</span>
               </div>
-              <button class="aqua-lvl-launch-btn mars-btn" type="button" data-dest="mars" data-mission-id="mission_dust_clean">
+              <button class="aqua-lvl-launch-btn mars-btn" type="button" data-dest="mars" data-mission-id="mission_mossbauer">
                 <span>🚀 START NOW ➔</span>
               </button>
             </div>
 
             <!-- Level 4: Deep Space Voyager 1 -->
-            <div class="aqua-level-card deep-card" id="aqua-lvl-card-4" data-dest="deepspace" data-mission-id="voyager1">
+            <div class="aqua-level-card deep-card" id="aqua-lvl-card-4" data-dest="deepspace" data-mission-id="mission_blackbox">
               <div class="aqua-lvl-top-row">
                 <span class="aqua-lvl-badge deep-badge">🌌 LEVEL 4 • DEEP SPACE</span>
                 <div class="aqua-lvl-stars" id="aqua-stars-lvl-4">⭐⭐⭐</div>
@@ -2014,7 +2051,7 @@
                 <span>⭐ +100 XP</span>
                 <span>📡 RTG Telemetry Lab</span>
               </div>
-              <button class="aqua-lvl-launch-btn deep-btn" type="button" data-dest="deepspace" data-mission-id="voyager1">
+              <button class="aqua-lvl-launch-btn deep-btn" type="button" data-dest="deepspace" data-mission-id="mission_blackbox">
                 <span>🚀 START NOW ➔</span>
               </button>
             </div>

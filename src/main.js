@@ -427,7 +427,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (iconElem) iconElem.innerText = '📡';
         if (badgeElem) badgeElem.innerText = 'DEEP SPACE COMM CENTER • 24.3 BILLION KM';
         if (nameElem) nameElem.innerText = 'Voyager 1: How Interstellar Telemetry Reaches Earth';
-        if (subElem) subElem.innerText = 'Inspect Subsystems or Click JPL Science Labs to Transmit Handshake!';
+        if (subElem) subElem.innerText = 'Orient Antenna [W/S/A/D] • Press [E] or Click to Open Science Workbench & Golden Record!';
         if (distValElem) distValElem.innerText = '22h 34m delay';
       }
       return;
@@ -528,35 +528,34 @@ window.addEventListener('DOMContentLoaded', () => {
 
     updateMinimap(stats);
 
-    if (currentPlanet === 'moon' && stats.distanceMeters >= 20) {
-      questManager.markMissionCompleted('moon_quest_lrv_buggy');
-    }
-
-    // CRITICAL BUG FIX: Proximity triggers and in-game HUDs ONLY run during active fullscreen gameplay!
-    if (!isFullscreenActive || isHubActive || isSplashActive || window.__isSplashActive) {
+    if (isHubActive || isSplashActive || window.__isSplashActive) {
       return;
     }
 
     const activeMission = getActiveMission();
     const artifact = getActiveMissionArtifact(activeMission?.id);
-    if (artifact && !questManager.completedMissions.has(activeMission.id)) {
+    if (artifact && artifact.coords) {
       const dx = roverController.position.x - artifact.coords.x;
       const dz = roverController.position.z - artifact.coords.z;
-      const dist = Math.sqrt(dx * dx + dz * dz);
+      const dist = Math.hypot(dx, dz);
       const distValElem = document.getElementById('waypoint-dist-val');
       if (distValElem) distValElem.innerText = `${dist.toFixed(1)}m`;
 
-      // Approaching within 12 meters -> Trigger Holographic History Billboard with word-by-word animation!
+      // Approaching within 12 meters -> Trigger Holographic History Billboard
       if (dist <= 12.0 && !hasShownBillboardForMission.has(activeMission.id)) {
         showRelicBillboard(artifact);
       }
 
-      if (dist <= 4.0) {
+      if (dist <= 4.5) {
         activeRadarArtifact = artifact;
         if (radarHud) radarHud.style.display = 'flex';
         if (radarTitle) radarTitle.innerText = `📍 TARGET: ${artifact.title}`;
         if (radarSub) {
-          radarSub.innerText = `Objective reached! (${dist.toFixed(1)}m) • Press [E] or Click to Scan`;
+          radarSub.innerText = `${artifact.title} (${dist.toFixed(1)}m) • Press [E] or Click to Scan`;
+        }
+        if (radarScanBtn) {
+          radarScanBtn.style.display = 'block';
+          radarScanBtn.innerText = 'SCAN ➔';
         }
       }
     }
@@ -696,7 +695,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function showRelicBillboard(artifact) {
     if (!artifact || isAdvancingMission) return;
-    if (!isFullscreenActive || isHubActive || isSplashActive || window.__isSplashActive) return;
+    if (isHubActive || isSplashActive || window.__isSplashActive) return;
 
     window.__isBillboardActive = true;
 
@@ -818,7 +817,11 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function spawnRoverForMission(missionId) {
+    function spawnRoverForMission(missionId, forcedPlanet = null) {
+    if (forcedPlanet && questManager.currentPlanet !== forcedPlanet) {
+      questManager.setPlanet(forcedPlanet);
+    }
+
     if (!missionId || missionId === 'node_start' || missionId === 'node_finish') {
       const activeMissions = questManager.activeMissionsList;
       const firstUncompleted = activeMissions.find(m => !questManager.completedMissions.has(m.id));
@@ -831,8 +834,14 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('missions-modal-backdrop')?.classList.remove('active');
     document.getElementById('mission-discovery-modal-backdrop')?.classList.remove('active');
 
-    const isMoonMission = KIDS_MISSIONS_MOON.some((m) => m.id === missionId);
-    const targetPlanet = isMoonMission ? 'moon' : (missionId === 'mission_blackbox' ? 'deepspace' : 'mars');
+    const isMoonMission = forcedPlanet === 'moon'
+      || KIDS_MISSIONS_MOON.some((m) => m.id === missionId)
+      || (typeof missionId === 'string' && (missionId.startsWith('moon_') || missionId === 'apollo11'));
+    const isDeepSpace = forcedPlanet === 'deepspace'
+      || missionId === 'mission_blackbox'
+      || missionId === 'voyager1';
+    const targetPlanet = isDeepSpace ? 'deepspace' : (isMoonMission ? 'moon' : 'mars');
+
     if (currentPlanet !== targetPlanet) {
       switchCelestialBody(targetPlanet, false);
     }
@@ -964,17 +973,23 @@ window.addEventListener('DOMContentLoaded', () => {
       const isAlreadyLogged = artifact.missionId && questManager.completedMissions.has(artifact.missionId);
 
       if (isAlreadyLogged) {
-        if (radarTitle) radarTitle.innerHTML = `<span style="color:#10b981;">✓ MISSION ALREADY LOGGED:</span> ${artifact.title}`;
+        if (radarTitle) radarTitle.innerHTML = `<span style="color:#10b981;">✓ HISTORIC RELIC LOGGED:</span> ${artifact.title}`;
         if (radarSub) {
-          radarSub.innerText = `Historic hardware archived in Junior Deep Space Network (+150 XP Earned)`;
+          radarSub.innerText = `${artifact.title} (${dist.toFixed(1)}m) • Press [E] or Click to Scan Again`;
         }
-        if (radarScanBtn) radarScanBtn.style.display = 'none';
+        if (radarScanBtn) {
+          radarScanBtn.style.display = 'block';
+          radarScanBtn.innerText = 'RESCAN ➔';
+        }
       } else {
-        if (radarTitle) radarTitle.innerText = `📍 ${artifact.title}`;
+        if (radarTitle) radarTitle.innerText = `📍 TARGET: ${artifact.title}`;
         if (radarSub) {
           radarSub.innerText = `${artifact.title} (${dist.toFixed(1)}m) • Press [E] or Click to Scan`;
         }
-        if (radarScanBtn) radarScanBtn.style.display = 'block';
+        if (radarScanBtn) {
+          radarScanBtn.style.display = 'block';
+          radarScanBtn.innerText = 'SCAN ➔';
+        }
       }
     } else if (!activeRadarArtifact || dist > 5.0) {
       activeRadarArtifact = null;
@@ -991,8 +1006,29 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   window.addEventListener('keydown', (e) => {
-    if (['KeyE', 'e', 'E'].includes(e.code) && activeRadarArtifact) {
-      scanner.triggerManualScan(activeRadarArtifact.id);
+    if (['KeyE', 'e', 'E'].includes(e.code)) {
+      if (activeRadarArtifact) {
+        scanner.triggerManualScan(activeRadarArtifact.id);
+      } else if (currentPlanet === 'deepspace') {
+        miniGameManager.open('voyager1');
+      }
+    }
+
+    // Interstellar Attitude Control (AACS Hydrazine Thrusters) for Voyager 1 with WASD
+    if (currentPlanet === 'deepspace' && deepSpaceVoyager?.rover) {
+      if (['KeyW', 'ArrowUp', 'w', 'W'].includes(e.code)) {
+        deepSpaceVoyager.rover.rotation.x -= 0.05;
+        martianAudio.playThrusterPuff?.();
+      } else if (['KeyS', 'ArrowDown', 's', 'S'].includes(e.code)) {
+        deepSpaceVoyager.rover.rotation.x += 0.05;
+        martianAudio.playThrusterPuff?.();
+      } else if (['KeyA', 'ArrowLeft', 'a', 'A'].includes(e.code)) {
+        deepSpaceVoyager.rover.rotation.y -= 0.06;
+        martianAudio.playThrusterPuff?.();
+      } else if (['KeyD', 'ArrowRight', 'd', 'D'].includes(e.code)) {
+        deepSpaceVoyager.rover.rotation.y += 0.06;
+        martianAudio.playThrusterPuff?.();
+      }
     }
   });
 
@@ -2095,13 +2131,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
       guideBotEscort.setColor(savedRobotConfig.color);
       guideBotEscort.setVisible(false); // Only single chosen kittyCompanion is visible
-      kittyCompanion?.setVisible(true);
+      kittyCompanion?.setVisible(dest !== 'deepspace');
       astronautCommander.setVisible(false); // Clean robotic rover
       astronautCommander.setCrashState(false);
 
       const isBn = questManager?.currentLanguage === 'bn';
       const worldName = dest === 'moon' ? (isBn ? 'চাঁদ' : 'the Moon') : dest === 'deepspace' ? (isBn ? 'ডিপ স্পেস সেন্টার' : 'Deep Space Center') : (isBn ? 'মঙ্গলগ্রহ' : 'Mars');
-      kittyCompanion?.speak(isBn ? `কমান্ডার, ${worldName}-এ স্বাগতম!` : `Welcome to ${worldName}, Commander! Follow my guidance arrow!`);
+      if (dest !== 'deepspace') {
+        kittyCompanion?.speak(isBn ? `কমান্ডার, ${worldName}-এ স্বাগতম!` : `Welcome to ${worldName}, Commander! Follow my guidance arrow!`);
+      }
 
       if (dest === 'deepspace') {
         document.getElementById('missions-modal-backdrop')?.classList.remove('active');
@@ -2190,16 +2228,20 @@ window.addEventListener('DOMContentLoaded', () => {
 
     aquaSplashScreen.classList.add('fading-out');
     aquaSplashScreen.classList.remove('active');
+    aquaSplashScreen.style.pointerEvents = 'none';
+    aquaSplashScreen.style.display = 'none';
     isSplashActive = false;
     window.__isSplashActive = false;
-
-    setTimeout(() => {
-      aquaSplashScreen.style.display = 'none';
-    }, 450);
 
     // Launch Aqua Explorer Guided Game Wizard at Step 1 (Mission Story)
     openAquaGuidedModal(1);
   }
+
+  // Expose on window for direct inline onclick execution
+  window.dismissAquaSplash = dismissAquaSplash;
+  window.startGame = dismissAquaSplash;
+  window.handleStartGameClick = dismissAquaSplash;
+  window.openAquaGuidedModal = openAquaGuidedModal;
 
   function showAquaSplash() {
     if (!aquaSplashScreen) return;
@@ -2223,12 +2265,12 @@ window.addEventListener('DOMContentLoaded', () => {
   const aquaModal = document.getElementById('aqua-guided-modal-backdrop');
   let currentAquaStep = 1;
 
-  function updateAquaStars() {
+    function updateAquaStars() {
     const starConfigs = [
-      { elId: 'aqua-stars-lvl-1', missionId: 'moon_mission_locate' },
+      { elId: 'aqua-stars-lvl-1', missionId: 'moon_quest_apollo11' },
       { elId: 'aqua-stars-lvl-2', missionId: 'mission_blueberries' },
-      { elId: 'aqua-stars-lvl-3', missionId: 'mission_dust_clean' },
-      { elId: 'aqua-stars-lvl-4', missionId: 'voyager1' }
+      { elId: 'aqua-stars-lvl-3', missionId: 'mission_mossbauer' },
+      { elId: 'aqua-stars-lvl-4', missionId: 'mission_blackbox' }
     ];
 
     starConfigs.forEach(({ elId, missionId }) => {
@@ -2348,20 +2390,20 @@ window.addEventListener('DOMContentLoaded', () => {
     syncAquaCommanderCards();
   });
 
-  // Level Card Launch Buttons in Step 3
+    // Level Card Launch Buttons in Step 3
   document.querySelectorAll('.aqua-lvl-launch-btn, .aqua-level-card').forEach((el) => {
     el.addEventListener('click', (e) => {
       e.stopPropagation();
       const card = el.classList.contains('aqua-level-card') ? el : el.closest('.aqua-level-card');
-      const dest = card?.dataset.dest || 'mars';
+      const dest = card?.dataset.dest || (card?.dataset.missionId?.startsWith('moon_') ? 'moon' : 'mars');
       const missionId = card?.dataset.missionId;
 
       closeAquaGuidedModal();
 
-      if (dest === 'deepspace' || missionId === 'voyager1') {
+      if (dest === 'deepspace' || missionId === 'voyager1' || missionId === 'mission_blackbox') {
         launchExpedition('deepspace');
       } else if (missionId) {
-        spawnRoverForMission(missionId);
+        spawnRoverForMission(missionId, dest);
       } else {
         launchExpedition(dest);
       }

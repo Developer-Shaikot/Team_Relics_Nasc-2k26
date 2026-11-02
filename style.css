@@ -284,7 +284,7 @@ body {
 /* FLOATING WAYPOINT OBJECTIVE TRACKER HUD */
 .waypoint-tracker-hud {
   position: absolute;
-  top: 92px;
+  top: 58px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(8, 14, 32, 0.92);
@@ -973,7 +973,7 @@ input[type="range"] {
 /* DYNAMIC ROVER PROXIMITY RADAR HUD */
 .rover-radar-hud {
   position: absolute;
-  top: 140px;
+  top: 118px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(8, 16, 38, 0.92);
@@ -8499,7 +8499,7 @@ body.fullscreen-mode-active #hud-minimap-container {
 /* Floating Mission Waypoint Objective Tracker centered at the top */
 body.fullscreen-mode-active .waypoint-tracker-hud {
   position: fixed !important;
-  top: 16px !important;
+  top: 50px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   z-index: 9999 !important;
@@ -8513,9 +8513,14 @@ body.fullscreen-mode-active .waypoint-tracker-hud {
   transition: all 0.35s ease !important;
 }
 
-body.fullscreen-mode-active .rover-radar-hud,
-body.fullscreen-mode-active .spaceflight-hud-overlay,
-body.fullscreen-mode-active .flight-compass-bar,
+body.fullscreen-mode-active .rover-radar-hud {
+  position: fixed !important;
+  top: 110px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 10000 !important;
+}
+
 body.fullscreen-mode-active .fun-fact-card,
 body.fullscreen-mode-active .jdsn-avatars-dock {
   display: none !important;
@@ -11247,7 +11252,7 @@ body.fullscreen-mode-active .fullscreen-exit-floating-btn {
 .aqua-guided-modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 99999;
+  z-index: 100005;
   background: rgba(3, 7, 18, 0.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -12176,6 +12181,13 @@ body.fullscreen-mode-active .fullscreen-exit-floating-btn {
   justify-content: center;
   align-items: center;
   width: 100%;
+  position: relative;
+  z-index: 50;
+  pointer-events: auto;
+}
+
+.aqua-splash-start-btn * {
+  pointer-events: none;
 }
 
 .aqua-splash-start-btn {
