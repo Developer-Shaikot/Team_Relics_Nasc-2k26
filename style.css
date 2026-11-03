@@ -11372,6 +11372,9 @@ body.fullscreen-mode-active .fullscreen-exit-floating-btn {
   align-items: center;
   gap: 10px;
   cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
   padding: 6px 12px;
   border-radius: 24px;
   transition: all 0.2s ease;
@@ -11763,6 +11766,10 @@ body.fullscreen-mode-active .fullscreen-exit-floating-btn {
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 1px;
+  cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 5;
   transition: all 0.2s ease;
 }
 
@@ -11895,6 +11902,9 @@ body.fullscreen-mode-active .fullscreen-exit-floating-btn {
   font-weight: 900;
   letter-spacing: 1.5px;
   cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11946,6 +11956,9 @@ body.fullscreen-mode-active .fullscreen-exit-floating-btn {
   padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   margin-top: 8px;
+  position: relative;
+  z-index: 20;
+  pointer-events: auto;
 }
 
 .aqua-btn-secondary {
@@ -11959,6 +11972,9 @@ body.fullscreen-mode-active .fullscreen-exit-floating-btn {
   font-weight: 700;
   letter-spacing: 1px;
   cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 21;
   transition: all 0.2s ease;
 }
 
@@ -11978,6 +11994,9 @@ body.fullscreen-mode-active .fullscreen-exit-floating-btn {
   font-weight: 900;
   letter-spacing: 1.5px;
   cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 21;
   box-shadow: 0 4px 16px rgba(0, 229, 255, 0.4);
   transition: all 0.2s ease;
 }

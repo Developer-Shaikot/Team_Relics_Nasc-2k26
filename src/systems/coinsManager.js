@@ -5,8 +5,8 @@ export class CoinsManager {
   constructor(scene) {
     this.scene = scene;
     this.coins = [];
-    this.coinsGroup.visible = false;
     this.coinsGroup = new THREE.Group();
+    this.coinsGroup.visible = false;
     this.scene.add(this.coinsGroup);
 
     // Coin balance: Default 1,000 Cosmic Dust Coins as per official game specs

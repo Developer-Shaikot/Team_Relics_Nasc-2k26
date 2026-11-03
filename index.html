@@ -67,6 +67,98 @@
   </div>
 
   <script>
+    // Immediate early handlers for Aqua Guided Wizard (fail-safe)
+    window.setAquaStep = function(step) {
+      var currentStep = Math.max(1, Math.min(3, step));
+      for (var i = 1; i <= 3; i++) {
+        var node = document.getElementById('aqua-step-indicator-' + i);
+        var panel = document.getElementById('aqua-step-' + i + '-panel');
+        if (node) {
+          node.classList.toggle('active', i === currentStep);
+          node.classList.toggle('completed', i < currentStep);
+        }
+        if (panel) {
+          panel.classList.toggle('active', i === currentStep);
+        }
+      }
+      var conn1 = document.getElementById('aqua-step-conn-1');
+      var conn2 = document.getElementById('aqua-step-conn-2');
+      if (conn1) conn1.classList.toggle('filled', currentStep >= 2);
+      if (conn2) conn2.classList.toggle('filled', currentStep >= 3);
+    };
+
+    window.closeAquaGuidedModal = function() {
+      var modal = document.getElementById('aqua-guided-modal-backdrop');
+      if (modal) modal.classList.remove('active');
+      var hub = document.getElementById('game-hub-screen');
+      if (hub) {
+        hub.style.display = 'grid';
+        hub.classList.add('active');
+      }
+    };
+
+    window.openAquaGuidedModal = function(step) {
+      window.setAquaStep(step || 1);
+      var modal = document.getElementById('aqua-guided-modal-backdrop');
+      if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+      }
+      var hub = document.getElementById('game-hub-screen');
+      if (hub) {
+        hub.style.display = 'grid';
+        hub.classList.add('active');
+      }
+    };
+
+    window.selectAquaCommander = function(char) {
+      var isAsha = char === 'asha';
+      var cardAsha = document.getElementById('aqua-char-card-asha');
+      var cardLeo = document.getElementById('aqua-char-card-leo');
+      var statusAsha = document.getElementById('aqua-asha-select-status');
+      var statusLeo = document.getElementById('aqua-leo-select-status');
+
+      if (cardAsha) cardAsha.classList.toggle('active', isAsha);
+      if (cardLeo) cardLeo.classList.toggle('active', !isAsha);
+      if (statusAsha) statusAsha.innerText = isAsha ? '✓ SELECTED' : 'SELECT';
+      if (statusLeo) statusLeo.innerText = !isAsha ? '✓ SELECTED' : 'SELECT';
+
+      try {
+        localStorage.setItem('jdsn_selected_commander', char);
+        localStorage.setItem('nasa_selected_commander', char);
+      } catch (err) {}
+
+      if (typeof window.setGameCommander === 'function') {
+        window.setGameCommander(char);
+      }
+    };
+
+    window.launchAquaMission = function(dest, missionId) {
+      window.closeAquaGuidedModal();
+
+      var splash = document.getElementById('aqua-splash-screen');
+      if (splash) {
+        splash.classList.remove('active');
+        splash.style.display = 'none';
+      }
+
+      var hub = document.getElementById('game-hub-screen');
+      if (hub) {
+        hub.classList.remove('active');
+        hub.style.display = 'none';
+      }
+
+      var modal = document.getElementById('aqua-guided-modal-backdrop');
+      if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+      }
+
+      if (typeof window.launchMissionDirect === 'function') {
+        window.launchMissionDirect(dest, missionId);
+      }
+    };
+
     // Fail-safe immediate handler for Start Game button
     window.dismissAquaSplash = function(e) {
       if (e && e.preventDefault) e.preventDefault();
@@ -78,17 +170,7 @@
         splash.style.display = 'none';
       }
       window.__isSplashActive = false;
-      if (typeof window.openAquaGuidedModal === 'function') {
-        window.openAquaGuidedModal(1);
-      } else {
-        const modal = document.getElementById('aqua-guided-modal-backdrop');
-        if (modal) modal.classList.add('active');
-        const hub = document.getElementById('game-hub-screen');
-        if (hub) {
-          hub.style.display = 'grid';
-          hub.classList.add('active');
-        }
-      }
+      window.openAquaGuidedModal(1);
     };
     window.startGame = window.dismissAquaSplash;
     window.handleStartGameClick = window.dismissAquaSplash;
@@ -441,7 +523,7 @@
                 </div>
               </div>
               <div class="portal-action-col">
-                <button class="portal-launch-btn moon-btn" type="button">
+                <button class="portal-launch-btn moon-btn" id="btn-portal-launch-moon" type="button">
                   <span>ENTER LUNAR BASE ➔</span>
                 </button>
               </div>
@@ -463,7 +545,7 @@
                 </div>
               </div>
               <div class="portal-action-col">
-                <button class="portal-launch-btn mars-btn" type="button">
+                <button class="portal-launch-btn mars-btn" id="btn-portal-launch-mars" type="button">
                   <span>ENTER MARTIAN VALLEY ➔</span>
                 </button>
               </div>
@@ -1835,22 +1917,22 @@
             <span class="badge-dot"></span>
             <span>NASA SPACE APPS • EXPEDITION WIZARD</span>
           </div>
-          <button class="aqua-modal-close-btn" id="btn-aqua-modal-close" aria-label="Close Wizard">✕</button>
+          <button class="aqua-modal-close-btn" id="btn-aqua-modal-close" aria-label="Close Wizard" onclick="window.closeAquaGuidedModal &amp;&amp; window.closeAquaGuidedModal()">✕</button>
         </div>
 
         <!-- 3-Step Navigation Stepper -->
         <div class="aqua-stepper-bar">
-          <button class="aqua-step-node active" id="aqua-step-indicator-1" data-step="1" type="button">
+          <button class="aqua-step-node active" id="aqua-step-indicator-1" data-step="1" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(1)">
             <span class="step-num">1</span>
             <span class="step-name">MISSION STORY</span>
           </button>
           <div class="aqua-step-connector" id="aqua-step-conn-1"></div>
-          <button class="aqua-step-node" id="aqua-step-indicator-2" data-step="2" type="button">
+          <button class="aqua-step-node" id="aqua-step-indicator-2" data-step="2" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(2)">
             <span class="step-num">2</span>
             <span class="step-name">CHOOSE CADET</span>
           </button>
           <div class="aqua-step-connector" id="aqua-step-conn-2"></div>
-          <button class="aqua-step-node" id="aqua-step-indicator-3" data-step="3" type="button">
+          <button class="aqua-step-node" id="aqua-step-indicator-3" data-step="3" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(3)">
             <span class="step-num">3</span>
             <span class="step-name">SELECT LEVEL</span>
           </button>
@@ -1900,10 +1982,10 @@
           </div>
 
           <div class="aqua-panel-footer">
-            <button class="aqua-btn-secondary" id="btn-aqua-skip-to-levels" type="button">
+            <button class="aqua-btn-secondary" id="btn-aqua-skip-to-levels" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(3)">
               <span>Skip Story ➔ Jump to Levels</span>
             </button>
-            <button class="aqua-btn-primary glow" id="btn-aqua-step1-next" type="button">
+            <button class="aqua-btn-primary glow" id="btn-aqua-step1-next" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(2)">
               <span>Next: Choose Commander ➔</span>
             </button>
           </div>
@@ -1929,7 +2011,7 @@
           <!-- Character Cards -->
           <div class="aqua-characters-grid">
             <!-- Commander Asha -->
-            <div class="aqua-char-card active" id="aqua-char-card-asha" data-char="asha" role="button" tabindex="0">
+            <div class="aqua-char-card active" id="aqua-char-card-asha" data-char="asha" role="button" tabindex="0" onclick="window.selectAquaCommander &amp;&amp; window.selectAquaCommander('asha')">
               <div class="aqua-char-badge">DHAKA BASE • JDSN</div>
               <div class="aqua-char-avatar-box">
                 <span class="aqua-char-avatar">👩‍🚀</span>
@@ -1943,11 +2025,11 @@
                 <span class="char-stat-pill">🪙 <span id="aqua-asha-pts">4,850</span> PTS</span>
                 <span class="char-stat-pill gold">🏆 RANK #1</span>
               </div>
-              <div class="aqua-char-select-indicator" id="aqua-asha-select-status">✓ SELECTED</div>
+              <div class="aqua-char-select-indicator" id="aqua-asha-select-status" onclick="window.selectAquaCommander &amp;&amp; window.selectAquaCommander('asha'); event.stopPropagation();">✓ SELECTED</div>
             </div>
 
             <!-- Commander Leo -->
-            <div class="aqua-char-card" id="aqua-char-card-leo" data-char="leo" role="button" tabindex="0">
+            <div class="aqua-char-card" id="aqua-char-card-leo" data-char="leo" role="button" tabindex="0" onclick="window.selectAquaCommander &amp;&amp; window.selectAquaCommander('leo')">
               <div class="aqua-char-badge">FLORIDA CONSOLE • KSC</div>
               <div class="aqua-char-avatar-box">
                 <span class="aqua-char-avatar">👨‍🚀</span>
@@ -1961,15 +2043,15 @@
                 <span class="char-stat-pill">🪙 <span id="aqua-leo-pts">3,410</span> PTS</span>
                 <span class="char-stat-pill gold">🏆 RANK #2</span>
               </div>
-              <div class="aqua-char-select-indicator" id="aqua-leo-select-status">SELECT</div>
+              <div class="aqua-char-select-indicator" id="aqua-leo-select-status" onclick="window.selectAquaCommander &amp;&amp; window.selectAquaCommander('leo'); event.stopPropagation();">SELECT</div>
             </div>
           </div>
 
           <div class="aqua-panel-footer">
-            <button class="aqua-btn-secondary" id="btn-aqua-step2-back" type="button">
+            <button class="aqua-btn-secondary" id="btn-aqua-step2-back" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(1)">
               <span>⬅ Back to Story</span>
             </button>
-            <button class="aqua-btn-primary glow" id="btn-aqua-step2-next" type="button">
+            <button class="aqua-btn-primary glow" id="btn-aqua-step2-next" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(3)">
               <span>Select &amp; Choose Level ➔</span>
             </button>
           </div>
@@ -1985,7 +2067,7 @@
 
           <div class="aqua-levels-grid">
             <!-- Level 1: Moon Apollo 11 -->
-            <div class="aqua-level-card moon-card" id="aqua-lvl-card-1" data-dest="moon" data-mission-id="moon_quest_apollo11">
+            <div class="aqua-level-card moon-card" id="aqua-lvl-card-1" data-dest="moon" data-mission-id="moon_quest_apollo11" onclick="window.launchAquaMission &amp;&amp; window.launchAquaMission('moon', 'moon_quest_apollo11')">
               <div class="aqua-lvl-top-row">
                 <span class="aqua-lvl-badge moon-badge">🌕 LEVEL 1 • MOON</span>
                 <div class="aqua-lvl-stars" id="aqua-stars-lvl-1">⭐⭐⭐</div>
@@ -1997,13 +2079,13 @@
                 <span>⭐ +25 XP</span>
                 <span>🧪 Rocket Δv Lab</span>
               </div>
-              <button class="aqua-lvl-launch-btn moon-btn" type="button" data-dest="moon" data-mission-id="moon_quest_apollo11">
+              <button class="aqua-lvl-launch-btn moon-btn" type="button" data-dest="moon" data-mission-id="moon_quest_apollo11" onclick="window.launchAquaMission &amp;&amp; window.launchAquaMission('moon', 'moon_quest_apollo11'); event.stopPropagation();">
                 <span>🚀 START NOW ➔</span>
               </button>
             </div>
 
             <!-- Level 2: Mars Opportunity -->
-            <div class="aqua-level-card mars-card" id="aqua-lvl-card-2" data-dest="mars" data-mission-id="mission_blueberries">
+            <div class="aqua-level-card mars-card" id="aqua-lvl-card-2" data-dest="mars" data-mission-id="mission_blueberries" onclick="window.launchAquaMission &amp;&amp; window.launchAquaMission('mars', 'mission_blueberries')">
               <div class="aqua-lvl-top-row">
                 <span class="aqua-lvl-badge mars-badge">🔴 LEVEL 2 • MARS</span>
                 <div class="aqua-lvl-stars" id="aqua-stars-lvl-2">⭐⭐⭐</div>
@@ -2015,13 +2097,13 @@
                 <span>⭐ +50 XP</span>
                 <span>🔬 APXS Hematite Lab</span>
               </div>
-              <button class="aqua-lvl-launch-btn mars-btn" type="button" data-dest="mars" data-mission-id="mission_blueberries">
+              <button class="aqua-lvl-launch-btn mars-btn" type="button" data-dest="mars" data-mission-id="mission_blueberries" onclick="window.launchAquaMission &amp;&amp; window.launchAquaMission('mars', 'mission_blueberries'); event.stopPropagation();">
                 <span>🚀 START NOW ➔</span>
               </button>
             </div>
 
             <!-- Level 3: Mars InSight -->
-            <div class="aqua-level-card mars-card" id="aqua-lvl-card-3" data-dest="mars" data-mission-id="mission_mossbauer">
+            <div class="aqua-level-card mars-card" id="aqua-lvl-card-3" data-dest="mars" data-mission-id="mission_mossbauer" onclick="window.launchAquaMission &amp;&amp; window.launchAquaMission('mars', 'mission_mossbauer')">
               <div class="aqua-lvl-top-row">
                 <span class="aqua-lvl-badge mars-badge">🔴 LEVEL 3 • MARS</span>
                 <div class="aqua-lvl-stars" id="aqua-stars-lvl-3">⭐⭐⭐</div>
@@ -2033,13 +2115,13 @@
                 <span>⭐ +75 XP</span>
                 <span>💓 Seismometer Lab</span>
               </div>
-              <button class="aqua-lvl-launch-btn mars-btn" type="button" data-dest="mars" data-mission-id="mission_mossbauer">
+              <button class="aqua-lvl-launch-btn mars-btn" type="button" data-dest="mars" data-mission-id="mission_mossbauer" onclick="window.launchAquaMission &amp;&amp; window.launchAquaMission('mars', 'mission_mossbauer'); event.stopPropagation();">
                 <span>🚀 START NOW ➔</span>
               </button>
             </div>
 
             <!-- Level 4: Deep Space Voyager 1 -->
-            <div class="aqua-level-card deep-card" id="aqua-lvl-card-4" data-dest="deepspace" data-mission-id="mission_blackbox">
+            <div class="aqua-level-card deep-card" id="aqua-lvl-card-4" data-dest="deepspace" data-mission-id="mission_blackbox" onclick="window.launchAquaMission &amp;&amp; window.launchAquaMission('deepspace', 'mission_blackbox')">
               <div class="aqua-lvl-top-row">
                 <span class="aqua-lvl-badge deep-badge">🌌 LEVEL 4 • DEEP SPACE</span>
                 <div class="aqua-lvl-stars" id="aqua-stars-lvl-4">⭐⭐⭐</div>
@@ -2051,17 +2133,17 @@
                 <span>⭐ +100 XP</span>
                 <span>📡 RTG Telemetry Lab</span>
               </div>
-              <button class="aqua-lvl-launch-btn deep-btn" type="button" data-dest="deepspace" data-mission-id="mission_blackbox">
+              <button class="aqua-lvl-launch-btn deep-btn" type="button" data-dest="deepspace" data-mission-id="mission_blackbox" onclick="window.launchAquaMission &amp;&amp; window.launchAquaMission('deepspace', 'mission_blackbox'); event.stopPropagation();">
                 <span>🚀 START NOW ➔</span>
               </button>
             </div>
           </div>
 
           <div class="aqua-panel-footer">
-            <button class="aqua-btn-secondary" id="btn-aqua-step3-back" type="button">
+            <button class="aqua-btn-secondary" id="btn-aqua-step3-back" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(2)">
               <span>⬅ Back to Commander</span>
             </button>
-            <button class="aqua-btn-secondary" id="btn-aqua-finish-close" type="button">
+            <button class="aqua-btn-secondary" id="btn-aqua-finish-close" type="button" onclick="window.closeAquaGuidedModal &amp;&amp; window.closeAquaGuidedModal()">
               <span>✕ Close &amp; Return to Hub</span>
             </button>
           </div>

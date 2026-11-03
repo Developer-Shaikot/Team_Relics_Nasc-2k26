@@ -34,7 +34,7 @@ import {
 import { KIDS_MISSIONS_MARS, KIDS_MISSIONS_MOON } from './data/kidsContent.js';
 
 // Initialize WebGL Application
-window.addEventListener('DOMContentLoaded', () => {
+function initApplication() {
   const container = document.getElementById('webgl-container');
   if (!container) return;
 
@@ -2338,6 +2338,7 @@ window.addEventListener('DOMContentLoaded', () => {
   function openAquaGuidedModal(step = 1) {
     if (!aquaModal) return;
     setAquaStep(step);
+    aquaModal.style.display = 'flex';
     aquaModal.classList.add('active');
     martianAudio.playUiAlert?.();
   }
@@ -2345,8 +2346,35 @@ window.addEventListener('DOMContentLoaded', () => {
   function closeAquaGuidedModal() {
     if (!aquaModal) return;
     aquaModal.classList.remove('active');
+    aquaModal.style.display = 'none';
     martianAudio.playUiSwitch?.();
   }
+
+  // Export to window for immediate inline onclick access
+  window.setAquaStep = setAquaStep;
+  window.closeAquaGuidedModal = closeAquaGuidedModal;
+  window.openAquaGuidedModal = openAquaGuidedModal;
+  window.setGameCommander = (char) => {
+    if (char === 'asha') {
+      handleSelectAsha();
+    } else {
+      handleSelectLeo();
+    }
+    syncAquaCommanderCards();
+  };
+  window.launchMissionDirect = (dest, missionId) => {
+    closeAquaGuidedModal();
+    closeGameHub();
+    setFullscreenMode(true, false);
+    if (dest === 'deepspace' || missionId === 'voyager1' || missionId === 'mission_blackbox') {
+      launchExpedition('deepspace');
+    } else if (missionId) {
+      spawnRoverForMission(missionId, dest);
+    } else {
+      launchExpedition(dest);
+    }
+  };
+  window.launchExpeditionDirect = window.launchMissionDirect;
 
   // Aqua Modal Controls Wire-up
   document.getElementById('btn-aqua-modal-close')?.addEventListener('click', closeAquaGuidedModal);
@@ -2588,6 +2616,23 @@ window.addEventListener('DOMContentLoaded', () => {
   const portalMoon = document.getElementById('portal-explore-moon');
   const portalMars = document.getElementById('portal-explore-mars');
   const portalVoyager = document.getElementById('portal-explore-voyager');
+
+  const btnPortalLaunchMoon = document.getElementById('btn-portal-launch-moon');
+  const btnPortalLaunchMars = document.getElementById('btn-portal-launch-mars');
+
+  btnPortalLaunchMoon?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDestination('moon', true);
+    launchExpedition('moon');
+  });
+
+  btnPortalLaunchMars?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDestination('mars', true);
+    launchExpedition('mars');
+  });
 
   portalMoon?.addEventListener('click', (e) => {
     e.preventDefault();
@@ -3375,4 +3420,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
   animate();
   console.log('🌟 Relics of the Cosmic Dust: The Last Handshake — WebGL & JPL Science Engine Ready.');
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApplication);
+} else {
+  initApplication();
+}
