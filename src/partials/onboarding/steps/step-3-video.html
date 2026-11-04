@@ -1,88 +1,54 @@
-        <!-- STEP 3: EXPLORATION INTRODUCTION VIDEO (ANIMATED BRIEFING) -->
+        <!-- STEP 3: GAME TOUR VIDEO (real gameplay recording + bilingual captions & chapters) -->
         <div class="aqua-step-panel" id="aqua-step-3-panel">
           <div class="aqua-story-banner compact">
-            <div class="aqua-story-tag" data-i18n-en="EXPLORATION BRIEFING • VIDEO PRESENTATION"
-              data-i18n-bn="অভিযান পরিচিতি • ভিডিও উপস্থাপনা">EXPLORATION BRIEFING • VIDEO PRESENTATION</div>
-            <h2 class="aqua-panel-title" data-i18n-en="Briefing: Why These Relics Matter"
-              data-i18n-bn="সংক্ষিপ্ত ব্রিফিং: কেন এই রিলিকগুলো গুরুত্বপূর্ণ">Briefing: Why These Relics Matter</h2>
+            <div class="aqua-story-tag" data-i18n-en="GAME TOUR • WATCH &amp; LEARN"
+              data-i18n-bn="গেম ট্যুর • দেখো আর শেখো">GAME TOUR • WATCH &amp; LEARN</div>
+            <h2 class="aqua-panel-title" data-i18n-en="Take a Quick Tour!"
+              data-i18n-bn="চলো, একটা ছোট্ট ট্যুর দিই!">Take a Quick Tour!</h2>
             <p class="aqua-panel-subtitle"
-              data-i18n-en="Understand the lost equipment, scientific breakthroughs, and how your mission works."
-              data-i18n-bn="হারিয়ে যাওয়া যন্ত্রপাতি, তাদের বৈজ্ঞানিক ইতিহাস এবং কীভাবে মিশন সফল করতে হবে তা জেনে নাও।">
-              Understand the lost equipment, scientific breakthroughs, and how your mission works.</p>
+              data-i18n-en="One minute to see everything you can do: drive rovers, scan relics, run science labs and win badges."
+              data-i18n-bn="এক মিনিটেই দেখে নাও সব: রোভার চালানো, রেলিক স্ক্যান, সায়েন্স ল্যাব আর ব্যাজ জেতা।">
+              One minute to see everything you can do: drive rovers, scan relics, run science labs and win badges.</p>
           </div>
 
-          <!-- Video Player Box with Animated Slides -->
-          <div class="aqua-video-box">
-            <div class="aqua-video-screen">
-              <div class="aqua-video-scanlines"></div>
-              <div class="aqua-video-hud-overlay">
-                <span>FEED: NASA-JDSN-LIVE</span>
-                <span>RES: 4K ORBITAL</span>
-              </div>
+          <div class="tour-player" id="tour-player">
+            <div class="tour-stage">
+              <video class="tour-video" id="tour-video" src="./videos/game-tour.mp4"
+                poster="./videos/game-tour-poster.jpg" preload="metadata" playsinline muted
+                aria-label="Game tour video: the Game Hub, driving on Mars, scanning a relic, the Moon, Voyager 1, science labs, quiz and badges"></video>
 
-              <!-- Slide 1 -->
-              <div class="aqua-video-slide" id="aqua-video-slide-1">
-                <span class="aqua-slide-visual">🛰️</span>
-                <h3 class="aqua-slide-title" data-i18n-en="1. The Lost Robotic Pioneers"
-                  data-i18n-bn="১. হারিয়ে যাওয়া মহাকাশ পথিকেরা">1. The Lost Robotic Pioneers</h3>
-                <p class="aqua-slide-desc"
-                  data-i18n-en="Historic rovers and landers explored unknown worlds, then fell silent waiting for future cadets to find them beneath Martian dust and lunar craters."
-                  data-i18n-bn="ঐতিহাসিক রোভার ও ল্যান্ডারগুলো নতুন জগত আবিষ্কার করেছিল, আর এখন নতুন অভিযাত্রীর জন্য অপেক্ষা করছে চাঁদের খাঁদে কিংবা মঙ্গলের লাল ধূলার নিচে।">
-                  Historic rovers and landers explored unknown worlds, then fell silent waiting for future cadets to
-                  find them beneath Martian dust and lunar craters.
-                </p>
-              </div>
+              <button type="button" class="tour-big-play" id="tour-big-play" aria-label="Play tour video">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" /></svg>
+              </button>
 
-              <!-- Slide 2 -->
-              <div class="aqua-video-slide" id="aqua-video-slide-2" style="display: none;">
-                <span class="aqua-slide-visual">🔬</span>
-                <h3 class="aqua-slide-title" data-i18n-en="2. Missing Science Secrets"
-                  data-i18n-bn="২. হারিয়ে যাওয়া বিজ্ঞানের রহস্য">2. Missing Science Secrets</h3>
-                <p class="aqua-slide-desc"
-                  data-i18n-en="Opportunity holds hematite blueberries proving ancient Martian rivers; InSight holds seismic records of marsquakes; Voyager 1 carries the Golden Record of Earth!"
-                  data-i18n-bn="অপরচুনিটির হেমাটাইট ব্লুবেরি প্রমাণ করেছে মঙ্গলে পানি ছিল; ইনসাইটের সিসমোমিটার রেকর্ড করেছে মঙ্গল-কম্পন; আর ভয়েজার ১ বয়ে নিয়ে চলেছে পৃথিবীর সোনালী রেকর্ড!">
-                  Opportunity holds hematite blueberries proving ancient Martian rivers; InSight holds seismic records
-                  of marsquakes; Voyager 1 carries the Golden Record of Earth!
-                </p>
-              </div>
-
-              <!-- Slide 3 -->
-              <div class="aqua-video-slide" id="aqua-video-slide-3" style="display: none;">
-                <span class="aqua-slide-visual">🚀</span>
-                <h3 class="aqua-slide-title" data-i18n-en="3. Your Mission as Explorer"
-                  data-i18n-bn="৩. অভিযাত্রী হিসেবে তোমার দায়িত্ব">3. Your Mission as Explorer</h3>
-                <p class="aqua-slide-desc"
-                  data-i18n-en="Pilot your rover, follow waypoint beacons, calibrate authentic JPL instruments, and return humanity's cosmic discoveries back to Earth!"
-                  data-i18n-bn="রোভার চালাও, উজ্জ্বল দিকনির্দেশক বিকন অনুসরণ করো, নাসার আসল বৈজ্ঞানিক যন্ত্রপাতি ক্যালিব্রেট করো এবং আবিষ্কারগুলো ফিরিয়ে আনো!">
-                  Pilot your rover, follow waypoint beacons, calibrate authentic JPL instruments, and return humanity's
-                  cosmic discoveries back to Earth!
-                </p>
-              </div>
+              <div class="tour-caption" id="tour-caption" aria-live="polite"></div>
             </div>
 
-            <!-- Bottom Progress & Controls Bar -->
-            <div class="aqua-video-bottom-bar">
-              <div class="aqua-video-progress-track">
-                <div class="aqua-video-progress-fill" id="aqua-video-progress-fill"></div>
+            <div class="tour-controls">
+              <button type="button" class="tour-ctrl-btn" id="tour-play-btn" aria-label="Play">
+                <svg class="ico-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" /></svg>
+                <svg class="ico-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2" /><rect x="14" y="5" width="4" height="14" rx="1.2" /></svg>
+              </button>
+
+              <div class="tour-scrub-wrap">
+                <div class="tour-scrub-fill" id="tour-scrub-fill"></div>
+                <div class="tour-scrub-marks" id="tour-scrub-marks" aria-hidden="true"></div>
+                <input type="range" class="tour-scrub" id="tour-scrub" min="0" max="1000" value="0" step="1"
+                  aria-label="Video position" />
               </div>
 
-              <div class="aqua-video-controls-row">
-                <div class="aqua-video-indicators">
-                  <span class="aqua-video-dot active" id="aqua-video-dot-1" onclick="window.setVideoSlide(1)"></span>
-                  <span class="aqua-video-dot" id="aqua-video-dot-2" onclick="window.setVideoSlide(2)"></span>
-                  <span class="aqua-video-dot" id="aqua-video-dot-3" onclick="window.setVideoSlide(3)"></span>
-                </div>
+              <span class="tour-time" id="tour-time">0:00 / 0:57</span>
 
-                <div style="display: flex; gap: 8px;">
-                  <button type="button" class="aqua-video-btn" onclick="window.replayVideo()">
-                    <span data-i18n-en="🔄 Replay" data-i18n-bn="🔄 আবার দেখো">🔄 Replay</span>
-                  </button>
-                  <button type="button" class="aqua-video-btn" onclick="window.advanceVideoSlide()">
-                    <span data-i18n-en="Next Scene ➔" data-i18n-bn="পরবর্তী দৃশ্য ➔">Next Scene ➔</span>
-                  </button>
-                </div>
-              </div>
+              <button type="button" class="tour-ctrl-btn" id="tour-cc-btn" aria-label="Captions" aria-pressed="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2" /><path d="M10.5 10.2a2.4 2.4 0 1 0 0 3.6M17 10.2a2.4 2.4 0 1 0 0 3.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+              </button>
+              <button type="button" class="tour-ctrl-btn" id="tour-fs-btn" aria-label="Full screen">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+              </button>
             </div>
+
+            <!-- Chapters: jump to any part of the tour -->
+            <div class="tour-chapters" id="tour-chapters" role="group" aria-label="Tour chapters"></div>
           </div>
 
           <div class="aqua-panel-footer">

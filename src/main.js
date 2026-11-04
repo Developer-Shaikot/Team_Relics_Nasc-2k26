@@ -27,6 +27,7 @@ import { HeroInteractionsManager } from './systems/heroInteractions.js';
 import { Hero3DOrrery } from './systems/hero3DOrrery.js';
 import { KittyCompanionManager } from './systems/kittyCompanionManager.js';
 import { profileManager } from './systems/profileManager.js';
+import { CoachmarkGuide } from './systems/coachmarks.js';
 import { MISSION_STORY_ARTICLES } from './data/storyArticles.js';
 import {
   HISTORICAL_SOL_LOGS,
@@ -1642,6 +1643,20 @@ function initApplication() {
   window.openGameHub = openGameHub;
   window.closeGameHub = closeGameHub;
 
+  // Page-wise interactive tips (spotlight + arrow bubbles), once per page per cadet, skippable
+  const coachmarks = new CoachmarkGuide({
+    getProfileId: () => profileManager.getActiveProfile()?.id,
+    getLang: () => window.__currentWizardLang || 'en',
+    getBotId: () => localStorage.getItem('nasa_selected_bot') || 'echo',
+    playSound: (kind) => {
+      if (kind === 'open') martianAudio.playUiAlert?.();
+      else if (kind === 'step') martianAudio.playUiClick?.();
+      else martianAudio.playUiSwitch?.();
+    }
+  });
+  window.coachmarks = coachmarks;
+  window.startHomepageTour = () => coachmarks.start('hub', { force: true });
+
   document.getElementById('tab-home-hub')?.addEventListener('click', (e) => {
     e.preventDefault();
     openGameHub();
@@ -2404,7 +2419,9 @@ function initApplication() {
     if (currentAquaStep === 1) {
       const nameInput = document.getElementById('aqua-cadet-name-input');
       const savedCall = localStorage.getItem('nasa_player_callsign') || 'Cadet Explorer';
-      if (nameInput) nameInput.value = savedCall;
+      // The call sign is stored in CAPS for the HUD; show it friendlier in the kid-facing input ("Cadet Explorer")
+      const friendlyCall = /\p{Ll}/u.test(savedCall) ? savedCall : savedCall.toLowerCase().replace(/(^|\s)(\p{L})/gu, (_m, sp, ch) => sp + ch.toUpperCase());
+      if (nameInput) nameInput.value = friendlyCall;
       const curAge = parseInt(localStorage.getItem('nasa_player_age'), 10) || 10;
       window.setCadetAge?.(curAge);
     } else if (currentAquaStep === 3) {

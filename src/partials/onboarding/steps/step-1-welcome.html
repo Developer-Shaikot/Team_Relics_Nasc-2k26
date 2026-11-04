@@ -1,58 +1,118 @@
-        <!-- STEP 1: FIRST-TIME WELCOME EXPERIENCE & CADET PROFILE -->
-        <div class="aqua-step-panel active" id="aqua-step-1-panel">
-          <div class="aqua-story-banner">
-            <div class="aqua-story-tag" data-i18n-en="FIRST CONTACT • WELCOME CADET"
-              data-i18n-bn="প্রথম প্রবেশ • স্বাগতম ক্যাডেট">FIRST CONTACT • WELCOME CADET</div>
-            <h2 class="aqua-panel-title" id="aqua-wizard-title" data-i18n-en="Hey, Space Explorer! 🚀"
-              data-i18n-bn="এই যে, মহাকাশ অভিযাত্রী! 🚀">Hey, Space Explorer! 🚀</h2>
-            <p class="aqua-panel-subtitle"
-              data-i18n-en="Ready for an adventure beyond Earth? We've got an exciting mission waiting for you. Let's explore!"
-              data-i18n-bn="পৃথিবীর বাইরে এক দারুণ অভিযানে যেতে প্রস্তুত? তোমার জন্য অপেক্ষা করছে এক মজার মিশন। চলো, শুরু করা যাক!">
-              Ready for an adventure beyond Earth? We've got an exciting mission waiting for you. Let's explore!</p>
-          </div>
+        <!-- STEP 1: FIRST-TIME WELCOME EXPERIENCE & CADET PROFILE (kid-friendly cards) -->
+        <div class="aqua-step-panel active kid-welcome" id="aqua-step-1-panel">
 
-          <!-- Name Input -->
-          <div class="aqua-cadet-input-group">
-            <label for="aqua-cadet-name-input" class="aqua-input-label" data-i18n-en="NAME: WHAT SHOULD WE CALL YOU?"
-              data-i18n-bn="নাম: তোমাকে কী নামে ডাকব?">NAME: WHAT SHOULD WE CALL YOU?</label>
-            <div class="aqua-input-wrapper">
-              <span class="input-icon">🧑‍🚀</span>
-              <input type="text" id="aqua-cadet-name-input" class="aqua-text-input"
-                placeholder="Enter your explorer name..." data-i18n-placeholder-en="Enter your explorer name..."
-                data-i18n-placeholder-bn="তোমার নাম লেখো..." maxlength="24" value="Cadet Explorer" />
+          <!-- Greeting: robot mascot + speech bubble -->
+          <div class="kid-greeting">
+            <div class="kid-mascot" aria-hidden="true">
+              <svg viewBox="0 0 64 64">
+                <line x1="32" y1="6" x2="32" y2="14" stroke="#ffd166" stroke-width="3" stroke-linecap="round" />
+                <circle cx="32" cy="5" r="4" fill="#ffd166" />
+                <rect x="10" y="14" width="44" height="36" rx="14" fill="#38bdf8" />
+                <rect x="16" y="21" width="32" height="20" rx="10" fill="#0b1630" />
+                <circle class="kid-mascot-eye" cx="25" cy="31" r="4" fill="#5eead4" />
+                <circle class="kid-mascot-eye" cx="39" cy="31" r="4" fill="#5eead4" />
+                <path d="M27 37.5q5 3.5 10 0" stroke="#5eead4" stroke-width="2.4" fill="none" stroke-linecap="round" />
+                <rect x="4" y="26" width="6" height="12" rx="3" fill="#0ea5e9" />
+                <rect x="54" y="26" width="6" height="12" rx="3" fill="#0ea5e9" />
+                <rect x="22" y="50" width="20" height="8" rx="4" fill="#0ea5e9" />
+              </svg>
+            </div>
+            <div class="kid-bubble">
+              <span class="kid-step-chip" data-i18n-en="Step 1 of 5 · Say hello!" data-i18n-bn="ধাপ ১/৫ · হ্যালো বলো!">Step 1 of 5 · Say hello!</span>
+              <h2 class="kid-title" id="aqua-wizard-title" data-i18n-en="Hi there, Space Explorer!"
+                data-i18n-bn="হ্যালো, মহাকাশ অভিযাত্রী!">Hi there, Space Explorer!</h2>
+              <p class="kid-subtitle"
+                data-i18n-en="I'm your robot guide. Tell me a little about you, then we'll blast off!"
+                data-i18n-bn="আমি তোমার রোবট গাইড। তোমার সম্পর্কে একটু বলো, তারপর আমরা উড়াল দেব!">
+                I'm your robot guide. Tell me a little about you, then we'll blast off!</p>
             </div>
           </div>
 
-          <!-- Age Selector (Ages 6 to 16) -->
-          <div class="aqua-age-section">
-            <div class="aqua-age-label-row">
-              <label class="aqua-input-label" data-i18n-en="AGE: HOW OLD ARE YOU? (AGES 6 TO 16)"
-                data-i18n-bn="বয়স: তোমার বয়স কত? (৬ থেকে ১৬ বছর)">AGE: HOW OLD ARE YOU? (AGES 6 TO 16)</label>
-            </div>
+          <div class="kid-cards">
+            <div class="kid-col">
+              <!-- Card 1: Name -->
+              <section class="kid-card kid-card-name" aria-labelledby="kid-name-q">
+                <div class="kid-card-head">
+                  <span class="kid-num" aria-hidden="true">1</span>
+                  <label class="kid-question" id="kid-name-q" for="aqua-cadet-name-input"
+                    data-i18n-en="What's your name?" data-i18n-bn="তোমার নাম কী?">What's your name?</label>
+                </div>
+                <div class="kid-input-row">
+                  <div class="kid-input-wrap">
+                    <svg class="kid-input-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <circle cx="12" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2" />
+                      <path d="M7.5 11a4.5 3.5 0 0 1 9 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                      <path d="M8 19.5h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <input type="text" id="aqua-cadet-name-input" class="kid-text-input" autocomplete="nickname"
+                      placeholder="Type your explorer name" data-i18n-placeholder-en="Type your explorer name"
+                      data-i18n-placeholder-bn="তোমার নাম লেখো" maxlength="24" value="Cadet Explorer"
+                      aria-describedby="kid-name-help" />
+                  </div>
+                  <button type="button" class="kid-dice-btn" id="btn-kid-random-name"
+                    onclick="window.pickRandomCadetName?.()"
+                    aria-label="Pick a fun random name" title="Pick a fun random name">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" fill="none" stroke="currentColor" stroke-width="2" />
+                      <circle cx="8.5" cy="8.5" r="1.6" fill="currentColor" />
+                      <circle cx="15.5" cy="8.5" r="1.6" fill="currentColor" />
+                      <circle cx="12" cy="12" r="1.6" fill="currentColor" />
+                      <circle cx="8.5" cy="15.5" r="1.6" fill="currentColor" />
+                      <circle cx="15.5" cy="15.5" r="1.6" fill="currentColor" />
+                    </svg>
+                    <span data-i18n-en="Surprise me" data-i18n-bn="মজার নাম">Surprise me</span>
+                  </button>
+                </div>
+                <p class="kid-help" id="kid-name-help" data-i18n-en="A nickname is perfect. No real names needed!"
+                  data-i18n-bn="ডাকনাম দিলেই চলবে, আসল নাম লাগবে না!">A nickname is perfect. No real names needed!</p>
+              </section>
 
-            <div class="aqua-age-selector-row">
-              <button type="button" class="aqua-age-pill" data-age="6" onclick="window.setCadetAge(6)">6</button>
-              <button type="button" class="aqua-age-pill" data-age="7" onclick="window.setCadetAge(7)">7</button>
-              <button type="button" class="aqua-age-pill" data-age="8" onclick="window.setCadetAge(8)">8</button>
-              <button type="button" class="aqua-age-pill" data-age="9" onclick="window.setCadetAge(9)">9</button>
-              <button type="button" class="aqua-age-pill active" data-age="10"
-                onclick="window.setCadetAge(10)">10</button>
-              <button type="button" class="aqua-age-pill" data-age="11" onclick="window.setCadetAge(11)">11</button>
-              <button type="button" class="aqua-age-pill" data-age="12" onclick="window.setCadetAge(12)">12</button>
-              <button type="button" class="aqua-age-pill" data-age="13" onclick="window.setCadetAge(13)">13</button>
-              <button type="button" class="aqua-age-pill" data-age="14" onclick="window.setCadetAge(14)">14</button>
-              <button type="button" class="aqua-age-pill" data-age="15" onclick="window.setCadetAge(15)">15</button>
-              <button type="button" class="aqua-age-pill" data-age="16" onclick="window.setCadetAge(16)">16</button>
-            </div>
-
-            <!-- Age Adaptive Profile Badge -->
-            <div class="aqua-age-profile-badge" id="aqua-age-profile-badge">
-              <span class="aqua-age-profile-icon">🌟</span>
-              <div class="aqua-age-profile-text">
-                <h4 id="aqua-age-profile-title">🌟 Junior Explorer (Ages 6–10)</h4>
-                <p id="aqua-age-profile-desc">Visual hints, friendly bot guidance &amp; easy rover controls!</p>
+              <!-- Age result: what changes for this age group -->
+              <div class="kid-mode-card junior" id="aqua-age-profile-badge" aria-live="polite">
+                <span class="kid-mode-icon" aria-hidden="true">
+                  <svg class="ico-junior" viewBox="0 0 24 24"><path d="M12 2.8l2.7 5.5 6 .9-4.35 4.25 1.03 6L12 16.6l-5.38 2.85 1.03-6L3.3 9.2l6-.9z" fill="currentColor" /></svg>
+                  <svg class="ico-senior" viewBox="0 0 24 24"><path d="M14.5 3.5c3 0 6 3 6 6l-6.2 6.2-6-6zM8.3 9.7l-3.8.6-2 2.4 4 .8M14.3 15.7l-.6 3.8-2.4 2-.8-4M8.3 15.7l-3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /><circle cx="15" cy="9" r="1.7" fill="currentColor" /></svg>
+                </span>
+                <div class="kid-mode-text">
+                  <h4 id="aqua-age-profile-title">Junior Explorer (Ages 6–10)</h4>
+                  <p id="aqua-age-profile-desc">Visual hints, friendly bot guidance &amp; easy rover controls!</p>
+                </div>
               </div>
             </div>
+
+            <!-- Card 2: Age -->
+            <section class="kid-card kid-card-age" aria-labelledby="kid-age-q">
+              <div class="kid-card-head">
+                <span class="kid-num" aria-hidden="true">2</span>
+                <h3 class="kid-question" id="kid-age-q" data-i18n-en="How old are you?" data-i18n-bn="তোমার বয়স কত?">How
+                  old are you?</h3>
+              </div>
+
+              <div class="kid-age-group junior" role="group" aria-labelledby="kid-age-junior">
+                <span class="kid-age-group-label" id="kid-age-junior" data-i18n-en="Junior Explorer · 6 to 10"
+                  data-i18n-bn="জুনিয়র এক্সপ্লোরার · ৬ থেকে ১০">Junior Explorer · 6 to 10</span>
+                <div class="kid-age-row">
+                  <button type="button" class="aqua-age-pill" data-age="6" onclick="window.setCadetAge(6)" aria-label="6 years old">6</button>
+                  <button type="button" class="aqua-age-pill" data-age="7" onclick="window.setCadetAge(7)" aria-label="7 years old">7</button>
+                  <button type="button" class="aqua-age-pill" data-age="8" onclick="window.setCadetAge(8)" aria-label="8 years old">8</button>
+                  <button type="button" class="aqua-age-pill" data-age="9" onclick="window.setCadetAge(9)" aria-label="9 years old">9</button>
+                  <button type="button" class="aqua-age-pill active" data-age="10" onclick="window.setCadetAge(10)" aria-label="10 years old">10</button>
+                </div>
+              </div>
+
+              <div class="kid-age-group senior" role="group" aria-labelledby="kid-age-senior">
+                <span class="kid-age-group-label" id="kid-age-senior" data-i18n-en="Space Cadet · 11 to 16"
+                  data-i18n-bn="স্পেস ক্যাডেট · ১১ থেকে ১৬">Space Cadet · 11 to 16</span>
+                <div class="kid-age-row">
+                  <button type="button" class="aqua-age-pill" data-age="11" onclick="window.setCadetAge(11)" aria-label="11 years old">11</button>
+                  <button type="button" class="aqua-age-pill" data-age="12" onclick="window.setCadetAge(12)" aria-label="12 years old">12</button>
+                  <button type="button" class="aqua-age-pill" data-age="13" onclick="window.setCadetAge(13)" aria-label="13 years old">13</button>
+                  <button type="button" class="aqua-age-pill" data-age="14" onclick="window.setCadetAge(14)" aria-label="14 years old">14</button>
+                  <button type="button" class="aqua-age-pill" data-age="15" onclick="window.setCadetAge(15)" aria-label="15 years old">15</button>
+                  <button type="button" class="aqua-age-pill" data-age="16" onclick="window.setCadetAge(16)" aria-label="16 years old">16</button>
+                </div>
+              </div>
+            </section>
           </div>
 
           <div class="aqua-panel-footer">
@@ -60,7 +120,7 @@
               onclick="window.profileManager?.openProfileSwitcherModal();" style="display: inline-flex;">
               <span data-i18n-en="⬅ All Profiles" data-i18n-bn="⬅ সকল প্রোফাইল">⬅ All Profiles</span>
             </button>
-            <button class="aqua-btn-secondary" id="btn-aqua-skip-to-bots" type="button" onclick="window.setAquaStep(4)">
+            <button class="aqua-btn-link" id="btn-aqua-skip-to-bots" type="button" onclick="window.setAquaStep(4)">
               <span data-i18n-en="Skip to Meet Bots ➔" data-i18n-bn="সরাসরি বট বেছে নাও ➔">Skip to Meet Bots ➔</span>
             </button>
             <button class="aqua-btn-primary glow" id="btn-aqua-step1-next" type="button"

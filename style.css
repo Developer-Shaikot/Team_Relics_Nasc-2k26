@@ -8631,7 +8631,8 @@ body.fullscreen-mode-active .bottom-dock {
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
 }
 
-/* In fullscreen, hide telemetry cards, isolate Surface Radar Map in the top-left corner */
+/* In fullscreen, hide telemetry cards, isolate Surface Radar Map in the bottom-right corner
+   (top-left belongs to the "Back to Hub" button, which used to cover the map) */
 body.fullscreen-mode-active .left-telemetry-panel {
   transform: none !important;
   opacity: 1 !important;
@@ -8642,8 +8643,10 @@ body.fullscreen-mode-active .left-telemetry-panel {
   -webkit-backdrop-filter: none !important;
   pointer-events: none !important;
   position: fixed !important;
-  top: 16px !important;
-  left: 16px !important;
+  top: auto !important;
+  left: auto !important;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+  right: calc(16px + env(safe-area-inset-right, 0px)) !important;
   width: 230px !important;
   max-width: 240px !important;
   padding: 0 !important;
@@ -12084,53 +12087,11 @@ body.fullscreen-mode-active .fullscreen-exit-floating-btn {
   color: #94a3b8;
 }
 
-/* Step 2: Cadet & Character Select */
-.aqua-cadet-input-group {
-  max-width: 480px;
-  margin: 0 auto;
-  width: 100%;
-}
 
-.aqua-input-label {
-  display: block;
-  font-family: var(--font-display, sans-serif);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1.2px;
-  color: #00e5ff;
-  margin-bottom: 6px;
-}
 
-.aqua-input-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(4, 8, 16, 0.6);
-  border: 1.5px solid rgba(0, 229, 255, 0.4);
-  border-radius: 12px;
-  padding: 6px 14px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
 
-.aqua-input-wrapper .input-icon {
-  font-size: 20px;
-}
 
-.aqua-text-input {
-  flex: 1;
-  background: none;
-  border: none;
-  outline: none;
-  color: #ffffff;
-  font-family: var(--font-display, sans-serif);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
 
-.aqua-text-input::placeholder {
-  color: #64748b;
-}
 
 .aqua-characters-grid {
   display: grid;
@@ -12812,31 +12773,8 @@ body.fullscreen-mode-active .fullscreen-exit-floating-btn {
   }
 }
 
-/* Age Selector for Kids & Youth (Ages 6 to 16) */
-.aqua-age-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 14px;
-}
 
-.aqua-age-label-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 
-.aqua-age-selector-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  flex-wrap: wrap;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 10px 12px;
-}
 
 .aqua-age-pill {
   flex: 1;
@@ -12873,196 +12811,9 @@ body.fullscreen-mode-active .fullscreen-exit-floating-btn {
   transform: scale(1.08);
 }
 
-.aqua-age-profile-badge {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: linear-gradient(90deg, rgba(0, 229, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
-  border: 1px solid rgba(0, 229, 255, 0.25);
-  border-radius: 12px;
-  padding: 10px 16px;
-  margin-top: 6px;
-}
 
-.aqua-age-profile-icon {
-  font-size: 24px;
-}
 
-.aqua-age-profile-text h4 {
-  margin: 0 0 2px;
-  font-size: 13px;
-  font-family: var(--font-display, sans-serif);
-  color: #00e5ff;
-  letter-spacing: 0.5px;
-}
 
-.aqua-age-profile-text p {
-  margin: 0;
-  font-size: 12px;
-  color: #cbd5e1;
-}
-
-/* Exploration Introduction Video Screen & Cinematic Briefing */
-.aqua-video-box {
-  background: #060b17;
-  border: 1.5px solid rgba(0, 229, 255, 0.3);
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
-  display: flex;
-  flex-direction: column;
-}
-
-.aqua-video-screen {
-  position: relative;
-  min-height: 250px;
-  background: radial-gradient(circle at 50% 30%, #1e293b 0%, #090e1a 70%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  overflow: hidden;
-}
-
-.aqua-video-scanlines {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 2px, rgba(0, 229, 255, 0.03) 3px, rgba(0, 0, 0, 0.2) 4px);
-  pointer-events: none;
-  z-index: 5;
-}
-
-.aqua-video-hud-overlay {
-  position: absolute;
-  inset: 12px;
-  border: 1px dashed rgba(0, 229, 255, 0.2);
-  border-radius: 12px;
-  pointer-events: none;
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 12px;
-  font-family: var(--font-mono, monospace);
-  font-size: 10px;
-  color: rgba(0, 229, 255, 0.6);
-  z-index: 6;
-}
-
-.aqua-video-slide {
-  position: relative;
-  z-index: 10;
-  text-align: center;
-  max-width: 600px;
-  animation: aquaSlideFade 0.4s ease;
-}
-
-@keyframes aquaSlideFade {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.aqua-slide-visual {
-  font-size: 56px;
-  margin-bottom: 12px;
-  display: inline-block;
-  filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.5));
-  animation: aquaFloatIcon 3s ease-in-out infinite;
-}
-
-@keyframes aquaFloatIcon {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-.aqua-slide-title {
-  font-family: var(--font-display, sans-serif);
-  font-size: 20px;
-  font-weight: 900;
-  color: #ffffff;
-  margin: 0 0 8px;
-  letter-spacing: 1px;
-}
-
-.aqua-slide-desc {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #94a3b8;
-  margin: 0 auto;
-}
-
-/* Video Subtitles & Progress Bar */
-.aqua-video-bottom-bar {
-  background: rgba(10, 17, 34, 0.95);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 12px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.aqua-video-progress-track {
-  width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.aqua-video-progress-fill {
-  height: 100%;
-  width: 33%;
-  background: linear-gradient(90deg, #00e5ff, #a855f7);
-  box-shadow: 0 0 10px #00e5ff;
-  transition: width 0.3s ease;
-}
-
-.aqua-video-controls-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.aqua-video-indicators {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.aqua-video-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.aqua-video-dot.active {
-  background: #00e5ff;
-  box-shadow: 0 0 8px #00e5ff;
-  transform: scale(1.25);
-}
-
-.aqua-video-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #cbd5e1;
-  padding: 6px 14px;
-  border-radius: 10px;
-  font-family: var(--font-display, sans-serif);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-}
-
-.aqua-video-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-}
 
 /* Introduce the Bots: 3 Predefined Bot Selection Cards */
 .aqua-bots-grid {
@@ -13218,131 +12969,6 @@ body.fullscreen-mode-active .fullscreen-exit-floating-btn {
   box-shadow: 0 8px 28px rgba(16, 185, 129, 0.7) !important;
   transform: translateY(-2px);
 }
-
-/* ==========================================================================
-   INTERACTIVE GUIDED HOMEPAGE TOUR OVERLAY
-   ========================================================================== */
-.aqua-tour-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  background: rgba(3, 7, 18, 0.75);
-  backdrop-filter: blur(6px);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  pointer-events: auto;
-}
-
-.aqua-tour-backdrop.active {
-  display: flex;
-  animation: aquaTourFade 0.3s ease;
-}
-
-@keyframes aquaTourFade {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.aqua-tour-container {
-  width: 95%;
-  max-width: 540px;
-  background: linear-gradient(180deg, #0f1d3a 0%, #080f1e 100%);
-  border: 1.5px solid rgba(0, 229, 255, 0.4);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 229, 255, 0.25);
-  border-radius: 22px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  position: relative;
-}
-
-.aqua-tour-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.aqua-tour-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(0, 229, 255, 0.12);
-  border: 1px solid rgba(0, 229, 255, 0.3);
-  border-radius: 20px;
-  padding: 4px 12px;
-  font-family: var(--font-display, sans-serif);
-  font-size: 11px;
-  font-weight: 800;
-  color: #00e5ff;
-}
-
-.aqua-tour-close-btn {
-  background: none;
-  border: none;
-  color: #94a3b8;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.aqua-tour-body {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-}
-
-.aqua-tour-bot-avatar {
-  font-size: 48px;
-  background: rgba(0, 229, 255, 0.1);
-  border: 1px solid rgba(0, 229, 255, 0.25);
-  border-radius: 16px;
-  width: 70px;
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
-}
-
-.aqua-tour-content h3 {
-  margin: 0 0 6px;
-  font-family: var(--font-display, sans-serif);
-  font-size: 18px;
-  font-weight: 900;
-  color: #ffffff;
-}
-
-.aqua-tour-content p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #cbd5e1;
-}
-
-.aqua-tour-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 14px;
-  margin-top: 4px;
-}
-
-.aqua-tour-step-indicator {
-  font-family: var(--font-display, sans-serif);
-  font-size: 12px;
-  font-weight: 800;
-  color: #94a3b8;
-}
-
-.aqua-tour-btns {
-  display: flex;
-  gap: 10px;
-}
-
 
 /* ==========================================================================
    PERMANENTLY REMOVED OVERLAYS (EXPEDITION DISPATCH OVERLAYS)
@@ -13931,4 +13557,1322 @@ body.fullscreen-mode-active .in-game-back-to-hub-btn {
 @media (prefers-reduced-motion: reduce) {
   .hub-util-btn.audio-blocked,
   .action-btn.audio-blocked { animation: none; }
+}
+
+/* ==========================================================================
+   PAGE-WISE INTERACTIVE TIPS (COACHMARKS) - src/systems/coachmarks.js
+   Spotlight + arrow bubble pointing at one button at a time.
+   ========================================================================== */
+.coach-root {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.coach-root[hidden] {
+  display: none;
+}
+
+.coach-root.coach-visible {
+  opacity: 1;
+}
+
+/* Transparent click blockers around the spotlight hole: the highlighted button stays usable */
+.coach-shield {
+  position: fixed;
+  pointer-events: auto;
+  background: transparent;
+}
+
+.coach-spot {
+  position: fixed;
+  border-radius: 14px;
+  box-shadow: 0 0 0 9999px rgba(2, 6, 18, 0.66);
+  outline: 2.5px solid #00e5ff;
+  outline-offset: 0;
+  pointer-events: none;
+  transition: left 0.28s cubic-bezier(0.16, 1, 0.3, 1), top 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    width 0.28s cubic-bezier(0.16, 1, 0.3, 1), height 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: coach-ring 1.8s ease-in-out infinite;
+}
+
+.coach-spot.coach-spot-none {
+  outline: none;
+  animation: none;
+}
+
+@keyframes coach-ring {
+  0%, 100% { outline-color: rgba(0, 229, 255, 1); }
+  50% { outline-color: rgba(0, 229, 255, 0.35); }
+}
+
+.coach-tip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: min(320px, calc(100vw - 24px));
+  box-sizing: border-box;
+  padding: 14px 16px 10px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #13213f 0%, #0a1328 100%);
+  border: 2px solid rgba(0, 229, 255, 0.7);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6), 0 0 24px rgba(0, 229, 255, 0.25);
+  color: #e2e8f0;
+  font-family: var(--font-body);
+  pointer-events: auto;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.coach-tip.coach-pop .coach-tip-head,
+.coach-tip.coach-pop .coach-text {
+  animation: coach-pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes coach-pop-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Arrow: a rotated square on the edge facing the target */
+.coach-arrow {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #13213f;
+  border: 2px solid rgba(0, 229, 255, 0.7);
+  transform: translate(-50%, -50%) rotate(45deg);
+  display: none;
+}
+
+.coach-tip[data-side="bottom"] .coach-arrow {
+  display: block;
+  top: 0;
+  border-right: none;
+  border-bottom: none;
+}
+
+.coach-tip[data-side="top"] .coach-arrow {
+  display: block;
+  top: 100%;
+  background: #0a1328;
+  border-left: none;
+  border-top: none;
+}
+
+.coach-tip[data-side="right"] .coach-arrow {
+  display: block;
+  left: 0;
+  border-top: none;
+  border-right: none;
+}
+
+.coach-tip[data-side="left"] .coach-arrow {
+  display: block;
+  left: 100%;
+  border-bottom: none;
+  border-left: none;
+}
+
+.coach-tip-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.coach-bot {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  background: radial-gradient(circle at 35% 30%, rgba(0, 229, 255, 0.35), rgba(0, 229, 255, 0.08));
+  border: 1.5px solid rgba(0, 229, 255, 0.5);
+  animation: coach-bob 2.4s ease-in-out infinite;
+}
+
+@keyframes coach-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.coach-tip-heading {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.coach-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ffb700;
+}
+
+.coach-title {
+  margin: 0;
+  font-family: 'Lilita One', 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  color: #ffffff;
+}
+
+.coach-text {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+
+.coach-dots {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.coach-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(148, 163, 184, 0.35);
+  transition: width 0.2s ease, background 0.2s ease;
+}
+
+.coach-dots span.done {
+  background: rgba(0, 229, 255, 0.5);
+}
+
+.coach-dots span.on {
+  width: 18px;
+  background: #00e5ff;
+}
+
+.coach-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coach-spacer {
+  flex: 1;
+}
+
+.coach-btn {
+  font-family: 'Fredoka', var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.coach-btn[hidden] {
+  display: none;
+}
+
+.coach-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.coach-btn:focus-visible,
+.coach-off:focus-visible {
+  outline: 2px solid #ffb700;
+  outline-offset: 2px;
+}
+
+.coach-skip {
+  border-color: transparent;
+  background: transparent;
+  color: #94a3b8;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.coach-next {
+  background: linear-gradient(180deg, #00e5ff 0%, #0099cc 100%);
+  border-color: #80f0ff;
+  color: #04121f;
+  box-shadow: 0 3px 12px rgba(0, 229, 255, 0.35);
+}
+
+.coach-next:hover {
+  background: linear-gradient(180deg, #5ff0ff 0%, #00b4e6 100%);
+  transform: translateY(-1px);
+}
+
+.coach-next.coach-nudge {
+  animation: coach-nudge 0.45s ease;
+}
+
+@keyframes coach-nudge {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.coach-off {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px 0 2px;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: #64748b;
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.coach-off:hover {
+  color: #cbd5e1;
+}
+
+.coach-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 20px);
+  z-index: 2147483001;
+  max-width: calc(100vw - 32px);
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(10, 19, 40, 0.96);
+  border: 1.5px solid rgba(0, 229, 255, 0.5);
+  color: #e2e8f0;
+  font-family: 'Fredoka', var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.coach-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Replay buttons */
+.hub-tips-btn:hover {
+  border-color: #ffb700;
+  color: #ffd166;
+}
+
+.in-game-tips-btn {
+  position: fixed;
+  top: 16px;
+  left: 180px; /* JS places it right beside "Back to Hub" */
+  z-index: 9999;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: rgba(10, 19, 40, 0.85);
+  border: 2px solid rgba(255, 183, 0, 0.7);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.in-game-tips-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(255, 183, 0, 0.55);
+}
+
+@media (max-width: 480px) {
+  .coach-tip {
+    padding: 12px 13px 8px;
+  }
+
+  .coach-title {
+    font-size: 16px;
+  }
+
+  .coach-text {
+    font-size: 13px;
+  }
+}
+
+.coach-reduced .coach-spot,
+.coach-reduced .coach-tip,
+.coach-reduced .coach-bot,
+.coach-reduced .coach-tip-head,
+.coach-reduced .coach-text {
+  transition: none !important;
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coach-toast,
+  .coach-root {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   KID-FRIENDLY ONBOARDING (wizard step 1 cards, wizard buttons, tour video)
+   Rounded readable type (Lilita One / Fredoka), chunky 48px+ targets,
+   colour-coded age groups, SVG icons, visible focus, reduced motion.
+   ========================================================================== */
+.aqua-guided-modal-container {
+  --kid-ink: #f8fafc;
+  --kid-ink-soft: #cbd5e1;
+  --kid-card: rgba(255, 255, 255, 0.05);
+  --kid-card-border: rgba(148, 197, 255, 0.18);
+  --kid-cyan: #38bdf8;
+  --kid-cyan-deep: #0284c7;
+  --kid-sun: #ffc93c;
+  --kid-sun-deep: #f59e0b;
+  --kid-grape: #a78bfa;
+  --kid-grape-deep: #7c3aed;
+  --kid-focus: #ffd166;
+  --kid-font: 'Fredoka', 'Outfit', sans-serif;
+  --kid-font-title: 'Lilita One', 'Fredoka', sans-serif;
+}
+
+/* Stepper: friendlier labels */
+.aqua-step-node .step-name {
+  font-family: var(--kid-font);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: none;
+  font-size: 14px;
+}
+
+.aqua-step-node .step-num {
+  font-family: var(--kid-font);
+  font-weight: 700;
+}
+
+/* Step banners across the wizard: sentence case instead of all-caps Orbitron */
+.aqua-story-tag {
+  font-family: var(--kid-font);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+}
+
+.aqua-panel-title {
+  font-family: var(--kid-font-title);
+  font-weight: 400;
+  font-size: 30px;
+  letter-spacing: 0.5px;
+}
+
+.aqua-panel-subtitle {
+  font-family: var(--kid-font);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--kid-ink-soft);
+}
+
+/* ---------- Wizard footer buttons (all steps) ---------- */
+.aqua-panel-footer {
+  flex-wrap: wrap;
+}
+
+.aqua-guided-modal-container .aqua-btn-primary,
+.aqua-guided-modal-container .aqua-btn-secondary,
+.aqua-guided-modal-container .aqua-btn-link {
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--kid-font);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.aqua-guided-modal-container .aqua-btn-primary {
+  padding: 12px 26px;
+  color: #062033;
+  background: linear-gradient(180deg, #7dd3fc 0%, var(--kid-cyan) 55%, #0ea5e9 100%);
+  border: 2px solid #bae6fd;
+  box-shadow: 0 5px 0 var(--kid-cyan-deep), 0 10px 22px rgba(14, 165, 233, 0.35);
+}
+
+.aqua-guided-modal-container .aqua-btn-primary:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(180deg, #a5e4ff 0%, #4cc6fb 55%, #22b0ef 100%);
+  box-shadow: 0 7px 0 var(--kid-cyan-deep), 0 14px 26px rgba(14, 165, 233, 0.45);
+}
+
+.aqua-guided-modal-container .aqua-btn-primary:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--kid-cyan-deep), 0 4px 10px rgba(14, 165, 233, 0.3);
+}
+
+.aqua-guided-modal-container .aqua-btn-secondary {
+  padding: 12px 20px;
+  color: var(--kid-ink);
+  background: rgba(255, 255, 255, 0.07);
+  border: 2px solid rgba(255, 255, 255, 0.16);
+}
+
+.aqua-guided-modal-container .aqua-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.aqua-guided-modal-container .aqua-btn-link {
+  padding: 12px 14px;
+  background: transparent;
+  border: 2px solid transparent;
+  color: var(--kid-ink-soft);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: rgba(203, 213, 225, 0.4);
+}
+
+.aqua-guided-modal-container .aqua-btn-link:hover {
+  color: var(--kid-ink);
+  text-decoration-color: currentColor;
+}
+
+.aqua-guided-modal-container button:focus-visible,
+.aqua-guided-modal-container input:focus-visible {
+  outline: 3px solid var(--kid-focus);
+  outline-offset: 3px;
+}
+
+/* ---------- Step 1: greeting ---------- */
+.kid-welcome {
+  gap: 18px;
+}
+
+.kid-greeting {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.kid-mascot {
+  flex-shrink: 0;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 35% 30%, rgba(56, 189, 248, 0.35), rgba(56, 189, 248, 0.08) 70%);
+  border: 2px solid rgba(56, 189, 248, 0.45);
+  animation: kid-float 3s ease-in-out infinite;
+}
+
+.kid-mascot svg {
+  width: 60px;
+  height: 60px;
+}
+
+.kid-mascot-eye {
+  animation: kid-blink 4.5s infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@keyframes kid-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes kid-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+.kid-bubble {
+  position: relative;
+  flex: 1;
+  padding: 14px 20px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.14), rgba(167, 139, 250, 0.12));
+  border: 2px solid rgba(56, 189, 248, 0.3);
+}
+
+.kid-bubble::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  background: #13284a;
+  border-left: 2px solid rgba(56, 189, 248, 0.3);
+  border-bottom: 2px solid rgba(56, 189, 248, 0.3);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.kid-step-chip {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: rgba(255, 201, 60, 0.16);
+  color: var(--kid-sun);
+  font-family: var(--kid-font);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.kid-title {
+  margin: 0 0 2px;
+  font-family: var(--kid-font-title);
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1.15;
+  letter-spacing: 0.5px;
+  color: var(--kid-ink);
+}
+
+.kid-subtitle {
+  margin: 0;
+  font-family: var(--kid-font);
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--kid-ink-soft);
+}
+
+/* ---------- Step 1: question cards ---------- */
+.kid-cards {
+  display: grid;
+  grid-template-columns: 1fr 1.08fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.kid-cards > *,
+.kid-col > * {
+  min-width: 0;
+}
+
+.kid-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kid-card {
+  padding: 18px;
+  border-radius: 22px;
+  background: var(--kid-card);
+  border: 2px solid var(--kid-card-border);
+}
+
+.kid-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.kid-num {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--kid-sun);
+  color: #3b2300;
+  font-family: var(--kid-font);
+  font-size: 17px;
+  font-weight: 700;
+  box-shadow: 0 3px 0 var(--kid-sun-deep);
+}
+
+.kid-question {
+  margin: 0;
+  font-family: var(--kid-font);
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--kid-ink);
+}
+
+.kid-input-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.kid-input-wrap {
+  flex: 1 1 150px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 16px;
+  border-radius: 16px;
+  background: rgba(2, 8, 23, 0.65);
+  border: 2px solid rgba(56, 189, 248, 0.45);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kid-input-wrap:focus-within {
+  border-color: var(--kid-cyan);
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.2);
+}
+
+.kid-input-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: var(--kid-cyan);
+}
+
+.kid-text-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  text-transform: none;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--kid-ink);
+  font-family: var(--kid-font);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* focus ring lives on the wrapper */
+.aqua-guided-modal-container .kid-text-input:focus-visible {
+  outline: none;
+}
+
+.kid-text-input::placeholder {
+  color: #7c8aa3;
+}
+
+.kid-text-input.kid-pop {
+  animation: kid-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes kid-pop {
+  0% { transform: scale(0.94); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.kid-dice-btn {
+  min-height: 56px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 16px;
+  border: 2px solid rgba(167, 139, 250, 0.55);
+  background: rgba(167, 139, 250, 0.16);
+  color: #ede9fe;
+  font-family: var(--kid-font);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.kid-dice-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.kid-dice-btn:hover {
+  background: rgba(167, 139, 250, 0.28);
+}
+
+.kid-dice-btn:hover svg {
+  animation: kid-roll 0.5s ease;
+}
+
+.kid-dice-btn:active {
+  transform: scale(0.96);
+}
+
+@keyframes kid-roll {
+  from { transform: rotate(0); }
+  to { transform: rotate(360deg); }
+}
+
+.kid-help {
+  margin: 10px 2px 0;
+  font-family: var(--kid-font);
+  font-size: 14px;
+  color: #a5b4c8;
+}
+
+/* ---------- Step 1: age bubbles ---------- */
+.kid-age-group {
+  padding: 12px;
+  border-radius: 18px;
+  border: 2px solid transparent;
+}
+
+.kid-age-group + .kid-age-group {
+  margin-top: 10px;
+}
+
+.kid-age-group.junior {
+  background: rgba(255, 201, 60, 0.08);
+  border-color: rgba(255, 201, 60, 0.22);
+}
+
+.kid-age-group.senior {
+  background: rgba(167, 139, 250, 0.09);
+  border-color: rgba(167, 139, 250, 0.24);
+}
+
+.kid-age-group-label {
+  display: block;
+  margin: 0 0 10px 2px;
+  font-family: var(--kid-font);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.kid-age-group.junior .kid-age-group-label {
+  color: var(--kid-sun);
+}
+
+.kid-age-group.senior .kid-age-group-label {
+  color: #c4b5fd;
+}
+
+.kid-age-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.kid-welcome .aqua-age-pill {
+  flex: 0 0 auto;
+  width: 54px;
+  height: 54px;
+  min-width: 0;
+  border-radius: 50%;
+  font-family: var(--kid-font);
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--kid-ink);
+  background: rgba(255, 255, 255, 0.07);
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  position: relative;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kid-welcome .junior .aqua-age-pill:hover {
+  background: rgba(255, 201, 60, 0.2);
+  border-color: var(--kid-sun);
+  transform: translateY(-3px);
+}
+
+.kid-welcome .senior .aqua-age-pill:hover {
+  background: rgba(167, 139, 250, 0.22);
+  border-color: var(--kid-grape);
+  transform: translateY(-3px);
+}
+
+.kid-welcome .junior .aqua-age-pill.active {
+  background: var(--kid-sun);
+  border-color: #ffe7a3;
+  color: #3b2300;
+  box-shadow: 0 4px 0 var(--kid-sun-deep), 0 0 18px rgba(255, 201, 60, 0.45);
+  transform: scale(1.1);
+}
+
+.kid-welcome .senior .aqua-age-pill.active {
+  background: var(--kid-grape);
+  border-color: #ddd6fe;
+  color: #1e0b4b;
+  box-shadow: 0 4px 0 var(--kid-grape-deep), 0 0 18px rgba(167, 139, 250, 0.5);
+  transform: scale(1.1);
+}
+
+/* little check badge on the chosen age (not colour alone) */
+.kid-welcome .aqua-age-pill.active::after {
+  content: '✓';
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #22c55e;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid #0b1630;
+}
+
+/* ---------- Step 1: age result card ---------- */
+.kid-mode-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  border: 2px solid;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.kid-mode-card.junior {
+  background: linear-gradient(135deg, rgba(255, 201, 60, 0.18), rgba(255, 140, 66, 0.1));
+  border-color: rgba(255, 201, 60, 0.4);
+}
+
+.kid-mode-card.senior {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(56, 189, 248, 0.1));
+  border-color: rgba(167, 139, 250, 0.45);
+}
+
+.kid-mode-icon {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+}
+
+.kid-mode-icon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.kid-mode-card.junior .kid-mode-icon {
+  background: var(--kid-sun);
+  color: #3b2300;
+  box-shadow: 0 4px 0 var(--kid-sun-deep);
+}
+
+.kid-mode-card.senior .kid-mode-icon {
+  background: var(--kid-grape);
+  color: #1e0b4b;
+  box-shadow: 0 4px 0 var(--kid-grape-deep);
+}
+
+.kid-mode-card.junior .ico-senior,
+.kid-mode-card.senior .ico-junior {
+  display: none;
+}
+
+.kid-mode-text h4 {
+  margin: 0 0 3px;
+  font-family: var(--kid-font);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--kid-ink);
+}
+
+.kid-mode-text p {
+  margin: 0;
+  font-family: var(--kid-font);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--kid-ink-soft);
+}
+
+@media (max-width: 820px) {
+  .kid-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .kid-title {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 520px) {
+  .kid-greeting {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .kid-bubble::before {
+    left: 50%;
+    top: -9px;
+    transform: translateX(-50%) rotate(135deg);
+  }
+
+  .kid-mascot {
+    width: 68px;
+    height: 68px;
+  }
+
+  .kid-mascot svg {
+    width: 48px;
+    height: 48px;
+  }
+
+  .kid-card {
+    padding: 14px;
+  }
+
+  .kid-welcome .kid-dice-btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .kid-welcome .aqua-age-pill {
+    width: 48px;
+    height: 48px;
+    font-size: 19px;
+  }
+
+  .kid-age-row {
+    gap: 8px;
+  }
+
+  .aqua-panel-footer {
+    justify-content: center;
+  }
+
+  .aqua-guided-modal-container .aqua-btn-primary {
+    order: -1;
+    width: 100%;
+  }
+}
+
+/* ---------- Step 3: game tour video player ---------- */
+.tour-player {
+  border-radius: 22px;
+  background: rgba(2, 8, 23, 0.7);
+  border: 2px solid rgba(56, 189, 248, 0.3);
+  overflow: hidden;
+}
+
+.tour-stage {
+  position: relative;
+  background: #000000;
+}
+
+.tour-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  object-fit: contain;
+  background: #000000;
+  cursor: pointer;
+}
+
+.tour-big-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 84px;
+  height: 84px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  background: linear-gradient(180deg, #7dd3fc 0%, var(--kid-cyan) 55%, #0ea5e9 100%);
+  box-shadow: 0 6px 0 var(--kid-cyan-deep), 0 12px 30px rgba(0, 0, 0, 0.5);
+  color: #062033;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 0.18s ease, opacity 0.2s ease;
+}
+
+.tour-big-play svg {
+  width: 38px;
+  height: 38px;
+  margin-left: 5px;
+  fill: currentColor;
+}
+
+.tour-big-play:hover {
+  transform: translate(-50%, -50%) scale(1.07);
+}
+
+.tour-player.is-playing .tour-big-play {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tour-caption {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  max-width: calc(100% - 32px);
+  width: max-content;
+  padding: 8px 16px;
+  border-radius: 14px;
+  background: rgba(2, 8, 23, 0.82);
+  color: #ffffff;
+  font-family: var(--kid-font);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  pointer-events: none;
+}
+
+.tour-caption[hidden] {
+  display: none;
+}
+
+.tour-stage:fullscreen .tour-caption {
+  font-size: 28px;
+  bottom: 40px;
+}
+
+.tour-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px 6px;
+}
+
+.tour-ctrl-btn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.tour-ctrl-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.tour-ctrl-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+#tour-play-btn .ico-pause,
+.tour-player.is-playing #tour-play-btn .ico-play {
+  display: none;
+}
+
+.tour-player.is-playing #tour-play-btn .ico-pause {
+  display: block;
+}
+
+#tour-cc-btn svg,
+#tour-fs-btn svg {
+  fill: none;
+}
+
+#tour-cc-btn[aria-pressed="true"] {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: rgba(56, 189, 248, 0.6);
+}
+
+.tour-scrub-wrap {
+  position: relative;
+  flex: 1;
+  height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.tour-scrub-wrap::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.tour-scrub-fill {
+  position: absolute;
+  left: 0;
+  height: 10px;
+  width: 0;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--kid-cyan), var(--kid-grape));
+  pointer-events: none;
+}
+
+.tour-scrub-marks span {
+  position: absolute;
+  top: 50%;
+  width: 4px;
+  height: 14px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.55);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.tour-scrub {
+  position: relative;
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.tour-scrub::-webkit-slider-runnable-track {
+  height: 10px;
+  background: transparent;
+}
+
+.tour-scrub::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid var(--kid-cyan);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.tour-scrub::-moz-range-track {
+  height: 10px;
+  background: transparent;
+}
+
+.tour-scrub::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid var(--kid-cyan);
+}
+
+.tour-time {
+  flex-shrink: 0;
+  min-width: 82px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.tour-chapters {
+  display: flex;
+  gap: 8px;
+  padding: 4px 12px 12px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.tour-chapter {
+  flex-shrink: 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  font-family: var(--kid-font);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.tour-chapter:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.tour-chapter-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.tour-chapter.active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: var(--kid-cyan);
+  color: #ffffff;
+}
+
+.tour-chapter.active .tour-chapter-num {
+  background: var(--kid-cyan);
+  color: #062033;
+}
+
+@media (max-width: 520px) {
+  /* small screens: caption sits under the picture instead of covering it */
+  .tour-caption {
+    position: static;
+    transform: none;
+    width: auto;
+    max-width: none;
+    min-height: 3.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    font-size: 15px;
+    padding: 8px 12px;
+    background: rgba(2, 8, 23, 0.95);
+  }
+
+  .tour-big-play {
+    top: calc(50% - 1.6em);
+  }
+
+  .tour-time {
+    display: none;
+  }
+
+  .tour-big-play {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kid-mascot,
+  .kid-mascot-eye,
+  .kid-dice-btn:hover svg,
+  .kid-text-input.kid-pop {
+    animation: none !important;
+  }
+
+  .kid-welcome .aqua-age-pill,
+  .tour-big-play {
+    transition: none;
+  }
 }

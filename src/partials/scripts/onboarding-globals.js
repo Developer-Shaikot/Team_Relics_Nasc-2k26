@@ -11,8 +11,6 @@
 
 window.__currentWizardLang = localStorage.getItem('nasa_lang') || 'en';
 window.__currentWizardStep = 1;
-window.__currentVideoSlide = 1;
-window.__currentTourStep = 1;
 window.__selectedBotId = localStorage.getItem('nasa_selected_bot') || 'echo';
 
 window.setAquaStep = function (step) {
@@ -136,18 +134,43 @@ window.setCadetAge = function (age) {
     localStorage.setItem('nasa_player_age', a);
   } catch (e) { }
   document.querySelectorAll('.aqua-age-pill').forEach(function (pill) {
-    pill.classList.toggle('active', parseInt(pill.getAttribute('data-age'), 10) === a);
+    var on = parseInt(pill.getAttribute('data-age'), 10) === a;
+    pill.classList.toggle('active', on);
+    pill.setAttribute('aria-pressed', String(on));
   });
+  var badge = document.getElementById('aqua-age-profile-badge');
   var profileTitle = document.getElementById('aqua-age-profile-title');
   var profileDesc = document.getElementById('aqua-age-profile-desc');
   var isBn = window.__currentWizardLang === 'bn';
-  if (a <= 10) {
-    if (profileTitle) profileTitle.innerText = isBn ? '🌟 জুনিয়র এক্সপ্লোরার (বয়স ৬–১০)' : '🌟 Junior Explorer (Ages 6–10)';
-    if (profileDesc) profileDesc.innerText = isBn ? 'সহজ রোভার চালনা, বড় আইকন ও বন্ধুত্বপূর্ণ দিকনির্দেশনা!' : 'Visual hints, friendly bot guidance & easy rover controls!';
-  } else {
-    if (profileTitle) profileTitle.innerText = isBn ? '🚀 সিনিয়র স্পেস ক্যাডেট (বয়স ১১–১৬)' : '🚀 Senior Space Cadet (Ages 11–16)';
-    if (profileDesc) profileDesc.innerText = isBn ? 'আসল নাসার বৈজ্ঞানিক যন্ত্রপাতি, রেডিও সিগন্যাল ও রকেট ফিজিক্স!' : 'Authentic JPL spectrometers, deep space telemetry & orbital delta-v physics!';
+  var junior = a <= 10;
+  if (badge) {
+    badge.classList.toggle('junior', junior);
+    badge.classList.toggle('senior', !junior);
   }
+  if (junior) {
+    if (profileTitle) profileTitle.innerText = isBn ? 'জুনিয়র এক্সপ্লোরার (বয়স ৬–১০)' : 'Junior Explorer (Ages 6–10)';
+    if (profileDesc) profileDesc.innerText = isBn ? 'সহজ রোভার চালনা, বড় আইকন ও বন্ধুত্বপূর্ণ দিকনির্দেশনা!' : 'Visual hints, friendly bot guidance & easy rover controls!';
+  } else {
+    if (profileTitle) profileTitle.innerText = isBn ? 'সিনিয়র স্পেস ক্যাডেট (বয়স ১১–১৬)' : 'Space Cadet (Ages 11–16)';
+    if (profileDesc) profileDesc.innerText = isBn ? 'আসল নাসার বৈজ্ঞানিক যন্ত্রপাতি, রেডিও সিগন্যাল ও রকেট ফিজিক্স!' : 'Real NASA science tools, deep space signals & rocket physics!';
+  }
+};
+
+// "Surprise me" fun explorer names (step 1)
+window.pickRandomCadetName = function () {
+  var input = document.getElementById('aqua-cadet-name-input');
+  if (!input) return;
+  var names = window.__currentWizardLang === 'bn'
+    ? ['ক্যাপ্টেন ধূমকেতু', 'চাঁদের পথিক', 'তারার শিকারি', 'রকেট রাজা', 'নোভা নিনজা', 'গ্যালাক্সি রক্ষক', 'মঙ্গলের মুসাফির', 'উল্কা উড়ুক্কু']
+    : ['Captain Comet', 'Astro Ace', 'Nova Ninja', 'Rocket Rider', 'Star Seeker', 'Moon Hopper', 'Galaxy Guardian', 'Cosmo Kid', 'Meteor Max', 'Orbit Owl'];
+  var pick = input.value;
+  for (var i = 0; i < 6 && pick === input.value; i++) pick = names[Math.floor(Math.random() * names.length)];
+  input.value = pick;
+  // main.js saves the callsign on "input"
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  input.classList.remove('kid-pop');
+  void input.offsetWidth;
+  input.classList.add('kid-pop');
 };
 
 // Bot Selection: Echo (Astro-Bot), Nova (Cyber-Kitty), Orion (Rover-Drone)
@@ -177,38 +200,139 @@ window.selectAquaCommander = function (char) {
   window.selectWizardBot(char === 'asha' ? 'echo' : 'nova');
 };
 
-// Exploration Video Presentation Logic
-window.setVideoSlide = function (slideNum) {
-  window.__currentVideoSlide = Math.max(1, Math.min(3, slideNum));
-  for (var s = 1; s <= 3; s++) {
-    var slide = document.getElementById('aqua-video-slide-' + s);
-    var dot = document.getElementById('aqua-video-dot-' + s);
-    if (slide) slide.style.display = (s === window.__currentVideoSlide) ? 'block' : 'none';
-    if (dot) dot.classList.toggle('active', s === window.__currentVideoSlide);
+// Game Tour Video (wizard step 3): real gameplay recording with bilingual captions & chapters.
+// Times match public/videos/game-tour.mp4 (57s). Captions are HTML (not burned in) so they follow the EN/BN toggle.
+window.__tourCues = [
+  { t: 0, chapter: null, en: 'Welcome to Relics of the Cosmic Dust!', bn: 'রেলিকস অফ দ্য কসমিক ডাস্ট-এ স্বাগতম!' },
+  { t: 4.7, chapter: { en: 'Game Hub', bn: 'গেম হাব' }, en: 'This is your Game Hub. Pick the Moon, Mars or Deep Space!', bn: 'এটা তোমার গেম হাব। চাঁদ, মঙ্গল নাকি গভীর মহাকাশ বেছে নাও!' },
+  { t: 11.4, chapter: { en: 'Drive on Mars', bn: 'মঙ্গলে ড্রাইভ' }, en: 'Drive your rover with W A S D toward the glowing beacon.', bn: 'W A S D দিয়ে রোভার চালাও, জ্বলজ্বলে বিকনের দিকে যাও।' },
+  { t: 18.8, chapter: { en: 'Scan a Relic', bn: 'রেলিক স্ক্যান' }, en: 'Close enough? Press E to scan the relic and learn its story!', bn: 'কাছে চলে এসেছ? E চাপো, রেলিক স্ক্যান করে তার গল্প জানো!' },
+  { t: 23.6, chapter: { en: 'The Moon', bn: 'চাঁদ' }, en: 'Explore the Moon, where Apollo 11 landed.', bn: 'চাঁদে ঘুরে দেখো, যেখানে অ্যাপোলো ১১ নেমেছিল।' },
+  { t: 30.9, chapter: { en: 'Deep Space', bn: 'গভীর মহাকাশ' }, en: 'Fly out to Voyager 1, far away in interstellar space!', bn: 'উড়ে যাও ভয়েজার ১-এর কাছে, অনেক দূরের আন্তঃনাক্ষত্রিক মহাকাশে!' },
+  { t: 37.7, chapter: { en: 'Science Labs', bn: 'সায়েন্স ল্যাব' }, en: 'Try real NASA science in the labs.', bn: 'ল্যাবে নাসার আসল বিজ্ঞান করে দেখো।' },
+  { t: 44.4, chapter: { en: 'Quiz & Badges', bn: 'কুইজ ও ব্যাজ' }, en: 'Test what you learned in the Space Quiz.', bn: 'স্পেস কুইজে দেখো কতটা শিখলে।' },
+  { t: 49.3, chapter: null, en: 'Collect badges and earn your certificate!', bn: 'ব্যাজ জমাও আর সার্টিফিকেট জেতো!' },
+  { t: 53.4, chapter: null, en: "Ready? Let's meet your robot buddy!", bn: 'তৈরি? চলো, তোমার রোবট বন্ধুর সাথে দেখা করি!' }
+];
+
+window.initTourPlayer = function () {
+  var video = document.getElementById('tour-video');
+  if (!video || video.__tourReady) return video;
+  video.__tourReady = true;
+
+  var player = document.getElementById('tour-player');
+  var bigPlay = document.getElementById('tour-big-play');
+  var playBtn = document.getElementById('tour-play-btn');
+  var scrub = document.getElementById('tour-scrub');
+  var fill = document.getElementById('tour-scrub-fill');
+  var marks = document.getElementById('tour-scrub-marks');
+  var timeEl = document.getElementById('tour-time');
+  var caption = document.getElementById('tour-caption');
+  var ccBtn = document.getElementById('tour-cc-btn');
+  var fsBtn = document.getElementById('tour-fs-btn');
+  var chaptersEl = document.getElementById('tour-chapters');
+  var cues = window.__tourCues;
+  var showCaptions = true;
+  var isBn = function () { return window.__currentWizardLang === 'bn'; };
+  var dur = function () { return video.duration || 57; };
+  var fmt = function (s) { s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  var cueAt = function (t) { var c = cues[0]; for (var i = 0; i < cues.length; i++) if (cues[i].t <= t + 0.05) c = cues[i]; return c; };
+
+  // Chapter chips + matching ticks on the progress bar
+  var chapterCues = cues.filter(function (c) { return c.chapter; });
+  chaptersEl.innerHTML = chapterCues.map(function (c, i) {
+    return '<button type="button" class="tour-chapter" data-t="' + c.t + '"><span class="tour-chapter-num">' + (i + 1) + '</span><span class="tour-chapter-label"></span></button>';
+  }).join('');
+  var renderChapterLabels = function () {
+    chaptersEl.querySelectorAll('.tour-chapter').forEach(function (b, i) {
+      b.querySelector('.tour-chapter-label').textContent = isBn() ? chapterCues[i].chapter.bn : chapterCues[i].chapter.en;
+    });
+  };
+  var renderMarks = function () {
+    marks.innerHTML = chapterCues.map(function (c) { return '<span style="left:' + (c.t / dur() * 100) + '%"></span>'; }).join('');
+  };
+  chaptersEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.tour-chapter');
+    if (!b) return;
+    video.currentTime = parseFloat(b.getAttribute('data-t'));
+    video.play().catch(function () {});
+  });
+
+  var render = function () {
+    var t = video.currentTime;
+    var pct = (t / dur()) * 100;
+    fill.style.width = pct + '%';
+    if (document.activeElement !== scrub) scrub.value = Math.round((t / dur()) * 1000);
+    timeEl.textContent = fmt(t) + ' / ' + fmt(dur());
+    var c = cueAt(t);
+    caption.textContent = isBn() ? c.bn : c.en;
+    caption.hidden = !showCaptions;
+    var current = null;
+    chapterCues.forEach(function (cc) { if (cc.t <= t + 0.05) current = cc; });
+    chaptersEl.querySelectorAll('.tour-chapter').forEach(function (b, i) {
+      var on = chapterCues[i] === current;
+      b.classList.toggle('active', on);
+      if (on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+    });
+  };
+  var syncPlaying = function () {
+    var playing = !video.paused && !video.ended;
+    player.classList.toggle('is-playing', playing);
+    playBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+    bigPlay.setAttribute('aria-label', video.ended ? 'Replay tour video' : 'Play tour video');
+    player.classList.toggle('is-ended', video.ended);
+  };
+  var toggle = function () { if (video.paused || video.ended) video.play().catch(function () {}); else video.pause(); };
+
+  bigPlay.addEventListener('click', toggle);
+  playBtn.addEventListener('click', toggle);
+  video.addEventListener('click', toggle);
+  ['play', 'pause', 'ended'].forEach(function (ev) { video.addEventListener(ev, syncPlaying); });
+  video.addEventListener('timeupdate', render);
+  video.addEventListener('loadedmetadata', function () { renderMarks(); render(); });
+  scrub.addEventListener('input', function () { video.currentTime = (scrub.value / 1000) * dur(); render(); });
+  ccBtn.addEventListener('click', function () {
+    showCaptions = !showCaptions;
+    ccBtn.setAttribute('aria-pressed', String(showCaptions));
+    render();
+  });
+  fsBtn.addEventListener('click', function () {
+    var stage = player.querySelector('.tour-stage');
+    if (document.fullscreenElement) document.exitFullscreen().catch(function () {});
+    else if (stage.requestFullscreen) stage.requestFullscreen().catch(function () {});
+    else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+  });
+  // Pause whenever the player is hidden (other wizard step, wizard closed)
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting && !video.paused) video.pause();
+    }).observe(video);
   }
-  var fill = document.getElementById('aqua-video-progress-fill');
-  if (fill) fill.style.width = (window.__currentVideoSlide * 33.33) + '%';
-};
 
-window.advanceVideoSlide = function () {
-  if (window.__currentVideoSlide < 3) {
-    window.setVideoSlide(window.__currentVideoSlide + 1);
-  } else {
-    window.setAquaStep(4);
-  }
-};
-
-window.replayVideo = function () {
-  window.setVideoSlide(1);
-};
-
-window.skipVideo = function () {
-  window.setAquaStep(4);
+  video.__renderTour = function () { renderChapterLabels(); render(); };
+  renderChapterLabels(); renderMarks(); render();
+  return video;
 };
 
 window.startVideoPlayback = function () {
-  window.setVideoSlide(1);
+  var video = window.initTourPlayer();
+  if (!video) return;
+  if (video.ended) video.currentTime = 0;
+  video.__renderTour && video.__renderTour();
+  // Autoplay (muted, silent recording) unless the player asked for less motion
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduce) video.play().catch(function () {});
 };
+window.replayVideo = function () {
+  var video = window.initTourPlayer();
+  if (!video) return;
+  video.currentTime = 0;
+  video.play().catch(function () {});
+};
+window.skipVideo = function () {
+  window.setAquaStep(4);
+};
+document.addEventListener('DOMContentLoaded', function () { window.initTourPlayer(); });
 
 // Language Toggle (English <-> Bengali)
 window.toggleWizardLanguage = function () {
@@ -239,7 +363,8 @@ window.applyWizardLanguage = function (lang) {
   });
   var curAge = parseInt(localStorage.getItem('nasa_player_age'), 10) || 10;
   window.setCadetAge(curAge);
-  window.selectWizardBot(window.__selectedBotId || 'echo');
+  window.selectWizardBot(window.__selectedBotId || 'echo');  var tourVideo = document.getElementById('tour-video');
+  if (tourVideo && tourVideo.__renderTour) tourVideo.__renderTour();
 };
 
 // Direct Launch First Mission -> Opens Game Hub
@@ -302,93 +427,6 @@ window.dismissAquaSplash = function (e) {
 };
 window.startGame = window.dismissAquaSplash;
 window.handleStartGameClick = window.dismissAquaSplash;
-
-// Guided Homepage Tour Handlers (Section 8 & ৮)
-window.startHomepageTour = function () {
-  window.__currentTourStep = 1;
-  var tour = document.getElementById('aqua-tour-backdrop');
-  if (tour) {
-    tour.classList.add('active');
-    tour.style.display = 'flex';
-    window.renderTourStep(1);
-  }
-};
-
-window.closeHomepageTour = function () {
-  var tour = document.getElementById('aqua-tour-backdrop');
-  if (tour) {
-    tour.classList.remove('active');
-    tour.style.display = 'none';
-  }
-};
-
-window.nextTourStep = function () {
-  if (window.__currentTourStep < 4) {
-    window.__currentTourStep++;
-    window.renderTourStep(window.__currentTourStep);
-  } else {
-    window.closeHomepageTour();
-  }
-};
-
-window.prevTourStep = function () {
-  if (window.__currentTourStep > 1) {
-    window.__currentTourStep--;
-    window.renderTourStep(window.__currentTourStep);
-  }
-};
-
-window.renderTourStep = function (step) {
-  var isBn = window.__currentWizardLang === 'bn';
-  var titleEl = document.getElementById('aqua-tour-title');
-  var descEl = document.getElementById('aqua-tour-desc');
-  var numEl = document.getElementById('aqua-tour-step-num');
-  var nextBtn = document.getElementById('aqua-tour-next-btn');
-  var prevBtn = document.getElementById('aqua-tour-prev-btn');
-
-  if (numEl) numEl.innerText = step + ' / 4';
-  if (prevBtn) prevBtn.style.display = step > 1 ? 'inline-flex' : 'none';
-  if (nextBtn) {
-    if (step === 4) {
-      nextBtn.innerText = isBn ? 'অভিযান শুরু করো! 🚀' : 'Start Exploring! 🚀';
-    } else {
-      nextBtn.innerText = isBn ? 'পরবর্তী অংশ ➔' : 'Next Section ➔';
-    }
-  }
-
-  var tourData = [
-    {
-      titleEn: '1. Planetary Gateways 🪐',
-      titleBn: '১. গ্রহের প্রবেশদ্বার 🪐',
-      descEn: 'Choose your cosmic destination! Venture across lunar craters, navigate Martian valleys, or journey into Deep Space.',
-      descBn: 'তোমার পছন্দের মহাজাগতিক গন্তব্য বেছে নাও—চাঁদের জ্বালামুখী, মঙ্গলের লাল মাটি কিংবা গভীর মহাশূন্যে পাড়ি দাও!'
-    },
-    {
-      titleEn: '2. 3D Solar System & Orrery 🌌',
-      titleBn: '২. সৌরজগতের ৩D অরারি 🌌',
-      descEn: 'Inspect real-time 3D planetary orbits! Watch how worlds circle the Sun in accurate celestial mechanics.',
-      descBn: 'গ্রহগুলোর বাস্তবসম্মত ৩D কক্ষপথ পর্যবেক্ষণ করো এবং কীভাবে তারা সূর্যের চারদিকে ঘোরে তা দেখো!'
-    },
-    {
-      titleEn: '3. JPL Science & Telemetry Labs 🧪',
-      titleBn: '৩. নাসার সায়েন্স ল্যাব 🧪',
-      descEn: 'Calibrate real NASA instruments! Run rocket delta-v staging, decode hematite spectra, and analyze marsquakes.',
-      descBn: 'নাসার আসল যন্ত্রপাতি ব্যবহার করো—রকেট সমীকরণ সমাধান করো এবং মঙ্গল-কম্পন পরিমাপ করো!'
-    },
-    {
-      titleEn: '4. Cosmic Quizzes & Badges 🏆',
-      titleBn: '৪. কুইজ ও স্পেস ব্যাজ 🏆',
-      descEn: 'Test your space knowledge, climb the global cadet leaderboard, and unlock official NASA Space Apps Grand Master badges!',
-      descBn: 'মহাকাশ কুইজে অংশ নিয়ে লিডারবোর্ডে এগিয়ে যাও এবং গ্র্যান্ড মাস্টার ব্যাজ অর্জন করো!'
-    }
-  ];
-
-  var d = tourData[step - 1];
-  if (d) {
-    if (titleEl) titleEl.innerText = isBn ? d.titleBn : d.titleEn;
-    if (descEl) descEl.innerText = isBn ? d.descBn : d.descEn;
-  }
-};
 
 // NOTE: the Start button is wired ONLY by its inline onclick. It used to also get
 // click + pointerdown + touchend listeners here, so one tap ran dismissAquaSplash up
