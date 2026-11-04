@@ -1,0 +1,26 @@
+  <!-- POPUP MODAL: MISSIONS & DUAL ROADMAP DRAWER -->
+  <div class="modal-backdrop" id="missions-modal-backdrop">
+    <div class="modal-card wide-card">
+      <button class="modal-hdr-back-btn" id="btn-missions-back-to-hub" type="button"
+        onclick="document.getElementById('missions-modal-backdrop').classList.remove('active'); window.openGameHub();">⬅
+        Back to Hub</button>
+      <button class="modal-close-btn" id="missions-close-btn">✕</button>
+
+      <div class="modal-header">
+        <div class="modal-type-badge" id="lbl-missions-modal-badge">JUNIOR DEEP SPACE NETWORK ACADEMY</div>
+        <h2 class="modal-title" id="lbl-missions-modal-title">NASA Moon &amp; Mars Expedition Roadmaps</h2>
+        <div class="modal-abbrev" id="lbl-missions-modal-sub">Complete all quests across both worlds to earn the Grand
+          Master Certificate!</div>
+      </div>
+
+      <div class="modal-body scrollable-body">
+        <div class="missions-list" id="missions-list-container">
+          <!-- Dynamically Rendered by MissionQuestManager -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="modal-action-btn" id="missions-dismiss-btn">CONTINUE EXPLORING</button>
+      </div>
+    </div>
+  </div>

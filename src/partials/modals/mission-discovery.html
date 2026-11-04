@@ -1,0 +1,60 @@
+  <!-- POPUP MODAL: MISSION DISCOVERY & 3-STAR VICTORY CELEBRATION -->
+  <div class="modal-backdrop" id="mission-discovery-modal-backdrop">
+    <div class="modal-card celebration-card victory-celebration-card">
+      <button class="modal-close-btn" id="disc-close-btn">✕</button>
+
+      <div class="victory-stars-row" id="disc-stars-row">
+        <span class="star-icon star-1 glow">⭐</span>
+        <span class="star-icon star-2 glow big-star">⭐</span>
+        <span class="star-icon star-3 glow">⭐</span>
+      </div>
+
+      <div class="modal-header centered">
+        <div class="modal-type-badge glow-gold" id="disc-modal-badge">GREAT JOB! MISSION COMPLETED!</div>
+        <h2 class="modal-title" id="disc-modal-title">Ancient Water Detective</h2>
+        <p class="modal-desc" id="disc-modal-desc">You've successfully scanned and decoded the historical relic.</p>
+      </div>
+
+      <!-- Victory Score Breakdown -->
+      <div class="victory-score-breakdown">
+        <div class="score-chip xp-chip">
+          <span class="score-icon">⚡</span>
+          <span class="score-val" id="disc-modal-xp">+150 XP</span>
+          <span class="score-name">Experience</span>
+        </div>
+        <div class="score-chip dust-chip">
+          <span class="score-icon">🪙</span>
+          <span class="score-val" id="disc-modal-dust">+150</span>
+          <span class="score-name">Cosmic Dust</span>
+        </div>
+        <div class="score-chip gems-chip">
+          <span class="score-icon">💎</span>
+          <span class="score-val" id="disc-modal-gems">+2</span>
+          <span class="score-name">Telemetry Gems</span>
+        </div>
+      </div>
+
+      <div class="discovery-bot-speech">
+        <div class="dialogue-avatar" id="disc-modal-icon">🐱</div>
+        <div class="dialogue-text">
+          <strong>Junior Deep Space Network Log:</strong>
+          <p id="disc-modal-fact">"Hematite blueberries proved liquid water lakes existed on Mars billions of years
+            ago!"</p>
+        </div>
+      </div>
+
+      <div class="modal-footer modal-footer-dual centered">
+        <button class="modal-action-btn secondary-btn" id="disc-home-btn"
+          onclick="window.handleDiscoveryHomeClick?.()">
+          <span id="disc-home-btn-text">🏠 GO TO HOMEPAGE</span>
+        </button>
+        <button class="modal-action-btn glow-gold" id="disc-next-level-btn">
+          <span id="disc-next-btn-text">🚀 EXPLORE MORE MISSIONS ➔</span>
+        </button>
+        <button class="modal-action-btn secondary-btn" id="disc-quiz-btn" style="display: none;">
+          <span>📝 TEST KNOWLEDGE</span>
+        </button>
+        <button class="modal-action-btn" id="disc-dismiss-btn" style="display: none;">CONTINUE</button>
+      </div>
+    </div>
+  </div>

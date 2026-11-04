@@ -1,0 +1,55 @@
+  <!-- =========================================================================
+       MAGAZINE-STYLE EDITORIAL PRE-MISSION STORY MODAL
+       ========================================================================= -->
+  <div class="modal-backdrop" id="mission-story-modal">
+    <div class="modal-card wide-card story-editorial-card">
+      <button class="modal-hdr-back-btn" id="btn-story-modal-back-to-hub" type="button"
+        onclick="document.getElementById('mission-story-modal').classList.remove('active'); window.openGameHub();">⬅
+        Back to Hub</button>
+      <button class="modal-close-btn" id="story-modal-close-btn">✕</button>
+
+      <div class="story-article-header">
+        <div class="story-meta-tags-row">
+          <span class="story-badge-pill" id="story-article-badge">🌕 NASA HISTORICAL ARCHIVE</span>
+          <span class="story-read-time" id="story-article-readtime">3 MIN READ</span>
+        </div>
+        <h1 class="story-article-title" id="story-article-title">Why Apollo 11 Left Its Golden Base on the Lunar Dust
+        </h1>
+        <div class="story-byline-row">
+          <span class="story-author-icon">✍️</span>
+          <span class="story-author-name" id="story-article-author">NASA Historical Office • Neil A. Armstrong
+            Heritage</span>
+        </div>
+      </div>
+
+      <div class="modal-body scrollable-body story-article-body">
+        <div class="story-hero-image-wrap">
+          <img id="story-article-hero-img" src="./hero_astronaut_mars.jpg" alt="Mission Archival Hero"
+            class="story-hero-img">
+          <div class="story-image-caption" id="story-article-caption">Archival hardware resting in the cosmic dust.
+          </div>
+        </div>
+
+        <div class="story-summary-callout" id="story-article-summary">
+          <!-- Summary paragraph -->
+        </div>
+
+        <div class="story-paragraphs-container" id="story-article-paragraphs">
+          <!-- Formatted editorial story text -->
+        </div>
+
+        <div class="story-fast-facts-card" id="story-article-facts">
+          <!-- Fast Facts Grid -->
+        </div>
+      </div>
+
+      <div class="modal-footer modal-footer-dual centered">
+        <button class="modal-action-btn secondary-btn" id="story-btn-workbench">
+          <span>🔬 OPEN SCIENCE WORKBENCH</span>
+        </button>
+        <button class="modal-action-btn glow-gold" id="story-btn-launch-3d">
+          <span>🚀 LAUNCH 3D SIMULATION ➔</span>
+        </button>
+      </div>
+    </div>
+  </div>

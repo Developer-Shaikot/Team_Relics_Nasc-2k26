@@ -1,0 +1,84 @@
+  <!-- LEFT TELEMETRY HUD & TRANSPARENT RADAR MINIMAP -->
+  <aside class="left-telemetry-panel" id="telemetry-panel">
+    <div class="panel-header">
+      <div class="live-dot pulse"></div>
+      <span class="panel-title" id="lbl-pds-header">NASA LIVE TELEMETRY</span>
+      <span class="panel-tag" id="lbl-pds-tag">PDS ARCHIVE</span>
+    </div>
+
+    <!-- HUD TRANSPARENT RADAR MINI-MAP -->
+    <div class="hud-minimap-container" id="hud-minimap-container">
+      <div class="minimap-header">
+        <span class="minimap-title">📡 SURFACE RADAR MAP</span>
+        <span class="minimap-scale">50m Range</span>
+      </div>
+      <div class="minimap-radar-screen" id="minimap-radar-screen">
+        <div class="radar-grid-rings"></div>
+        <div class="radar-sweep-line"></div>
+        <div class="rover-minimap-blip" id="rover-minimap-blip">
+          <div class="rover-heading-arrow">▲</div>
+        </div>
+        <!-- Mission Waypoint Blips Rendered Dynamically -->
+        <div class="waypoint-minimap-blip pulse" id="waypoint-minimap-blip"></div>
+      </div>
+      <div class="minimap-footer">
+        <span id="minimap-coords-text">POS: 0.0, 0.0</span>
+      </div>
+    </div>
+
+    <div class="telemetry-grid">
+      <!-- Optical Depth Tau / Vacuum Pressure -->
+      <div class="telemetry-card" id="card-tau-telemetry">
+        <div class="card-label" id="lbl-tau-card">ATMOSPHERIC OPACITY (TAU)</div>
+        <div class="card-value-group">
+          <span class="card-value value-warn" id="hud-tau">1.2</span>
+          <span class="card-unit" id="hud-tau-unit">τ</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill fill-warn" id="hud-tau-bar" style="width: 12%;"></div>
+        </div>
+        <div class="card-subtext" id="hud-extinction">Nominal Clear Sky</div>
+      </div>
+
+      <!-- Solar / RTG Power Output -->
+      <div class="telemetry-card">
+        <div class="card-label" id="lbl-power-card">POWER GENERATION</div>
+        <div class="card-value-group">
+          <span class="card-value" id="hud-power">840</span>
+          <span class="card-unit" id="hud-power-unit">Wh / sol</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="hud-power-bar" style="width: 93%;"></div>
+        </div>
+        <div class="card-subtext" id="lbl-power-baseline">Nominal baseline: 900 Wh</div>
+      </div>
+
+      <!-- Battery Voltage / Light Delay -->
+      <div class="telemetry-card">
+        <div class="card-label" id="lbl-volt-card">BATTERY VOLTAGE</div>
+        <div class="card-value-group">
+          <span class="card-value" id="hud-voltage">32.4</span>
+          <span class="card-unit" id="hud-volt-unit">V</span>
+        </div>
+        <div class="card-subtext" id="lbl-volt-sub">Nominal Bus Range: 28-36 V</div>
+      </div>
+
+      <!-- Site Info -->
+      <div class="telemetry-card coordinates-card">
+        <div class="card-label" id="lbl-site-card">EXPLORATION SITE</div>
+        <div class="site-name" id="hud-site-name">Perseverance Valley, Endeavour Rim</div>
+        <div class="coords-line" id="hud-coords-line">LAT: 14.5714° S | LON: 354.6734° E</div>
+        <div class="odometer-badge" id="hud-odometer-badge">ODOMETER: 45.16 KM</div>
+      </div>
+    </div>
+
+    <!-- Fun Science Fact Box for Kids -->
+    <div class="fun-fact-card">
+      <div class="fact-header">
+        <span class="fact-title" id="fun-fact-title">✨ Fun Space Fact</span>
+        <button class="fact-next-btn" id="next-fact-btn" title="Next Fact">➔</button>
+      </div>
+      <p class="fact-body" id="fun-fact-text">Mars is red because its soil is full of iron oxide (rust), just like an
+        old bicycle in the rain!</p>
+    </div>
+  </aside>

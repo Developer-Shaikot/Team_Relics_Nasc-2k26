@@ -1,0 +1,54 @@
+  <!-- POPUP MODAL: EDUCATIONAL SCANNER / PAYLOAD DISCOVERY -->
+  <div class="modal-backdrop" id="scan-modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-card-glow"></div>
+      <button class="modal-close-btn" id="modal-close-btn">✕</button>
+
+      <div class="modal-header">
+        <div class="modal-type-badge" id="modal-type-badge">SUBSYSTEM RECOVERY</div>
+        <h2 class="modal-title" id="modal-title">Pancam (Panoramic Camera)</h2>
+        <div class="modal-abbrev" id="modal-abbrev">PMA-PANCAM</div>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-section">
+          <h3 id="lbl-modal-discovery-header">HISTORICAL DISCOVERY &amp; IMPACT</h3>
+          <p id="modal-discoveries">Captured over 100,000 multispectral panoramas...</p>
+        </div>
+
+        <div class="modal-specs-grid">
+          <div class="spec-item">
+            <span class="spec-k" id="lbl-spec-k1">Sensor / Wavelength:</span>
+            <span class="spec-v" id="modal-wavelengths">400 - 1000 nm</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-k" id="lbl-spec-k2">Resolution / Specs:</span>
+            <span class="spec-v" id="modal-resolution">1024 x 1024 px stereo</span>
+          </div>
+          <div class="spec-item full-width">
+            <span class="spec-k" id="lbl-spec-k3">Scientific Significance:</span>
+            <span class="spec-v" id="modal-significance">Primary sensory organ for geology.</span>
+          </div>
+        </div>
+
+        <!-- Audio Transmission Playback (For Blackbox) -->
+        <div class="blackbox-transmission-box" id="blackbox-audio-box" style="display: none;">
+          <div class="audio-wave-anim">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="transmission-text">
+            <strong id="lbl-blackbox-header">DECODED MER-B SOL 5111 TELEMETRY PACKET:</strong>
+            <p id="lbl-blackbox-msg">"Tau: 10.8. Array Voltage: 20.8V. Power: 22 Wh. Thermal threshold engaged.
+              Transmitting final housekeeping frame. Entering hibernation."</p>
+            <em id="lbl-blackbox-sub">— Final Telemetry from Perseverance Valley, June 10, 2018.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer modal-footer-dual">
+        <button class="modal-action-btn secondary-lab-btn" id="modal-open-lab-btn" style="display: none;">🔬 OPEN JPL
+          SCIENCE WORKBENCH ➔</button>
+        <button class="modal-action-btn" id="modal-dismiss-btn">CLOSE LOG</button>
+      </div>
+    </div>
+  </div>

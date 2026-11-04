@@ -1,0 +1,20 @@
+  <!-- POPUP MODAL: MULTI-TIER QUIZ & LEADERBOARD -->
+  <div class="modal-backdrop" id="quiz-modal-backdrop">
+    <div class="modal-card quiz-card">
+      <button class="modal-hdr-back-btn" id="btn-quiz-back-to-hub" type="button"
+        onclick="document.getElementById('quiz-modal-backdrop').classList.remove('active'); window.openGameHub();">⬅
+        Back to Hub</button>
+      <button class="modal-close-btn" id="quiz-close-btn">✕</button>
+
+      <div class="modal-header">
+        <div class="modal-type-badge">CADET ACADEMY CHALLENGE</div>
+        <h2 class="modal-title" id="lbl-quiz-title">Space Cadet Multi-Tier Quiz &amp; Ranks</h2>
+        <div class="modal-abbrev" id="lbl-quiz-sub">Select a difficulty layer, earn XP, and climb the Global
+          Leaderboard!</div>
+      </div>
+
+      <div class="modal-body" id="quiz-modal-container">
+        <!-- Rendered by QuizLeaderboardManager -->
+      </div>
+    </div>
+  </div>

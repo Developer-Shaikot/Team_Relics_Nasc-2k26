@@ -13,6 +13,11 @@ class MartianAudioSystem {
     this.noiseNode = null;
     this.droneOscillators = [];
     this.fluteTimers = [];
+    this.unlockInstalled = false;
+    this.gestureResumePending = false;
+    this.gestureResumeTimer = null;
+    this.unlockedByGestureAt = 0;
+    this.installUnlockListeners();
   }
 
   init() {
@@ -25,7 +30,15 @@ class MartianAudioSystem {
       this.masterGain = this.ctx.createGain();
       const initialGain = this.isMuted ? 0.0 : 0.6;
       this.masterGain.gain.setValueAtTime(initialGain, this.ctx.currentTime);
-      this.masterGain.connect(this.ctx.destination);
+      // Safety limiter: overlapping sounds can never sum past full scale and crackle/clip
+      this.limiter = this.ctx.createDynamicsCompressor();
+      this.limiter.threshold.setValueAtTime(-10, this.ctx.currentTime);
+      this.limiter.knee.setValueAtTime(6, this.ctx.currentTime);
+      this.limiter.ratio.setValueAtTime(12, this.ctx.currentTime);
+      this.limiter.attack.setValueAtTime(0.003, this.ctx.currentTime);
+      this.limiter.release.setValueAtTime(0.15, this.ctx.currentTime);
+      this.masterGain.connect(this.limiter);
+      this.limiter.connect(this.ctx.destination);
 
       // Wind Noise Generator (Brownian / Lowpass filtered pink noise)
       this.setupWindSystem();
@@ -34,21 +47,71 @@ class MartianAudioSystem {
       this.setupAmbientDrone();
 
       this.initialized = true;
+
+      // Let the UI know when the browser blocks / unblocks / suspends audio
+      this.ctx.addEventListener?.("statechange", () => this.emitState());
+      this.emitState();
     } catch (e) {
       console.warn("Web Audio API not supported or blocked", e);
     }
   }
 
+  // Lazily create the context and request a resume. Safe to call from anywhere;
+  // browsers only honour resume() during a real user gesture (click/key/touch),
+  // which the persistent unlock listeners below guarantee.
   ensureActive() {
     if (!this.initialized) {
       this.init();
     }
-    if (this.ctx && this.ctx.state === "suspended") {
-      this.ctx.resume();
+    if (!this.ctx) return false;
+    // Safari can report "interrupted" (e.g. after a call / tab switch), not just "suspended".
+    if (this.ctx.state !== "running" && this.ctx.state !== "closed") {
+      try {
+        const p = this.ctx.resume();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      } catch (e) {}
     }
-    if (!this.isMuted && this.masterGain && this.ctx) {
+    if (!this.isMuted && this.masterGain) {
       this.masterGain.gain.setTargetAtTime(0.6, this.ctx.currentTime, 0.1);
     }
+    return this.ctx.state === "running";
+  }
+
+  // True when a sound may be scheduled right now. While the context is blocked
+  // (no gesture yet), sounds are dropped instead of queuing up on a frozen clock
+  // and then all firing at once when audio unlocks.
+  canPlay() {
+    if (this.isMuted) return false;
+    this.ensureActive();
+    if (!this.ctx || !this.masterGain) return false;
+    return this.ctx.state === "running" || this.gestureResumePending;
+  }
+
+  // Persistent unlock: real activation events only (mouse movement / hover is NOT a
+  // user gesture and cannot start audio). Listeners stay installed for the whole
+  // session so audio recovers after the browser suspends it (tab switch, sleep,
+  // Bluetooth device change, iOS interruption).
+  installUnlockListeners() {
+    if (this.unlockInstalled || typeof window === "undefined") return;
+    this.unlockInstalled = true;
+
+    const onGesture = () => {
+      if (this.isMuted) return;
+      if (!this.initialized) this.init();
+      if (!this.ctx || this.ctx.state === "running" || this.ctx.state === "closed") return;
+      this.unlockedByGestureAt = performance.now();
+      this.resumeFromGesture();
+    };
+
+    ["pointerdown", "pointerup", "mousedown", "touchstart", "touchend", "click", "keydown"].forEach(evt => {
+      window.addEventListener(evt, onGesture, { capture: true, passive: true });
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && !this.isMuted && this.ctx && this.ctx.state !== "running") {
+        this.ensureActive();
+      }
+    });
   }
 
   setupWindSystem() {
@@ -104,14 +167,36 @@ class MartianAudioSystem {
     });
   }
 
+  // Call only inside a real user gesture: resumes the context and lets sounds
+  // triggered by this same gesture be scheduled while resume() is in flight.
+  resumeFromGesture() {
+    this.gestureResumePending = true;
+    clearTimeout(this.gestureResumeTimer);
+    this.gestureResumeTimer = setTimeout(() => { this.gestureResumePending = false; }, 600);
+    this.ensureActive();
+  }
+
+  // Audio is switched ON but the browser hasn't let it start yet (needs a click/tap/key)
+  isBlocked() {
+    return !this.isMuted && (!this.ctx || this.ctx.state !== "running");
+  }
+
+  emitState() {
+    try {
+      window.dispatchEvent(new CustomEvent("martianaudio:state", {
+        detail: { muted: this.isMuted, blocked: this.isBlocked() }
+      }));
+    } catch (e) {}
+  }
+
   toggleMute() {
     if (!this.initialized) {
       this.init();
     }
-    if (this.ctx && this.ctx.state === "suspended") {
-      this.ctx.resume();
-    }
     this.isMuted = !this.isMuted;
+    if (!this.isMuted) {
+      this.resumeFromGesture(); // toggle is always a click/tap
+    }
     if (this.isMuted) {
       this.stopFlute();
     }
@@ -119,7 +204,24 @@ class MartianAudioSystem {
       const targetGain = this.isMuted ? 0.0 : 0.6;
       this.masterGain.gain.setTargetAtTime(targetGain, this.ctx.currentTime, 0.15);
     }
+    this.emitState();
     return !this.isMuted;
+  }
+
+  // Audio-button handler: if audio is ON but the browser is still blocking it,
+  // the player's click means "give me sound" (unlock), never "turn it off".
+  unlockOrToggle() {
+    // pointerdown may already have unlocked audio before this click handler runs,
+    // so a click that is part of the unlocking gesture also counts as "unlock".
+    const unlockedJustNow = performance.now() - (this.unlockedByGestureAt || -1e9) < 1500;
+    if (this.isBlocked() || unlockedJustNow) {
+      this.unlockedByGestureAt = 0;
+      this.resumeFromGesture();
+      this.playUiConfirm();
+      this.emitState();
+      return true;
+    }
+    return this.toggleMute();
   }
 
   updateAtmosphereWind(tau) {
@@ -141,8 +243,78 @@ class MartianAudioSystem {
     this.playScannerBeep(false);
   }
 
+  // Short enveloped tone helper used by the UI cues below
+  playTone(freq, endFreq, duration, volume, type = "sine", delay = 0) {
+    if (!this.canPlay()) return;
+    try {
+      const start = this.ctx.currentTime + delay;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, start);
+      if (endFreq && endFreq !== freq) {
+        osc.frequency.exponentialRampToValueAtTime(endFreq, start + duration * 0.8);
+      }
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(start);
+      osc.stop(start + duration + 0.02);
+    } catch (e) {}
+  }
+
+  playUiClick() {
+    this.playTone(980, 720, 0.06, 0.12, "triangle");
+  }
+
+  playUiConfirm() {
+    this.playTone(660, 660, 0.09, 0.12, "sine");
+    this.playTone(990, 990, 0.14, 0.12, "sine", 0.08);
+  }
+
+  playUiAlert() {
+    this.playTone(880, 880, 0.12, 0.14, "square");
+    this.playTone(660, 660, 0.16, 0.14, "square", 0.14);
+  }
+
+  playThrusterPuff() {
+    if (!this.canPlay()) return;
+    try {
+      const now = this.ctx.currentTime;
+      const len = Math.floor(this.ctx.sampleRate * 0.18);
+      const buffer = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+      const src = this.ctx.createBufferSource();
+      src.buffer = buffer;
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(1800, now);
+      filter.frequency.exponentialRampToValueAtTime(500, now + 0.16);
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+      src.start(now);
+      src.stop(now + 0.18);
+    } catch (e) {}
+  }
+
+  // Returns false if `key` fired less than `ms` ago (stops sounds stacking on fast mouse moves)
+  rateLimit(key, ms) {
+    const t = performance.now();
+    this.lastPlayed = this.lastPlayed || {};
+    if (t - (this.lastPlayed[key] || 0) < ms) return false;
+    this.lastPlayed[key] = t;
+    return true;
+  }
+
   playUiHover() {
-    if (this.isMuted || !this.ctx) return;
+    if (!this.canPlay() || !this.rateLimit("hover", 90)) return;
     try {
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
@@ -150,17 +322,31 @@ class MartianAudioSystem {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(1320, now);
       osc.frequency.exponentialRampToValueAtTime(1760, now + 0.035);
-      gain.gain.setValueAtTime(0.035, now);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+      // Short attack ramp instead of jumping straight to full volume (that jump is an audible click)
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.05, now + 0.006);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
       osc.connect(gain);
       gain.connect(this.masterGain);
-      osc.start();
-      osc.stop(now + 0.045);
+      osc.start(now);
+      osc.stop(now + 0.07);
     } catch (e) {}
   }
 
+  // One soft signature chime when hovering a destination (Moon / Mars / Deep Space) card or planet.
+  // Replaces the harsh 5-burst square-wave telemetry that used to stack on every hover.
+  playPortalHover(dest = "mars") {
+    if (!this.rateLimit("portal-" + dest, 450) || !this.rateLimit("portal-any", 120)) return;
+    const notes = {
+      moon: [880, 1174.66],
+      mars: [659.25, 987.77],
+      deepspace: [523.25, 783.99, 1046.5],
+    }[dest] || [659.25, 987.77];
+    notes.forEach((f, i) => this.playTone(f, f, 0.22, 0.05, "sine", i * 0.07));
+  }
+
   playUiSwitch() {
-    if (this.isMuted || !this.ctx) return;
+    if (!this.canPlay()) return;
     try {
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
@@ -172,77 +358,83 @@ class MartianAudioSystem {
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
       osc.connect(gain);
       gain.connect(this.masterGain);
-      osc.start();
+      osc.start(now);
       osc.stop(now + 0.085);
     } catch (e) {}
   }
 
   playScannerBeep(highPitch = false) {
-    if (this.isMuted || !this.ctx) return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-
-    osc.type = "sine";
-    const freq = highPitch ? 1480 : 880;
-    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(freq * 1.5, this.ctx.currentTime + 0.12);
-
-    gain.gain.setValueAtTime(0.28, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
-
-    osc.connect(gain);
-    gain.connect(this.masterGain);
-
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.16);
-  }
-
-  playServoMotor() {
-    if (this.isMuted || !this.ctx) return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-
-    osc.type = "sawtooth";
-    osc.frequency.setValueAtTime(120, this.ctx.currentTime);
-    osc.frequency.linearRampToValueAtTime(190, this.ctx.currentTime + 0.25);
-
-    gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.28);
-
-    osc.connect(gain);
-    gain.connect(this.masterGain);
-
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.3);
-  }
-
-  playTelemetryTransmission() {
-    if (this.isMuted || !this.ctx) return;
-    const now = this.ctx.currentTime;
-    const freqs = [1200, 1500, 1800, 1350, 2100];
-
-    freqs.forEach((f, i) => {
+    if (!this.canPlay()) return;
+    try {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-      osc.type = "square";
-      osc.frequency.setValueAtTime(f, now + i * 0.08);
 
-      gain.gain.setValueAtTime(0.06, now + i * 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.06);
+      osc.type = "sine";
+      const freq = highPitch ? 1480 : 880;
+      const now = this.ctx.currentTime;
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.12);
+
+      gain.gain.setValueAtTime(0.28, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
 
       osc.connect(gain);
       gain.connect(this.masterGain);
 
-      osc.start(now + i * 0.08);
-      osc.stop(now + i * 0.08 + 0.07);
-    });
+      osc.start(now);
+      osc.stop(now + 0.16);
+    } catch (e) {}
+  }
+
+  playServoMotor() {
+    if (!this.canPlay()) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const now = this.ctx.currentTime;
+
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(120, now);
+      osc.frequency.linearRampToValueAtTime(190, now + 0.25);
+
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(now);
+      osc.stop(now + 0.3);
+    } catch (e) {}
+  }
+
+  playTelemetryTransmission() {
+    if (!this.canPlay()) return;
+    try {
+      const now = this.ctx.currentTime;
+      const freqs = [1200, 1500, 1800, 1350, 2100];
+
+      freqs.forEach((f, i) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "square";
+        osc.frequency.setValueAtTime(f, now + i * 0.08);
+
+        gain.gain.setValueAtTime(0.07, now + i * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.06);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now + i * 0.08);
+        osc.stop(now + i * 0.08 + 0.07);
+      });
+    } catch (e) {}
   }
 
   // Mission 1: Apollo 11 Ascent Stage Thruster & Pyrotechnic Staging Ignition
   playRocketIgnition(duration = 3.2) {
-    if (this.isMuted) return;
-    this.ensureActive();
-    if (!this.ctx || this.isMuted) return;
+    if (!this.canPlay()) return;
     const now = this.ctx.currentTime;
 
     // 1. Pyrotechnic staging bolt snap
@@ -292,9 +484,7 @@ class MartianAudioSystem {
 
   // Mission 2: Opportunity APXS Alpha Particle X-Ray Fluorescence Pulse
   playAPXSSpectrometerBeam() {
-    if (this.isMuted) return;
-    this.ensureActive();
-    if (!this.ctx || this.isMuted) return;
+    if (!this.canPlay()) return;
     const now = this.ctx.currentTime;
     const harmonicFreqs = [640, 706, 960, 1280, 1412, 1920];
     harmonicFreqs.forEach((f, idx) => {
@@ -316,9 +506,7 @@ class MartianAudioSystem {
 
   // Mission 3: NASA InSight Marsquake Acoustic Synthesizer (P-Wave + S-Wave Arrival)
   playMarsquakeWave() {
-    if (this.isMuted) return;
-    this.ensureActive();
-    if (!this.ctx || this.isMuted) return;
+    if (!this.canPlay()) return;
     const now = this.ctx.currentTime;
 
     // 1. Distant Meteoroid Impact Flash Thump (t = 0.0s)
@@ -389,9 +577,7 @@ class MartianAudioSystem {
 
   // Mission 4: Voyager 1 Golden Record South Asian / Chakma Bamboo Flute Melody
   playGoldenRecordFlute() {
-    if (this.isMuted) return;
-    this.ensureActive();
-    if (!this.ctx || this.isMuted) return;
+    if (!this.canPlay()) return;
 
     // Clear any running flute notes
     this.stopFlute();
@@ -426,7 +612,8 @@ class MartianAudioSystem {
 
         vibrato.frequency.setValueAtTime(5.2, now);
         vibGain.gain.setValueAtTime(4.5, now);
-        vibrato.connect(osc1.frequency);
+        vibrato.connect(vibGain);
+        vibGain.connect(osc1.frequency);
 
         const harmGain = this.ctx.createGain();
         harmGain.gain.setValueAtTime(0.12, now);
@@ -480,21 +667,23 @@ class MartianAudioSystem {
 
   // Expressive Character Voice Cadence Pip (Asha & Leo Comms)
   playVoiceCadence(actor = 'asha') {
-    if (this.isMuted || !this.ctx) return;
-    const now = this.ctx.currentTime;
-    const baseFreq = actor === 'asha' ? 540 : 420;
-    for (let i = 0; i < 3; i++) {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(baseFreq + (i % 2 === 0 ? 65 : -30), now + i * 0.065);
-      gain.gain.setValueAtTime(0.05, now + i * 0.065);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.065 + 0.05);
-      osc.connect(gain);
-      gain.connect(this.masterGain);
-      osc.start(now + i * 0.065);
-      osc.stop(now + i * 0.065 + 0.055);
-    }
+    if (!this.canPlay()) return;
+    try {
+      const now = this.ctx.currentTime;
+      const baseFreq = actor === 'asha' ? 540 : 420;
+      for (let i = 0; i < 3; i++) {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(baseFreq + (i % 2 === 0 ? 65 : -30), now + i * 0.065);
+        gain.gain.setValueAtTime(0.07, now + i * 0.065);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.065 + 0.05);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now + i * 0.065);
+        osc.stop(now + i * 0.065 + 0.055);
+      }
+    } catch (e) {}
   }
 }
 

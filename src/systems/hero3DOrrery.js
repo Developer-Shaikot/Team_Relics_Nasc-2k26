@@ -747,20 +747,29 @@ export class Hero3DOrrery {
   // INTERACTIVE CONTROLS: MOUSE PARALLAX, DRAG ROTATE & RAYCASTING
   // =========================================================================
 
-  setupEvents() {
-    const el = this.renderer.domElement;
-
-    this.resizeObserver = new ResizeObserver(() => {
-      if (!this.container) return;
-      this.width = this.container.clientWidth;
-      this.height = this.container.clientHeight;
+  onResize() {
+    if (!this.container) return;
+    const w = this.container.clientWidth || window.innerWidth;
+    const h = this.container.clientHeight || window.innerHeight;
+    if (w > 0 && h > 0) {
+      this.width = w;
+      this.height = h;
       if (this.camera && this.renderer) {
         this.camera.aspect = this.width / this.height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(this.width, this.height);
       }
+    }
+  }
+
+  setupEvents() {
+    const el = this.renderer.domElement;
+
+    this.resizeObserver = new ResizeObserver(() => {
+      this.onResize();
     });
     this.resizeObserver.observe(this.container);
+    window.addEventListener('resize', () => this.onResize(), { passive: true });
 
     // Global subtle mouse parallax over hero section
     window.addEventListener('pointermove', (e) => {
@@ -829,7 +838,11 @@ export class Hero3DOrrery {
       if (this.hoveredObject !== obj) {
         this.hoveredObject = obj;
         this.renderer.domElement.style.cursor = 'pointer';
-        martianAudio.playUiHover?.();
+        if (obj.userData?.dest) {
+          martianAudio.playPortalHover?.(obj.userData.dest);
+        } else {
+          martianAudio.playUiHover?.();
+        }
       }
     } else {
       if (this.hoveredObject) {
@@ -899,22 +912,28 @@ export class Hero3DOrrery {
     }, 4500);
   }
 
-  select3DPlanet(dest, clientX = window.innerWidth / 2, clientY = window.innerHeight / 2) {
+  // Camera-only preview (hover, hub open, idle reset): no sound, no confetti, no callback.
+  focusPlanet(dest) {
     this.activePlanet = dest;
-
     const preset = this.cameraPresets[dest] || this.cameraPresets.mars;
     this.targetCameraPos.copy(preset.pos);
     this.targetLookAt.copy(preset.lookAt);
     this.targetRotation.y = preset.groupRotY;
+  }
 
-    // Trigger visual sound effect
-    if (dest === 'mars') martianAudio.playTelemetryTransmission?.();
-    else if (dest === 'moon') martianAudio.playScannerBeep?.(false);
-    else martianAudio.playTelemetryTransmission?.();
-
-    // Inform parent system
-    if (typeof this.onSelectDestination === 'function') {
-      this.onSelectDestination(dest);
+  // Full selection (click on a planet / chip). `notify: false` when the caller is the
+  // parent's own setDestination, so the callback can't bounce back and recurse.
+  select3DPlanet(dest, clientX = window.innerWidth / 2, clientY = window.innerHeight / 2, { notify = true } = {}) {
+    if (this.isSelecting) return; // re-entry guard: parent callback -> select3DPlanet loop
+    this.isSelecting = true;
+    try {
+      this.focusPlanet(dest);
+      martianAudio.playPortalHover?.(dest);
+      if (notify && typeof this.onSelectDestination === 'function') {
+        this.onSelectDestination(dest);
+      }
+    } finally {
+      this.isSelecting = false;
     }
 
     try {

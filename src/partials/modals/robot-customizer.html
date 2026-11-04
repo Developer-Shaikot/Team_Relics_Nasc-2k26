@@ -1,0 +1,96 @@
+  <!-- POPUP MODAL: ROBO-BUDDY WORKSHOP (Cadet Companion) -->
+  <div class="modal-backdrop" id="robot-customizer-backdrop">
+    <div class="modal-card robot-modal-card">
+      <button class="modal-close-btn" id="robot-customizer-close">✕</button>
+
+      <div class="modal-header">
+        <div class="modal-type-badge">ROBO-BUDDY WORKSHOP</div>
+        <h2 class="modal-title">Customize Your Robot Companion</h2>
+        <div class="modal-abbrev">Personalize your friendly robot helper who explores with you and gives fun science hints!</div>
+      </div>
+
+      <div class="modal-body scrollable-body">
+        <div class="robot-customizer-layout">
+          <!-- Robot Live Preview -->
+          <div class="robot-preview-stage">
+            <div class="robot-preview-pod" id="robot-preview-pod">
+              <!-- Dynamically rendered SVG robot rig -->
+            </div>
+            <div class="robot-display-tag">
+              <span class="tag-label">CALLSIGN:</span>
+              <strong id="robot-display-name">ASTRO-BOT</strong>
+            </div>
+            <div class="robot-status-pill" id="robot-display-mode">🔬 SCIENCE GUIDE MODE</div>
+          </div>
+
+          <!-- Options Column -->
+          <div class="robot-options-col">
+            <!-- Name Input -->
+            <div class="custom-field">
+              <label class="custom-field-label">ROBOT CALLSIGN / NAME:</label>
+              <input type="text" class="custom-text-input" id="robot-name-input" value="ASTRO-BOT" maxlength="16"
+                placeholder="Enter robot name..." />
+            </div>
+
+            <!-- Chassis Color -->
+            <div class="custom-field">
+              <label class="custom-field-label">CHASSIS &amp; SENSOR HUE:</label>
+              <div class="color-palette-grid">
+                <button class="color-chip active" data-color="#00e5ff" data-name="Cyber Cyan"
+                  style="--chip-color: #00e5ff;">
+                  <span class="chip-dot"></span> Cyber Cyan
+                </button>
+                <button class="color-chip" data-color="#ffb700" data-name="Solar Gold" style="--chip-color: #ffb700;">
+                  <span class="chip-dot"></span> Solar Gold
+                </button>
+                <button class="color-chip" data-color="#ff5e28" data-name="Mars Crimson" style="--chip-color: #ff5e28;">
+                  <span class="chip-dot"></span> Mars Crimson
+                </button>
+                <button class="color-chip" data-color="#c084fc" data-name="Plasma Violet"
+                  style="--chip-color: #c084fc;">
+                  <span class="chip-dot"></span> Plasma Violet
+                </button>
+                <button class="color-chip" data-color="#10b981" data-name="Apollo Emerald"
+                  style="--chip-color: #10b981;">
+                  <span class="chip-dot"></span> Apollo Emerald
+                </button>
+              </div>
+            </div>
+
+            <!-- Protocol Mode -->
+            <div class="custom-field">
+              <label class="custom-field-label">ROBOT PERSONALITY &amp; HELP MODE:</label>
+              <div class="protocol-cards-grid">
+                <div class="protocol-card selected" data-protocol="science" role="button">
+                  <span class="protocol-icon">🔬</span>
+                  <div class="protocol-text">
+                    <strong>Science &amp; Physics Guide</strong>
+                    <small>Real-time physics hints for Delta-v, APXS &amp; Marsquake analysis</small>
+                  </div>
+                </div>
+                <div class="protocol-card" data-protocol="radar" role="button">
+                  <span class="protocol-icon">📡</span>
+                  <div class="protocol-text">
+                    <strong>LiDAR Radar Scanner</strong>
+                    <small>Auto-detects hidden spacecraft relics &amp; historical monuments</small>
+                  </div>
+                </div>
+                <div class="protocol-card" data-protocol="story" role="button">
+                  <span class="protocol-icon">📖</span>
+                  <div class="protocol-text">
+                    <strong>Story Chronicler</strong>
+                    <small>Narrates astronaut memories, final Sol 5111 logs &amp; Carl Sagan lore</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="modal-action-btn glow-gold" id="btn-save-robot-config">CONFIRM &amp; ENGAGE COMPANION BOT
+          ➔</button>
+      </div>
+    </div>
+  </div>

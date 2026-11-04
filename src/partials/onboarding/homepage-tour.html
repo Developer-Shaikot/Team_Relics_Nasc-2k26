@@ -1,0 +1,33 @@
+  <!-- =============================================================== -->
+  <!-- GUIDED HOMEPAGE TOUR OVERLAY (SECTION 8 & ৮)                   -->
+  <!-- =============================================================== -->
+  <div class="aqua-tour-backdrop" id="aqua-tour-backdrop" role="dialog" aria-modal="true">
+    <div class="aqua-tour-container">
+      <div class="aqua-tour-header">
+        <div class="aqua-tour-badge">
+          <span>🚀 JDSN SPACE STATION GUIDE</span>
+        </div>
+        <button class="aqua-tour-close-btn" onclick="window.closeHomepageTour()" aria-label="Skip Tour">✕</button>
+      </div>
+
+      <div class="aqua-tour-body">
+        <div class="aqua-tour-bot-avatar" id="aqua-tour-avatar">🤖</div>
+        <div class="aqua-tour-content">
+          <h3 id="aqua-tour-title">1. Planetary Gateways 🪐</h3>
+          <p id="aqua-tour-desc">Choose your cosmic destination! Venture across lunar craters, navigate Martian valleys,
+            or journey into Deep Space.</p>
+        </div>
+      </div>
+
+      <div class="aqua-tour-footer">
+        <span class="aqua-tour-step-indicator" id="aqua-tour-step-num">1 / 4</span>
+        <div class="aqua-tour-btns">
+          <button type="button" class="aqua-video-btn" id="aqua-tour-prev-btn" onclick="window.prevTourStep()"
+            style="display: none;">⬅ Previous</button>
+          <button type="button" class="aqua-video-btn" onclick="window.closeHomepageTour()">Skip Tour ✕</button>
+          <button type="button" class="aqua-btn-primary glow" id="aqua-tour-next-btn"
+            onclick="window.nextTourStep()">Next Section ➔</button>
+        </div>
+      </div>
+    </div>
+  </div>

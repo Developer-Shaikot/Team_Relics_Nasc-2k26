@@ -1,0 +1,72 @@
+        <!-- STEP 1: FIRST-TIME WELCOME EXPERIENCE & CADET PROFILE -->
+        <div class="aqua-step-panel active" id="aqua-step-1-panel">
+          <div class="aqua-story-banner">
+            <div class="aqua-story-tag" data-i18n-en="FIRST CONTACT • WELCOME CADET"
+              data-i18n-bn="প্রথম প্রবেশ • স্বাগতম ক্যাডেট">FIRST CONTACT • WELCOME CADET</div>
+            <h2 class="aqua-panel-title" id="aqua-wizard-title" data-i18n-en="Hey, Space Explorer! 🚀"
+              data-i18n-bn="এই যে, মহাকাশ অভিযাত্রী! 🚀">Hey, Space Explorer! 🚀</h2>
+            <p class="aqua-panel-subtitle"
+              data-i18n-en="Ready for an adventure beyond Earth? We've got an exciting mission waiting for you. Let's explore!"
+              data-i18n-bn="পৃথিবীর বাইরে এক দারুণ অভিযানে যেতে প্রস্তুত? তোমার জন্য অপেক্ষা করছে এক মজার মিশন। চলো, শুরু করা যাক!">
+              Ready for an adventure beyond Earth? We've got an exciting mission waiting for you. Let's explore!</p>
+          </div>
+
+          <!-- Name Input -->
+          <div class="aqua-cadet-input-group">
+            <label for="aqua-cadet-name-input" class="aqua-input-label" data-i18n-en="NAME: WHAT SHOULD WE CALL YOU?"
+              data-i18n-bn="নাম: তোমাকে কী নামে ডাকব?">NAME: WHAT SHOULD WE CALL YOU?</label>
+            <div class="aqua-input-wrapper">
+              <span class="input-icon">🧑‍🚀</span>
+              <input type="text" id="aqua-cadet-name-input" class="aqua-text-input"
+                placeholder="Enter your explorer name..." data-i18n-placeholder-en="Enter your explorer name..."
+                data-i18n-placeholder-bn="তোমার নাম লেখো..." maxlength="24" value="Cadet Explorer" />
+            </div>
+          </div>
+
+          <!-- Age Selector (Ages 6 to 16) -->
+          <div class="aqua-age-section">
+            <div class="aqua-age-label-row">
+              <label class="aqua-input-label" data-i18n-en="AGE: HOW OLD ARE YOU? (AGES 6 TO 16)"
+                data-i18n-bn="বয়স: তোমার বয়স কত? (৬ থেকে ১৬ বছর)">AGE: HOW OLD ARE YOU? (AGES 6 TO 16)</label>
+            </div>
+
+            <div class="aqua-age-selector-row">
+              <button type="button" class="aqua-age-pill" data-age="6" onclick="window.setCadetAge(6)">6</button>
+              <button type="button" class="aqua-age-pill" data-age="7" onclick="window.setCadetAge(7)">7</button>
+              <button type="button" class="aqua-age-pill" data-age="8" onclick="window.setCadetAge(8)">8</button>
+              <button type="button" class="aqua-age-pill" data-age="9" onclick="window.setCadetAge(9)">9</button>
+              <button type="button" class="aqua-age-pill active" data-age="10"
+                onclick="window.setCadetAge(10)">10</button>
+              <button type="button" class="aqua-age-pill" data-age="11" onclick="window.setCadetAge(11)">11</button>
+              <button type="button" class="aqua-age-pill" data-age="12" onclick="window.setCadetAge(12)">12</button>
+              <button type="button" class="aqua-age-pill" data-age="13" onclick="window.setCadetAge(13)">13</button>
+              <button type="button" class="aqua-age-pill" data-age="14" onclick="window.setCadetAge(14)">14</button>
+              <button type="button" class="aqua-age-pill" data-age="15" onclick="window.setCadetAge(15)">15</button>
+              <button type="button" class="aqua-age-pill" data-age="16" onclick="window.setCadetAge(16)">16</button>
+            </div>
+
+            <!-- Age Adaptive Profile Badge -->
+            <div class="aqua-age-profile-badge" id="aqua-age-profile-badge">
+              <span class="aqua-age-profile-icon">🌟</span>
+              <div class="aqua-age-profile-text">
+                <h4 id="aqua-age-profile-title">🌟 Junior Explorer (Ages 6–10)</h4>
+                <p id="aqua-age-profile-desc">Visual hints, friendly bot guidance &amp; easy rover controls!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="aqua-panel-footer">
+            <button class="aqua-btn-secondary" id="btn-aqua-step1-profiles" type="button"
+              onclick="window.profileManager?.openProfileSwitcherModal();" style="display: inline-flex;">
+              <span data-i18n-en="⬅ All Profiles" data-i18n-bn="⬅ সকল প্রোফাইল">⬅ All Profiles</span>
+            </button>
+            <button class="aqua-btn-secondary" id="btn-aqua-skip-to-bots" type="button" onclick="window.setAquaStep(4)">
+              <span data-i18n-en="Skip to Meet Bots ➔" data-i18n-bn="সরাসরি বট বেছে নাও ➔">Skip to Meet Bots ➔</span>
+            </button>
+            <button class="aqua-btn-primary glow" id="btn-aqua-step1-next" type="button"
+              onclick="window.setAquaStep(2)">
+              <span data-i18n-en="Next: The Mission Story ➔" data-i18n-bn="পরবর্তী: অভিযানের গল্প ➔">Next: The Mission
+                Story ➔</span>
+            </button>
+          </div>
+        </div>

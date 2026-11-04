@@ -1,0 +1,96 @@
+        <!-- STEP 4: INTRODUCE THE BOTS (SELECT PREDEFINED MISSION BUDDY) -->
+        <div class="aqua-step-panel" id="aqua-step-4-panel">
+          <div class="aqua-story-banner compact">
+            <div class="aqua-story-tag" data-i18n-en="STEP 4 • SELECT COMPANION BOT"
+              data-i18n-bn="ধাপ ৪ • মিশন সঙ্গী বট নির্বাচন">STEP 4 • SELECT COMPANION BOT</div>
+            <h2 class="aqua-panel-title" data-i18n-en="Every Space Explorer Needs a Partner! 🤖"
+              data-i18n-bn="প্রতিটি মহাকাশ অভিযাত্রীর একজন সঙ্গী প্রয়োজন! 🤖">Every Space Explorer Needs a Partner! 🤖
+            </h2>
+            <p class="aqua-panel-subtitle"
+              data-i18n-en="Meet your new mission buddies. Choose one to join your adventure! Predefined bot guides will assist you every step of the way."
+              data-i18n-bn="তোমার নতুন Mission Buddy-দের সঙ্গে পরিচিত হও। তোমার অভিযানের জন্য একজনকে বেছে নাও! নির্ধারিত বট পুরো মিশনে তোমাকে পথ দেখাবে।">
+              Meet your new mission buddies. Choose one to join your adventure! Predefined bot guides will assist you
+              every step of the way.</p>
+          </div>
+
+          <!-- 3 Predefined Bot Cards -->
+          <div class="aqua-bots-grid">
+            <!-- Bot 1: Echo -->
+            <div class="aqua-bot-card active" id="aqua-bot-card-echo" data-bot="echo" role="button" tabindex="0"
+              onclick="window.selectWizardBot('echo')">
+              <span class="aqua-bot-badge">SCIENCE &amp; RADAR</span>
+              <div class="aqua-bot-avatar-box">
+                <span class="aqua-bot-avatar">🤖</span>
+              </div>
+              <h3 class="aqua-bot-name">ASTRO-BOT "ECHO"</h3>
+              <p class="aqua-bot-role" data-i18n-en="Lead Science &amp; Telemetry Specialist"
+                data-i18n-bn="বিজ্ঞান ও টেলিম্যাট্রি বিশেষজ্ঞ">Lead Science &amp; Telemetry Specialist</p>
+              <div class="aqua-bot-quote"
+                data-i18n-en="&quot;Beep-boop! I'm Echo! My long-range LiDAR radar will spot lost relics from kilometers away!&quot;"
+                data-i18n-bn="&quot;বিপ-বুপ! আমি ইকো! আমার ডুয়েল লিডার রাডার দিয়ে বহু দূর থেকেই হারিয়ে যাওয়া যন্ত্র খুঁজে বের করব!&quot;">
+                "Beep-boop! I'm Echo! My long-range LiDAR radar will spot lost relics from kilometers away!"
+              </div>
+              <span class="aqua-bot-perk">📡 +50% LiDAR Scan Range</span>
+              <div class="aqua-bot-indicator" id="aqua-bot-ind-echo">✓ SELECTED BUDDY</div>
+            </div>
+
+            <!-- Bot 2: Nova -->
+            <div class="aqua-bot-card" id="aqua-bot-card-nova" data-bot="nova" role="button" tabindex="0"
+              onclick="window.selectWizardBot('nova')">
+              <span class="aqua-bot-badge"
+                style="color: #a855f7; border-color: rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.1);">AGILE
+                SCOUT</span>
+              <div class="aqua-bot-avatar-box"
+                style="background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%);">
+                <span class="aqua-bot-avatar">🐱</span>
+              </div>
+              <h3 class="aqua-bot-name">CYBER-KITTY "NOVA"</h3>
+              <p class="aqua-bot-role" style="color: #c084fc;" data-i18n-en="Fast Rover Scout &amp; Mineral Detector"
+                data-i18n-bn="চটপটে স্কাউট ও খনিজ শনাক্তকারী">Fast Rover Scout &amp; Mineral Detector</p>
+              <div class="aqua-bot-quote" style="border-left-color: #a855f7;"
+                data-i18n-en="&quot;Purr-fect! I'm Nova! I can dart across rocky craters and sniff out magnetic mineral dust!&quot;"
+                data-i18n-bn="&quot;মিয়াও! আমি নোভা! আমি পাথুরে গর্তের ওপর দিয়ে উড়ে গিয়ে খনিজের সন্ধান দেব!&quot;">
+                "Purr-fect! I'm Nova! I can dart across rocky craters and sniff out magnetic mineral dust!"
+              </div>
+              <span class="aqua-bot-perk"
+                style="color: #c084fc; border-color: rgba(168, 85, 247, 0.3); background: rgba(168, 85, 247, 0.1);">⚡
+                +40% Speed &amp; Coin Magnet</span>
+              <div class="aqua-bot-indicator" id="aqua-bot-ind-nova">CHOOSE THIS BOT</div>
+            </div>
+
+            <!-- Bot 3: Orion -->
+            <div class="aqua-bot-card" id="aqua-bot-card-orion" data-bot="orion" role="button" tabindex="0"
+              onclick="window.selectWizardBot('orion')">
+              <span class="aqua-bot-badge"
+                style="color: #10b981; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1);">TERRAIN
+                GUARDIAN</span>
+              <div class="aqua-bot-avatar-box"
+                style="background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);">
+                <span class="aqua-bot-avatar">🛸</span>
+              </div>
+              <h3 class="aqua-bot-name">ROVER-DRONE "ORION"</h3>
+              <p class="aqua-bot-role" style="color: #34d399;" data-i18n-en="Hazard Radar &amp; Storm Navigator"
+                data-i18n-bn="ধূলিঝড় রাডার ও ভূখণ্ড রক্ষক">Hazard Radar &amp; Storm Navigator</p>
+              <div class="aqua-bot-quote" style="border-left-color: #10b981;"
+                data-i18n-en="&quot;All systems green! I'm Orion! No Martian dust storm or steep crater can stop our expedition!&quot;"
+                data-i18n-bn="&quot;সব সিস্টেম প্রস্তুত! আমি ওরিয়ন! ধূলিঝড় বা দুর্গম পাহাড়েও আমি তোমার সুরক্ষা দেব!&quot;">
+                "All systems green! I'm Orion! No Martian dust storm or steep crater can stop our expedition!"
+              </div>
+              <span class="aqua-bot-perk"
+                style="color: #34d399; border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1);">🛡️
+                +35% Storm Stability &amp; Armor</span>
+              <div class="aqua-bot-indicator" id="aqua-bot-ind-orion">CHOOSE THIS BOT</div>
+            </div>
+          </div>
+
+          <div class="aqua-panel-footer">
+            <button class="aqua-btn-secondary" id="btn-aqua-step4-back" type="button" onclick="window.setAquaStep(3)">
+              <span data-i18n-en="⬅ Back to Video" data-i18n-bn="⬅ ভিডিওতে ফিরে যাও">⬅ Back to Video</span>
+            </button>
+            <button class="aqua-btn-primary glow launch-first-btn" id="btn-aqua-step4-to-hub" type="button"
+              onclick="window.completeOnboardingToHub ? window.completeOnboardingToHub() : window.openGameHub()">
+              <span data-i18n-en="🚀 Enter Mission Control Hub ➔" data-i18n-bn="🚀 মিশন কন্ট্রোল হাবে প্রবেশ করো ➔">🚀
+                Enter Mission Control Hub ➔</span>
+            </button>
+          </div>
+        </div>

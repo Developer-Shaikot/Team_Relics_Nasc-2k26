@@ -1,0 +1,26 @@
+  <!-- POPUP MODAL: LEVEL-WISE BADGES SHOWCASE -->
+  <div class="modal-backdrop" id="badges-modal-backdrop">
+    <div class="modal-card wide-card">
+      <button class="modal-hdr-back-btn" id="btn-badges-back-to-hub" type="button"
+        onclick="document.getElementById('badges-modal-backdrop').classList.remove('active'); window.openGameHub();">⬅
+        Back to Hub</button>
+      <button class="modal-close-btn" id="badges-close-btn">✕</button>
+
+      <div class="modal-header">
+        <div class="modal-type-badge">ACADEMY TROPHY ROOM</div>
+        <h2 class="modal-title" id="lbl-badges-modal-title">Level-Wise Badges &amp; Accomplishments</h2>
+        <div class="modal-abbrev" id="lbl-badges-modal-sub">Unlock badges by gaining XP, solving JPL Science Labs, and
+          completing planetary quests!</div>
+      </div>
+
+      <div class="modal-body scrollable-body">
+        <div id="badges-showcase-container">
+          <!-- Dynamically Rendered by MissionQuestManager -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="modal-action-btn" id="badges-dismiss-btn">CLOSE SHOWCASE</button>
+      </div>
+    </div>
+  </div>

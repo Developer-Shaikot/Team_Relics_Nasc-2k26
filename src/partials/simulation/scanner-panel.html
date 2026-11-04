@@ -1,0 +1,71 @@
+  <!-- RIGHT SCANNER & MISSION QUICK HUD -->
+  <aside class="right-scanner-panel" id="scanner-panel">
+    <div class="panel-header">
+      <span class="panel-title" id="lbl-scanner-header">ARCHAEOLOGIST SCANNER</span>
+      <span class="panel-tag cyan-glow">LiDAR READY</span>
+    </div>
+
+    <div class="scanner-instruction">
+      <div class="scanner-icon-anim">🎯</div>
+      <p id="lbl-scanner-instruction">Click on any <strong>Spacecraft Subsystem</strong>, <strong>Relic Beacon</strong>,
+        or launch a <strong>JPL Science Lab</strong> below!</p>
+    </div>
+
+    <!-- Quick Flagship JPL Science Lab Launchers -->
+    <div class="flagship-labs-quick-box">
+      <div class="flq-title">🧪 4 FLAGSHIP JPL SCIENCE LABS</div>
+      <div class="flq-grid">
+        <button class="flq-btn" data-open-mg="apollo11" title="Mission 1: Tsiolkovsky Rocket Equation Lab">
+          <span>🌕</span> Apollo 11 Δv
+        </button>
+        <button class="flq-btn" data-open-mg="opportunity" title="Mission 2: APXS X-Ray Spectrometer Lab">
+          <span>🔴</span> Oppy APXS
+        </button>
+        <button class="flq-btn" data-open-mg="insight" title="Mission 3: InSight Marsquake Seismology Lab">
+          <span>💓</span> InSight SEIS
+        </button>
+        <button class="flq-btn" data-open-mg="voyager1" title="Mission 4: Voyager 1 RTG & Golden Record Lab">
+          <span>💿</span> Voyager 1
+        </button>
+      </div>
+    </div>
+
+    <div class="subsystem-quick-list" id="subsystem-quick-list">
+      <div class="subsystem-item" data-scan="pancam">
+        <span class="sub-dot"></span>
+        <span class="sub-name" id="lbl-scan-pancam">Pancam (Multispectral Camera)</span>
+      </div>
+      <div class="subsystem-item" data-scan="hematite_blueberries">
+        <span class="sub-dot"></span>
+        <span class="sub-name">APXS &amp; Hematite Blueberries</span>
+      </div>
+      <div class="subsystem-item" data-scan="insight_lander">
+        <span class="sub-dot"></span>
+        <span class="sub-name">InSight SEIS Seismometer Dome</span>
+      </div>
+      <div class="subsystem-item" data-scan="rat">
+        <span class="sub-dot"></span>
+        <span class="sub-name" id="lbl-scan-rat">RAT (Diamond Rock Grinder)</span>
+      </div>
+      <div class="subsystem-item" data-scan="solar_array">
+        <span class="sub-dot"></span>
+        <span class="sub-name" id="lbl-scan-solar">Solar Panels &amp; Dust Coating</span>
+      </div>
+      <div class="subsystem-item highlight-cyan" data-scan="blackbox_core">
+        <span class="sub-dot cyan"></span>
+        <span class="sub-name" id="lbl-scan-blackbox">Blackbox Solid-State Core</span>
+      </div>
+    </div>
+
+    <!-- Quick Missions Progress Widget -->
+    <div class="missions-summary-box" id="quick-missions-box">
+      <div class="msb-header">
+        <span class="msb-title" id="lbl-msb-title">MISSION PROGRESS</span>
+        <span class="msb-count" id="badges-earned-counter">0 / 6</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="missions-progress-bar" style="width: 0%;"></div>
+      </div>
+      <button class="open-missions-sheet-btn" id="open-sheet-btn">View Full Roadmap ➔</button>
+    </div>
+  </aside>

@@ -1,0 +1,167 @@
+    <!-- COLLAPSIBLE LEFT DRAWER SIDEBAR & BACKDROP OVERLAY -->
+    <div class="hub-drawer-backdrop" id="hub-drawer-backdrop"></div>
+    <aside class="hub-drawer-sidebar" id="hub-drawer-sidebar" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-brand">
+          <span class="drawer-logo-icon">🛰️</span>
+          <div>
+            <h2 class="drawer-title">MISSION OPERATIONS</h2>
+            <span class="drawer-subtitle">Junior Deep Space Network</span>
+          </div>
+        </div>
+        <button class="drawer-close-btn" id="btn-close-hub-sidebar" title="Close Menu (Esc)">✕</button>
+      </div>
+
+      <!-- Cadet Profile Card inside Drawer -->
+      <div class="drawer-cadet-card">
+        <div class="drawer-cadet-avatar" id="drawer-cadet-avatar">🧑‍🚀</div>
+        <div class="drawer-cadet-info">
+          <strong class="drawer-cadet-name" id="drawer-cadet-name-display">Cadet Explorer</strong>
+          <span class="drawer-cadet-rank" id="drawer-cadet-rank-display">LVL 1 Space Cadet</span>
+          <div class="drawer-cadet-stats">
+            <span>🪙 <strong id="drawer-dust-val">1,000</strong> Dust</span>
+            <span>💎 <strong id="drawer-gems-val">10</strong> Gems</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cadet Customizer Deck inside Drawer -->
+      <div class="drawer-customizer-box">
+        <div class="drawer-custom-row">
+          <label class="drawer-field-label" for="drawer-callsign-input">CALL SIGN / NAME:</label>
+          <div class="drawer-callsign-wrap">
+            <input type="text" id="drawer-callsign-input" class="drawer-callsign-field" placeholder="Enter Call Sign..."
+              maxlength="18" value="CADET EXPLORER">
+            <button type="button" class="drawer-random-btn" id="btn-drawer-random-callsign"
+              title="Randomize Call Sign">🎲</button>
+          </div>
+        </div>
+
+        <div class="drawer-custom-row">
+          <span class="drawer-field-label">MISSION COMMANDER:</span>
+          <div class="drawer-commander-btns">
+            <button class="drawer-cmd-btn active" id="drawer-cmd-asha" data-character="asha" type="button">
+              <span>👩‍🚀</span> ASHA
+            </button>
+            <button class="drawer-cmd-btn" id="drawer-cmd-leo" data-character="leo" type="button">
+              <span>👨‍🚀</span> LEO
+            </button>
+          </div>
+        </div>
+
+        <div class="drawer-custom-row">
+          <span class="drawer-field-label">COMPANION DRONE:</span>
+          <button class="drawer-kitty-trigger" id="btn-drawer-open-kitty" type="button">
+            <span>🐱</span>
+            <strong id="drawer-kitty-name-label">ASTRO-BOT</strong>
+            <span class="drawer-kitty-dot" id="drawer-kitty-dot" style="background: #00e5ff;"></span>
+            <small>CHANGE ▾</small>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="drawer-nav-list">
+        <button class="drawer-nav-item" id="drawer-nav-logout" type="button"
+          onclick="window.closeDrawerSidebar?.(); window.profileManager?.logout();">
+          <span class="d-icon">🚪</span>
+          <div class="d-text-col">
+            <span class="d-label">Switch Cadet / Log Out</span>
+            <span class="d-sub">Manage Cadet Profiles &amp; Achievements</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item active" id="drawer-nav-home">
+          <span class="d-icon">🏠</span>
+          <div class="d-text-col">
+            <span class="d-label">Mission Control Hub</span>
+            <span class="d-sub">Planetary Staging &amp; 3D Orrery</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item highlight-gold" id="drawer-nav-prologue">
+          <span class="d-icon">🎭</span>
+          <div class="d-text-col">
+            <span class="d-label">The Dream Project: Asha &amp; Leo</span>
+            <span class="d-sub">Rooftop Dhaka to KSC Florida</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-portal-moon">
+          <span class="d-icon">🌕</span>
+          <div class="d-text-col">
+            <span class="d-label">Explore the Moon</span>
+            <span class="d-sub">Tranquility Base &amp; Apollo 11</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-portal-mars">
+          <span class="d-icon">🔴</span>
+          <div class="d-text-col">
+            <span class="d-label">Explore Mars</span>
+            <span class="d-sub">Opportunity &amp; InSight Seismology</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-calendar">
+          <span class="d-icon">📅</span>
+          <div class="d-text-col">
+            <span class="d-label">Space Calendar</span>
+            <span class="d-sub">Landmark Dates &amp; Sol Logs</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-archive">
+          <span class="d-icon">📰</span>
+          <div class="d-text-col">
+            <span class="d-label">Mission Archive</span>
+            <span class="d-sub">Historical Hardware Relics</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-labs">
+          <span class="d-icon">🧪</span>
+          <div class="d-text-col">
+            <span class="d-label">4 JPL Science Labs</span>
+            <span class="d-sub">Delta-v, APXS, Seis &amp; Voyager</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-quiz">
+          <span class="d-icon">🏆</span>
+          <div class="d-text-col">
+            <span class="d-label">Cadet Quiz &amp; Leaderboard</span>
+            <span class="d-sub">Tiered Quizzes &amp; Top 50</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-badges">
+          <span class="d-icon">🏅</span>
+          <div class="d-text-col">
+            <span class="d-label">Badges Showcase</span>
+            <span class="d-sub">Trophies &amp; NASA Certificate</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-roadmap">
+          <span class="d-icon">🗺️</span>
+          <div class="d-text-col">
+            <span class="d-label">Expedition Roadmaps</span>
+            <span class="d-sub">12 Level Quest Progression</span>
+          </div>
+        </button>
+
+        <button class="drawer-nav-item" id="drawer-nav-pitch">
+          <span class="d-icon">⚡</span>
+          <div class="d-text-col">
+            <span class="d-label">120s Pitch Mode</span>
+            <span class="d-sub">NASA Space Apps Demo Reel</span>
+          </div>
+        </button>
+      </nav>
+
+      <div class="drawer-footer">
+        <span class="drawer-footer-badge">NASA SPACE APPS 2026</span>
+        <small class="drawer-footer-meta">Junior Deep Space Network</small>
+      </div>
+    </aside>

@@ -1,0 +1,64 @@
+  <!-- BOTTOM CONTROL DOCK (Clean Multi-Row Structured Layout) -->
+  <footer class="bottom-dock" id="bottom-dock">
+    <!-- Row 1: Camera Controls & Celestial World Switcher -->
+    <div class="dock-row dock-row-primary">
+      <div class="camera-controls-group">
+        <span class="dock-label">📷 CAM:</span>
+        <button class="cam-btn active" id="cam-orbit">360° Orbit</button>
+        <button class="cam-btn" id="cam-pancam">Pancam FPP</button>
+        <button class="cam-btn" id="cam-top">Top View</button>
+        <button class="cam-btn" id="cam-surface">Ground View</button>
+      </div>
+
+      <div class="world-switcher-pills">
+        <span class="dock-label">🌍 WORLD:</span>
+        <button class="world-switch-pill" id="pill-world-moon" data-world="moon">🌕 Moon (Apollo 11)</button>
+        <button class="world-switch-pill active" id="pill-world-mars" data-world="mars">🔴 Mars (Oppy &amp;
+          InSight)</button>
+        <button class="world-switch-pill" id="pill-world-deepspace" data-world="deepspace">🌌 Deep Space (Voyager
+          1)</button>
+      </div>
+
+      <div class="active-world-badge-group">
+        <span class="active-world-pill" id="active-world-pill">🔴 Mars: Perseverance Valley</span>
+      </div>
+    </div>
+
+    <!-- Row 2: Sliders & Driving D-Pad -->
+    <div class="dock-row dock-row-secondary">
+      <!-- Interactive Sol / Tau Slider -->
+      <div class="slider-control-group" id="sol-slider-container">
+        <div class="slider-label-row">
+          <span id="lbl-sol-slider-title">TIMELINE:</span>
+          <strong id="current-sol-display">SOL 5111 (Final Transmission)</strong>
+        </div>
+        <div class="slider-input-row">
+          <button class="dock-action-btn" id="play-sol-timeline">▶ Play Storm</button>
+          <input type="range" id="sol-range-input" min="0" max="8" value="8" step="1" />
+          <button class="dock-action-btn" id="reset-rover-pos">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- Manual Optical Opacity (Tau) Slider -->
+      <div class="slider-control-group" id="tau-slider-container">
+        <div class="slider-label-row">
+          <span id="lbl-tau-slider-title">OPTICAL TAU (τ):</span>
+          <strong id="tau-val-display">1.2 (Nominal Clear)</strong>
+        </div>
+        <input type="range" id="tau-range-input" min="0.4" max="10.8" value="1.2" step="0.1" />
+      </div>
+
+      <!-- On-screen Drive D-Pad -->
+      <div class="drive-touch-controls" id="drive-touch-controls">
+        <div class="dpad-cluster">
+          <button class="dpad-btn" id="btn-drive-up">▲</button>
+          <div class="dpad-mid-row">
+            <button class="dpad-btn" id="btn-drive-left">◀</button>
+            <button class="dpad-btn" id="btn-drive-down">▼</button>
+            <button class="dpad-btn" id="btn-drive-right">▶</button>
+          </div>
+        </div>
+        <div class="drive-help-text" id="lbl-drive-help">W/S • A/D • [E]</div>
+      </div>
+    </div>
+  </footer>

@@ -12,6 +12,7 @@ import { RoverController } from './systems/roverControls.js';
 import { Sol5111TimelineManager } from './systems/sol5111.js';
 import { PitchShowcaseDirector } from './systems/pitchMode.js';
 import { martianAudio } from './systems/audio.js';
+import { installHoverStabilizer } from './systems/hoverStabilizer.js';
 import { MissionQuestManager } from './systems/quests.js';
 import { CoinsManager } from './systems/coinsManager.js';
 import { GuideBotEscort } from './systems/guideBotEscort.js';
@@ -36,6 +37,8 @@ import { KIDS_MISSIONS_MARS, KIDS_MISSIONS_MOON } from './data/kidsContent.js';
 
 // Initialize WebGL Application
 function initApplication() {
+  // Must run first: stops lift-on-hover flicker site-wide and provides hoverstart/hoverend
+  installHoverStabilizer();
   const container = document.getElementById('webgl-container');
   if (!container) return;
 
@@ -1608,10 +1611,14 @@ function initApplication() {
     }
     document.querySelectorAll('.hub-nav-item').forEach((item) => item.classList.remove('active'));
     document.getElementById('hub-tab-home')?.classList.add('active');
-    hero3DOrrery?.setActive(true);
-    if (typeof updateNasaEyesLocation === 'function') {
-      updateNasaEyesLocation('home', true);
+    const hubHeroBg = document.getElementById('hub-hero-bg');
+    if (hubHeroBg) {
+      hubHeroBg.classList.remove('nasa-eyes-active');
+      hubHeroBg.classList.add('procedural-3d-active');
     }
+    hero3DOrrery?.setActive(true);
+    hero3DOrrery?.onResize?.();
+    hero3DOrrery?.focusPlanet(selectedDestination || 'mars');
     martianAudio.playUiSwitch?.();
 
     profileManager.recordScreen('game-hub', { tab: 'home' });
@@ -1842,6 +1849,15 @@ function initApplication() {
   charCardAsha?.addEventListener('click', handleSelectAsha);
   charCardLeo?.addEventListener('click', handleSelectLeo);
 
+  hubCmdCardAsha?.addEventListener('hoverstart', () => {
+    martianAudio.playUiHover?.();
+    martianAudio.playVoiceCadence?.('asha');
+  });
+  hubCmdCardLeo?.addEventListener('hoverstart', () => {
+    martianAudio.playUiHover?.();
+    martianAudio.playVoiceCadence?.('leo');
+  });
+
   window.addEventListener('commanderPointsUpdated', () => {
     updateCommanderUI();
   });
@@ -1896,7 +1912,7 @@ function initApplication() {
     }
 
     if (sync3D && hero3DOrrery) {
-      hero3DOrrery.select3DPlanet(dest, window.innerWidth / 2, window.innerHeight / 2);
+      hero3DOrrery.select3DPlanet(dest, window.innerWidth / 2, window.innerHeight / 2, { notify: false });
     }
     if (typeof updateNasaEyesLocation === 'function') {
       updateNasaEyesLocation(dest === 'deepspace' ? 'voyager' : dest);
@@ -1951,7 +1967,7 @@ function initApplication() {
         radar: '📡 LIDAR RADAR SCANNER',
         story: '📖 STORY CHRONICLER'
       };
-      robotDisplayMode.innerText = modeNames[savedRobotConfig.protocol] || 'COMPANION AI';
+      robotDisplayMode.innerText = modeNames[savedRobotConfig.protocol] || 'MISSION BUDDY';
     }
   }
 
@@ -2114,7 +2130,7 @@ function initApplication() {
     document.getElementById('mission-discovery-modal-backdrop')?.classList.remove('active');
     openGameHub();
   };
-  document.getElementById('disc-home-btn')?.addEventListener('click', window.handleDiscoveryHomeClick);
+  // disc-home-btn: wired by its inline onclick (was also bound here -> ran twice)
   document.getElementById('disc-roadmap-btn')?.addEventListener('click', () => {
     document.getElementById('mission-discovery-modal-backdrop')?.classList.remove('active');
     questManager.openRoadmapForPlanet(currentPlanet);
@@ -2161,6 +2177,8 @@ function initApplication() {
     drawerSidebar?.classList.remove('active');
     drawerBackdrop?.classList.remove('active');
   }
+  // Used by the drawer's inline "Log Out" onclick (was undefined -> drawer stayed open)
+  window.closeDrawerSidebar = closeDrawerSidebar;
 
   // Unified Planetary Mission Launch Blastoff Flow
   function launchExpedition(targetDest) {
@@ -2316,10 +2334,8 @@ function initApplication() {
     });
   }
 
-  btnAquaSplashStart?.addEventListener('click', (e) => {
-    e.preventDefault();
-    dismissAquaSplash();
-  });
+  // NOTE: the Start button is wired by their inline onclick in the HTML partials (works even
+  // before this bundle loads). Adding listeners here too made every click run twice.
 
   // =========================================================================
   // AQUA EXPLORER GUIDED GAME CONTROLLER (STORY ➔ CADET ➔ LEVELS)
@@ -2422,6 +2438,9 @@ function initApplication() {
   window.setAquaStep = setAquaStep;
   window.closeAquaGuidedModal = closeAquaGuidedModal;
   window.openAquaGuidedModal = openAquaGuidedModal;
+  // User dismissed the wizard (✕ / Escape): go back to the Game Hub instead of revealing the 3D game behind it.
+  // closeAquaGuidedModal() stays a plain hide for the mission-launch paths.
+  window.dismissAquaGuidedModal = () => openGameHub();
 
   window.setGameCompanion = (botId) => {
     if (!kittyCompanion) return;
@@ -2491,34 +2510,8 @@ function initApplication() {
   window.launchExpeditionDirect = window.launchMissionDirect;
 
   // Aqua Modal Controls Wire-up
-  document.getElementById('btn-aqua-modal-close')?.addEventListener('click', closeAquaGuidedModal);
-  document.getElementById('btn-aqua-finish-close')?.addEventListener('click', closeAquaGuidedModal);
-
-  // Stepper Header Buttons
-  for (let i = 1; i <= 5; i++) {
-    document.getElementById(`aqua-step-indicator-${i}`)?.addEventListener('click', () => {
-      setAquaStep(i);
-    });
-  }
-
-  // Navigation Buttons
-  document.getElementById('btn-aqua-step1-next')?.addEventListener('click', () => setAquaStep(2));
-  document.getElementById('btn-aqua-skip-to-bots')?.addEventListener('click', () => setAquaStep(4));
-
-  document.getElementById('btn-aqua-step2-back')?.addEventListener('click', () => setAquaStep(1));
-  document.getElementById('btn-aqua-skip-video')?.addEventListener('click', () => setAquaStep(4));
-  document.getElementById('btn-aqua-step2-next')?.addEventListener('click', () => setAquaStep(3));
-
-  document.getElementById('btn-aqua-step3-back')?.addEventListener('click', () => setAquaStep(2));
-  document.getElementById('btn-aqua-step3-next')?.addEventListener('click', () => setAquaStep(4));
-
-  document.getElementById('btn-aqua-step4-back')?.addEventListener('click', () => setAquaStep(3));
-  document.getElementById('btn-aqua-step4-to-hub')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    openGameHub();
-  });
-
-  document.getElementById('btn-aqua-step5-back')?.addEventListener('click', () => setAquaStep(4));
+  // NOTE: the wizard close, stepper and step navigation buttons are wired by their inline onclick in the HTML partials (works even
+  // before this bundle loads). Adding listeners here too made every click run twice.
 
   // Cadet Name Input Sync
   const aquaNameInput = document.getElementById('aqua-cadet-name-input');
@@ -2573,16 +2566,8 @@ function initApplication() {
   });
 
   // Switch Cadet Profile / Log Out & In-Game Back Button Handlers
-  document.getElementById('btn-hub-switch-profile')?.addEventListener('click', () => {
-    profileManager.openProfileSwitcherModal();
-  });
-  document.getElementById('drawer-nav-logout')?.addEventListener('click', () => {
-    closeDrawerSidebar();
-    profileManager.logout();
-  });
-  document.getElementById('btn-in-game-back-to-hub')?.addEventListener('click', () => {
-    openGameHub();
-  });
+  // NOTE: Switch Cadet, drawer Log Out and in-game Back to Hub are wired by their inline onclick in the HTML partials (works even
+  // before this bundle loads). Adding listeners here too made every click run twice.
 
   btnToggleSidebar?.addEventListener('click', () => {
     if (drawerSidebar?.classList.contains('active')) closeDrawerSidebar();
@@ -2604,7 +2589,7 @@ function initApplication() {
         return;
       }
       if (aquaModal?.classList.contains('active')) {
-        closeAquaGuidedModal();
+        window.dismissAquaGuidedModal();
         return;
       }
       if (drawerSidebar?.classList.contains('active')) {
@@ -2755,112 +2740,57 @@ function initApplication() {
   const btnPortalLaunchVoyager = document.getElementById('btn-portal-launch-voyager');
 
   // =========================================================================
-  // NASA EYES ON THE SOLAR SYSTEM 3D BACKGROUND SYSTEM
+  // 3D CELESTIAL ORRERY HERO BACKGROUND SYSTEM
   // =========================================================================
   const hubHeroBg = document.getElementById('hub-hero-bg');
-  const nasaEyesFrame = document.getElementById('hub-nasa-eyes-frame');
   const heroHintPill = document.getElementById('hero-3d-hint-pill');
-  const btnToggleHeroEngine = document.getElementById('btn-toggle-hero-engine');
-  const lblHeroEngineMode = document.getElementById('lbl-hero-engine-mode');
 
-  let isNasaEyesMode = true;
-  let currentNasaTarget = 'home';
-  let nasaEyesDebounceTimer = null;
-  let nasaEyesResetTimer = null;
-
-  const NASA_EYES_BASE = 'https://eyes.nasa.gov/apps/solar-system/';
-  const NASA_EYES_DESTS = {
-    home: '#/home',
-    moon: '#/moon',
-    mars: '#/mars',
-    voyager: '#/sc_voyager_1',
-    deepspace: '#/sc_voyager_1'
+  const ORRERY_HINT_DEFAULT = '🎮 3D CELESTIAL ORRERY • DRAG TO ROTATE 3D WORLDS';
+  const ORRERY_LABELS = {
+    home: '🎮 3D CELESTIAL ORRERY • DRAG TO ROTATE 3D WORLDS',
+    moon: '🌕 THE MOON: 3D TRANQUILITY BASE • APOLLO 11 LANDING SITE',
+    mars: '🔴 MARS: 3D PERSEVERANCE VALLEY • OPPORTUNITY MER-B',
+    voyager: '🌌 VOYAGER 1: 3D INTERSTELLAR EXPEDITION (24.3 BILLION KM)',
+    deepspace: '🌌 VOYAGER 1: 3D INTERSTELLAR EXPEDITION (24.3 BILLION KM)'
   };
 
-  const NASA_EYES_LABELS = {
-    home: '🛰️ NASA EYES: SOLAR SYSTEM REAL-TIME • HOVER WORLD TO FLY',
-    moon: '🌕 NASA EYES: 3D TRAJECTORY LOCKED TO THE MOON (TRANQUILITY BASE)',
-    mars: '🔴 NASA EYES: 3D TRAJECTORY LOCKED TO MARS (PERSEVERANCE VALLEY)',
-    voyager: '🌌 NASA EYES: 3D TRAJECTORY LOCKED TO VOYAGER 1 (INTERSTELLAR 24.3B KM)',
-    deepspace: '🌌 NASA EYES: 3D TRAJECTORY LOCKED TO VOYAGER 1 (INTERSTELLAR 24.3B KM)'
-  };
+  let orreryResetTimer = null;
 
-  function updateNasaEyesLocation(dest, forceImmediate = false) {
-    clearTimeout(nasaEyesDebounceTimer);
-    clearTimeout(nasaEyesResetTimer);
-
-    const applyNav = () => {
-      const normalizedDest = dest === 'deepspace' ? 'voyager' : dest;
-      const targetHash = NASA_EYES_DESTS[normalizedDest] || NASA_EYES_DESTS.home;
-      const targetUrl = NASA_EYES_BASE + targetHash;
-
-      if (nasaEyesFrame && currentNasaTarget !== normalizedDest) {
-        currentNasaTarget = normalizedDest;
-        nasaEyesFrame.src = targetUrl;
-      }
-
-      if (heroHintPill && NASA_EYES_LABELS[normalizedDest]) {
-        heroHintPill.innerText = NASA_EYES_LABELS[normalizedDest];
-        heroHintPill.classList.toggle('active-hover', normalizedDest !== 'home');
-      }
-    };
-
-    if (forceImmediate) {
-      applyNav();
-    } else {
-      nasaEyesDebounceTimer = setTimeout(applyNav, 80);
+  function setOrreryFocus(dest) {
+    clearTimeout(orreryResetTimer);
+    const key = dest === 'deepspace' ? 'voyager' : dest;
+    if (heroHintPill && ORRERY_LABELS[key]) {
+      heroHintPill.innerText = ORRERY_LABELS[key];
+      heroHintPill.classList.toggle('active-hover', key !== 'home');
+    }
+    if (hero3DOrrery) {
+      hero3DOrrery.focusPlanet(dest); // preview only: hover must not re-select & re-trigger sounds
     }
   }
 
-  function scheduleNasaEyesHome(delayMs = 1800) {
-    clearTimeout(nasaEyesResetTimer);
-    nasaEyesResetTimer = setTimeout(() => {
-      updateNasaEyesLocation('home');
-      if (!isNasaEyesMode && hero3DOrrery) {
-        hero3DOrrery.select3DPlanet('mars');
+  function scheduleOrreryHome(delayMs = 1800) {
+    clearTimeout(orreryResetTimer);
+    orreryResetTimer = setTimeout(() => {
+      if (heroHintPill) {
+        heroHintPill.innerText = ORRERY_HINT_DEFAULT;
+        heroHintPill.classList.remove('active-hover');
+      }
+      if (hero3DOrrery) {
+        hero3DOrrery.focusPlanet(selectedDestination || 'mars');
       }
     }, delayMs);
   }
 
-  function setHeroEngineMode(nasaMode) {
-    isNasaEyesMode = nasaMode;
-    if (hubHeroBg) {
-      if (isNasaEyesMode) {
-        hubHeroBg.classList.add('nasa-eyes-active');
-        hubHeroBg.classList.remove('procedural-3d-active');
-        if (lblHeroEngineMode) lblHeroEngineMode.innerText = 'NASA EYES 3D';
-        if (heroHintPill) heroHintPill.innerText = NASA_EYES_LABELS[currentNasaTarget] || NASA_EYES_LABELS.home;
-        hero3DOrrery?.setActive(false);
-      } else {
-        hubHeroBg.classList.remove('nasa-eyes-active');
-        hubHeroBg.classList.add('procedural-3d-active');
-        if (lblHeroEngineMode) lblHeroEngineMode.innerText = 'PROCEDURAL 3D';
-        if (heroHintPill) heroHintPill.innerText = '🎮 THREE.JS ORRERY • DRAG TO ROTATE 3D WORLDS';
-        hero3DOrrery?.setActive(true);
-      }
-    }
-    martianAudio.playUiSwitch?.();
-  }
-
-  btnToggleHeroEngine?.addEventListener('click', () => {
-    setHeroEngineMode(!isNasaEyesMode);
-  });
-
-  // Fallback if remote embed cannot load
-  nasaEyesFrame?.addEventListener('error', () => {
-    console.warn('[NASA Eyes] Remote simulator blocked or offline, activating Three.js Orrery fallback');
-    setHeroEngineMode(false);
-  });
-
-  // Expose global helpers
-  window.updateNasaEyesLocation = updateNasaEyesLocation;
-  window.scheduleNasaEyesHome = scheduleNasaEyesHome;
-  window.setHeroEngineMode = setHeroEngineMode;
+  // Backwards compatibility helpers
+  window.updateNasaEyesLocation = (dest) => setOrreryFocus(dest);
+  window.scheduleNasaEyesHome = (delay) => scheduleOrreryHome(delay);
+  window.setHeroEngineMode = () => {};
   window.launchExpedition = launchExpedition;
 
   btnPortalLaunchMoon?.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
+    martianAudio.playUiSwitch?.();
     setDestination('moon', true);
     launchExpedition('moon');
   });
@@ -2868,6 +2798,7 @@ function initApplication() {
   btnPortalLaunchMars?.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
+    martianAudio.playUiSwitch?.();
     setDestination('mars', true);
     launchExpedition('mars');
   });
@@ -2875,76 +2806,72 @@ function initApplication() {
   btnPortalLaunchVoyager?.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
+    martianAudio.playUiSwitch?.();
     setDestination('deepspace', true);
     launchExpedition('deepspace');
   });
 
   portalMoon?.addEventListener('click', (e) => {
     e.preventDefault();
+    martianAudio.playUiSwitch?.();
     setDestination('moon', true);
     launchExpedition('moon');
   });
 
-  portalMoon?.addEventListener('mouseenter', () => {
-    updateNasaEyesLocation('moon');
-    if (hero3DOrrery) {
-      hero3DOrrery.select3DPlanet('moon');
-    }
-    martianAudio.playScannerBeep?.(false);
+  portalMoon?.addEventListener('hoverstart', () => {
+    setOrreryFocus('moon');
+    martianAudio.playPortalHover?.('moon');
   });
 
-  portalMoon?.addEventListener('mouseleave', () => {
-    scheduleNasaEyesHome(1800);
+  portalMoon?.addEventListener('hoverend', () => {
+    scheduleOrreryHome(1800);
   });
 
   portalMars?.addEventListener('click', (e) => {
     e.preventDefault();
+    martianAudio.playUiSwitch?.();
     setDestination('mars', true);
     launchExpedition('mars');
   });
 
-  portalMars?.addEventListener('mouseenter', () => {
-    updateNasaEyesLocation('mars');
-    if (hero3DOrrery) {
-      hero3DOrrery.select3DPlanet('mars');
-    }
-    martianAudio.playTelemetryTransmission?.();
+  portalMars?.addEventListener('hoverstart', () => {
+    setOrreryFocus('mars');
+    martianAudio.playPortalHover?.('mars');
   });
 
-  portalMars?.addEventListener('mouseleave', () => {
-    scheduleNasaEyesHome(1800);
+  portalMars?.addEventListener('hoverend', () => {
+    scheduleOrreryHome(1800);
   });
 
   portalVoyager?.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
+    martianAudio.playUiSwitch?.();
+    setDestination('deepspace', true);
     launchExpedition('deepspace');
   });
 
-  portalVoyager?.addEventListener('mouseenter', () => {
-    updateNasaEyesLocation('voyager');
-    if (hero3DOrrery) {
-      hero3DOrrery.select3DPlanet('deepspace');
-    }
-    martianAudio.playTelemetryTransmission?.();
+  portalVoyager?.addEventListener('hoverstart', () => {
+    setOrreryFocus('deepspace');
+    martianAudio.playPortalHover?.('deepspace');
   });
 
-  portalVoyager?.addEventListener('mouseleave', () => {
-    scheduleNasaEyesHome(1800);
+  portalVoyager?.addEventListener('hoverend', () => {
+    scheduleOrreryHome(1800);
   });
 
   // Drawer shortcuts
-  document.getElementById('drawer-nav-portal-moon')?.addEventListener('mouseenter', () => {
-    updateNasaEyesLocation('moon');
+  document.getElementById('drawer-nav-portal-moon')?.addEventListener('hoverstart', () => {
+    setOrreryFocus('moon');
   });
-  document.getElementById('drawer-nav-portal-moon')?.addEventListener('mouseleave', () => {
-    scheduleNasaEyesHome(1800);
+  document.getElementById('drawer-nav-portal-moon')?.addEventListener('hoverend', () => {
+    scheduleOrreryHome(1800);
   });
-  document.getElementById('drawer-nav-portal-mars')?.addEventListener('mouseenter', () => {
-    updateNasaEyesLocation('mars');
+  document.getElementById('drawer-nav-portal-mars')?.addEventListener('hoverstart', () => {
+    setOrreryFocus('mars');
   });
-  document.getElementById('drawer-nav-portal-mars')?.addEventListener('mouseleave', () => {
-    scheduleNasaEyesHome(1800);
+  document.getElementById('drawer-nav-portal-mars')?.addEventListener('hoverend', () => {
+    scheduleOrreryHome(1800);
   });
 
   // Dynamic Radio Comms Alert Pill Controller
@@ -3485,30 +3412,28 @@ function initApplication() {
     const hubAudioIcon = document.getElementById('hub-audio-icon');
     const hubAudioText = document.getElementById('hub-audio-text');
 
-    const labelText = isUnmuted ? 'Audio: ON' : 'Audio: OFF';
-    const iconText = isUnmuted ? '🔊' : '🔇';
+    // ON but not yet allowed by the browser → invite a tap instead of claiming "ON"
+    const blocked = isUnmuted && martianAudio.isBlocked?.();
+    const labelText = blocked ? 'Tap for sound' : (isUnmuted ? 'Audio: ON' : 'Audio: OFF');
+    const iconText = blocked ? '🔈' : (isUnmuted ? '🔊' : '🔇');
 
     if (audioIcon) audioIcon.innerText = iconText;
     if (audioLbl) audioLbl.innerText = labelText;
     if (hubAudioIcon) hubAudioIcon.innerText = iconText;
     if (hubAudioText) hubAudioText.innerText = labelText;
 
-    if (audioBtn) audioBtn.classList.toggle('audio-active', isUnmuted);
-    if (hubAudioBtn) hubAudioBtn.classList.toggle('audio-active', isUnmuted);
+    [audioBtn, hubAudioBtn].forEach(btn => {
+      if (!btn) return;
+      btn.classList.toggle('audio-active', isUnmuted && !blocked);
+      btn.classList.toggle('audio-blocked', !!blocked);
+    });
   }
 
-  // Auto-unlock Web Audio context on the first user interaction
-  const unlockAudioOnGesture = () => {
-    if (!martianAudio.isMuted) {
-      martianAudio.ensureActive();
-    }
-    ['pointerdown', 'click', 'keydown', 'touchstart'].forEach(evt => {
-      window.removeEventListener(evt, unlockAudioOnGesture);
-    });
-  };
-  ['pointerdown', 'click', 'keydown', 'touchstart'].forEach(evt => {
-    window.addEventListener(evt, unlockAudioOnGesture, { passive: true });
-  });
+  // Audio unlock is handled inside martianAudio (persistent listeners on real
+  // user gestures only — mouse movement cannot start Web Audio).
+  martianAudio.installUnlockListeners?.();
+  // Keep the buttons in sync whenever the browser blocks, unlocks or suspends audio
+  window.addEventListener('martianaudio:state', (e) => syncAudioUI(!e.detail.muted));
 
   // Initialize UI with Audio ON
   syncAudioUI(!martianAudio.isMuted);
@@ -3516,7 +3441,7 @@ function initApplication() {
   const audioBtn = document.getElementById('audio-toggle-btn');
   if (audioBtn) {
     audioBtn.addEventListener('click', () => {
-      const isUnmuted = martianAudio.toggleMute();
+      const isUnmuted = martianAudio.unlockOrToggle();
       syncAudioUI(isUnmuted);
     });
   }
@@ -3524,7 +3449,7 @@ function initApplication() {
   const hubAudioBtn = document.getElementById('hub-audio-toggle');
   if (hubAudioBtn) {
     hubAudioBtn.addEventListener('click', () => {
-      const isUnmuted = martianAudio.toggleMute();
+      const isUnmuted = martianAudio.unlockOrToggle();
       syncAudioUI(isUnmuted);
     });
   }
@@ -3653,11 +3578,17 @@ function initApplication() {
   }
 
   // Global Micro-Interaction Audio Synthesizer Triggers
-  document.addEventListener('pointerenter', (e) => {
-    const el = e.target.closest?.('button, .hub-quick-btn, .hub-game-card, .nav-tab, .mg-tab-pill');
-    if (el) {
-      martianAudio.playUiHover();
-    }
+  // pointerenter (capture) fires for EVERY child element the pointer crosses, so only
+  // react when the hoverable element itself is entered — one blip per element, not per child.
+  // Portal cards are excluded: they play their own destination chime (playPortalHover).
+  const HOVER_SOUND_SELECTOR =
+    'button, .hub-quick-btn, .hub-game-card, .nav-tab, .mg-tab-pill, .hub-commander-compact-chip, .cmd-card-status-badge, .target-planet-chip, .character-select-card';
+  // 'hoverstart' comes from the hover stabilizer: once per real enter, never on edge flicker
+  document.addEventListener('hoverstart', (e) => {
+    const el = e.target;
+    if (!(el instanceof Element) || !el.matches(HOVER_SOUND_SELECTOR)) return;
+    if (el.closest('.exploration-portal-card') && !el.matches('.portal-launch-btn')) return;
+    martianAudio.playUiHover?.();
   }, true);
 
   function animate() {

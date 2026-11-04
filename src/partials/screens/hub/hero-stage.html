@@ -1,0 +1,195 @@
+    <!-- Hub Center Stage: Full-Width 3D Canvas + Dual Gateways + Character & Kitty -->
+    <main class="hub-main-stage full-width-stage">
+      <!-- Center Hero Showcase: Moving Celestial Background + Character Selector + Guide Robot + Start Mission -->
+      <section class="hub-hero-section full-hero-section">
+        <!-- Moving Space Background with Mars, Moon & Voyager Beacon -->
+        <div class="hub-hero-bg procedural-3d-active" id="hub-hero-bg">
+          <!-- Real 3D Three.js WebGL Celestial Orrery Canvas Container -->
+          <div id="hero-3d-webgl-container" class="hero-3d-webgl-container"></div>
+          <div class="hub-hero-overlay"></div>
+          <div class="hero-flare-glow"></div>
+        </div>
+
+        <div class="hub-hero-content">
+          <div class="hero-top-info">
+            <div class="hero-top-meta-row">
+              <div class="hero-tag-badge">
+                <span class="hero-dot pulse"></span>
+                <span id="lbl-hero-tag">JUNIOR DEEP SPACE NETWORK • MISSION STAGING CONSOLE</span>
+              </div>
+              <div class="hero-meta-interactive-group">
+                <span class="hero-3d-hint-pill" id="hero-3d-hint-pill" title="Drag in 3D space to orbit worlds, or hover over Moon, Mars or Voyager!">🎮 3D CELESTIAL ORRERY • DRAG TO ROTATE 3D WORLDS</span>
+                <!-- Interactive Stardust Hunter Counter for Children! -->
+                <div class="hero-dust-hunter-badge" id="hero-dust-hunter-badge" title="Click floating crystals in 3D space to collect Cosmic Dust!">
+                  <span class="mote-icon pulse">✨</span>
+                  <span class="mote-text">STARDUST CRYSTALS: <strong id="hero-stardust-collected">0</strong> 🪙</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Transmission Quote Bar -->
+            <div class="hero-quote-bar">
+              <span class="quote-satellite-icon pulse">🛰️</span>
+              <p class="hero-game-subtitle" id="lbl-hero-sub">
+                "🚀 Every rover left on the Moon or Mars is a monument to human curiosity. Can you find them all?"
+              </p>
+            </div>
+          </div>
+
+          <!-- COMPACT MISSION COMMANDER SELECTOR -->
+          <div class="hub-commander-compact-bar" id="hub-commander-selection-deck">
+            <div class="cmd-compact-lead-label">
+              <span class="cmd-icon-pulse">👨‍🚀</span>
+              <span class="cmd-lead-title">MISSION COMMANDER:</span>
+            </div>
+            <div class="cmd-compact-cards-row">
+              <!-- Commander Asha -->
+              <div class="hub-commander-compact-chip active" id="hub-cmd-card-asha" data-commander="asha" role="button" tabindex="0">
+                <div class="cmd-chip-avatar asha">👩‍🚀</div>
+                <div class="cmd-chip-info">
+                  <div class="cmd-chip-name-row">
+                    <strong class="cmd-chip-name">COMMANDER ASHA</strong>
+                    <span class="cmd-card-status-badge active-lead" id="badge-status-asha">✓ ACTIVE LEAD</span>
+                  </div>
+                  <div class="cmd-chip-meta">
+                    <span>Dhaka Rooftop</span> • <span>🪙 <strong id="asha-points-val">7,475</strong> PTS</span>
+                    <span id="asha-rank-val" style="display:none;">#1</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Commander Leo -->
+              <div class="hub-commander-compact-chip" id="hub-cmd-card-leo" data-commander="leo" role="button" tabindex="0">
+                <div class="cmd-chip-avatar leo">👨‍🚀</div>
+                <div class="cmd-chip-info">
+                  <div class="cmd-chip-name-row">
+                    <strong class="cmd-chip-name">COMMANDER LEO</strong>
+                    <span class="cmd-card-status-badge" id="badge-status-leo">SELECT LEAD</span>
+                  </div>
+                  <div class="cmd-chip-meta">
+                    <span>Cape Canaveral</span> • <span>🪙 <strong id="leo-points-val">3,410</strong> PTS</span>
+                    <span id="leo-rank-val" style="display:none;">#2</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3 PRIMARY CELESTIAL EXPEDITION GATEWAYS (MOON, MARS & DEEP SPACE) -->
+          <div class="hero-primary-portals-grid triple-portals-grid" role="region" aria-label="Choose Planetary Destination">
+            <!-- Portal 1: Explore the Moon -->
+            <div class="exploration-portal-card moon-portal" id="portal-explore-moon" role="button" tabindex="0">
+              <!-- Top Row: Icon + Title & Destination Badge -->
+              <div class="portal-card-top-row">
+                <div class="portal-icon-wrap moon-icon-wrap">
+                  <div class="portal-halo moon-halo"></div>
+                  <span class="portal-big-icon">🌕</span>
+                </div>
+                <div class="portal-title-block">
+                  <div class="portal-title-line">
+                    <h2 class="portal-title">THE MOON</h2>
+                    <span class="portal-badge-pill moon-pill">🌕 MOON BASE</span>
+                  </div>
+                  <p class="portal-desc">Tranquility Base • Apollo 11</p>
+                </div>
+              </div>
+
+              <!-- Bottom Row: Tags & 3D Launch Action -->
+              <div class="portal-card-bottom-row">
+                <div class="portal-meta-tags">
+                  <span class="p-tag">🚀 6 Relics</span>
+                  <span class="p-tag">⭐ Delta-v</span>
+                </div>
+                <div class="portal-action-col">
+                  <button class="portal-launch-btn moon-btn" id="btn-portal-launch-moon" type="button">
+                    <span>ENTER BASE ➔</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Portal 2: Explore Mars -->
+            <div class="exploration-portal-card mars-portal active" id="portal-explore-mars" role="button" tabindex="0">
+              <!-- Top Row: Icon + Title & Destination Badge -->
+              <div class="portal-card-top-row">
+                <div class="portal-icon-wrap mars-icon-wrap">
+                  <div class="portal-halo mars-halo"></div>
+                  <span class="portal-big-icon">🔴</span>
+                </div>
+                <div class="portal-title-block">
+                  <div class="portal-title-line">
+                    <h2 class="portal-title">PLANET MARS</h2>
+                    <span class="portal-badge-pill mars-pill">🔴 MARS VALLEY</span>
+                  </div>
+                  <p class="portal-desc">Perseverance Valley • Opportunity</p>
+                </div>
+              </div>
+
+              <!-- Bottom Row: Tags & 3D Launch Action -->
+              <div class="portal-card-bottom-row">
+                <div class="portal-meta-tags">
+                  <span class="p-tag">🤖 MER-B</span>
+                  <span class="p-tag">💓 InSight</span>
+                </div>
+                <div class="portal-action-col">
+                  <button class="portal-launch-btn mars-btn" id="btn-portal-launch-mars" type="button">
+                    <span>ENTER VALLEY ➔</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Portal 3: Deep Space Voyager 1 -->
+            <div class="exploration-portal-card voyager-portal" id="portal-explore-voyager" role="button" tabindex="0">
+              <!-- Top Row: Icon + Title & Destination Badge -->
+              <div class="portal-card-top-row">
+                <div class="portal-icon-wrap voyager-icon-wrap">
+                  <div class="portal-halo voyager-halo"></div>
+                  <span class="portal-big-icon">🛰️</span>
+                </div>
+                <div class="portal-title-block">
+                  <div class="portal-title-line">
+                    <h2 class="portal-title">VOYAGER 1</h2>
+                    <span class="portal-badge-pill voyager-pill">🌌 DEEP SPACE</span>
+                  </div>
+                  <p class="portal-desc">Golden Record • 24.3B KM</p>
+                </div>
+              </div>
+
+              <!-- Bottom Row: Tags & 3D Launch Action -->
+              <div class="portal-card-bottom-row">
+                <div class="portal-meta-tags">
+                  <span class="p-tag">📀 Record</span>
+                  <span class="p-tag">📡 Telemetry</span>
+                </div>
+                <div class="portal-action-col">
+                  <button class="portal-launch-btn voyager-btn" id="btn-portal-launch-voyager" type="button">
+                    <span>INTERSTELLAR ➔</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ARCADE TITLE ACTION STACK -->
+          <div class="hero-arcade-action-stack">
+            <!-- 3 Arcade Action Buttons (PLAY GAME, LEVEL & MENU) -->
+            <div class="arcade-buttons-group">
+              <button class="arcade-btn btn-arcade-play" id="btn-arcade-play" type="button" title="Start Guided Mission Expedition (Story &amp; Levels)">
+                <span class="arcade-btn-label">🚀 PLAY GAME</span>
+              </button>
+
+              <div class="arcade-sub-buttons-row">
+                <button class="arcade-btn btn-arcade-level" id="btn-arcade-level" type="button" title="Select Mission Level &amp; Roadmap">
+                  <span class="arcade-btn-label">LEVEL</span>
+                </button>
+
+                <button class="arcade-btn btn-arcade-menu" id="btn-arcade-menu" type="button" title="Open Operations Menu &amp; Settings">
+                  <span class="arcade-btn-label">MENU</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>

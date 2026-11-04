@@ -1,0 +1,78 @@
+    <!-- Hub Top Bar: Hamburger, Title, Profile Capsule, Currencies & Utilities in Single Seamless Bar -->
+    <header class="hub-top-bar">
+      <!-- Left: Hamburger Drawer Toggle & Brand Title -->
+      <div class="hub-top-left-brand">
+        <button class="hub-hamburger-btn" id="btn-toggle-hub-sidebar" title="Open Mission Operations Menu (Press M)" aria-label="Toggle Mission Operations Menu">
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+        </button>
+        <div class="hub-brand-logo" id="hub-brand-home-link" role="button" title="Relics of the Cosmic Dust Home">
+          <span class="brand-orbit-icon">🛰️</span>
+          <div class="brand-text-col">
+            <h1 class="brand-title">RELICS OF THE COSMIC DUST</h1>
+            <span class="brand-sub">JUNIOR DEEP SPACE NETWORK • NASA JPL</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: Cadet Profile Capsule & Switcher -->
+      <div class="hub-top-center-capsule-wrap">
+        <button class="hub-profile-switch-btn" id="btn-hub-switch-profile" type="button" title="Switch Space Cadet Profile or Log Out" onclick="window.profileManager?.openProfileSwitcherModal();">
+          <span>👤 Switch</span>
+        </button>
+        <div class="hub-center-profile-capsule hub-profile-click hub-profile-chip" id="hub-profile-click" title="Click to view Badges &amp; Certificate">
+          <div class="hub-avatar-circle" id="hub-profile-avatar-icon">🧑‍🚀</div>
+          <div class="hub-user-meta">
+            <div class="hub-user-name-row">
+              <span class="hub-user-name" id="lbl-hub-user-name">CADET EXPLORER</span>
+              <span class="hub-rank-badge" id="lbl-hub-rank">LVL 1 SPACE CADET</span>
+            </div>
+            <div class="hub-xp-container">
+              <div class="hub-xp-bar-bg">
+                <div class="hub-xp-bar-fill" id="hub-xp-fill" style="width: 10%;"></div>
+              </div>
+              <span class="hub-xp-label">0 / 350 XP</span>
+            </div>
+          </div>
+          <div class="hub-nasa-badge" title="NASA Space Apps Challenge 2026">
+            <span>NASA SPACE APPS</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Resources & Quick Utilities -->
+      <div class="hub-top-right-group">
+        <div class="hub-resources-row">
+          <div class="hub-stat-chip dust-chip" title="Cosmic Dust Coins collected from space exploration">
+            <span class="stat-icon">🪙</span>
+            <span class="stat-value" id="hub-dust-val">1,000</span>
+            <span class="stat-name" id="lbl-hub-dust">Dust</span>
+          </div>
+          <div class="hub-stat-chip gems-chip" title="Telemetry Gems earned from scientific discoveries">
+            <span class="stat-icon">💎</span>
+            <span class="stat-value" id="hub-gems-val">10</span>
+            <span class="stat-name" id="lbl-hub-gems">Gems</span>
+          </div>
+          <div class="hub-stat-chip battery-chip" title="Junior Deep Space Network: Dhaka ↔ Florida Ground Stations Link">
+            <span class="stat-icon pulse-dot">📡</span>
+            <span class="stat-value">JDSN</span>
+            <span class="stat-name hub-station-label">LINK</span>
+          </div>
+        </div>
+
+        <div class="hub-nav-divider"></div>
+
+        <div class="hub-utility-group">
+          <button class="hub-util-btn audio-active" id="hub-audio-toggle" title="Toggle Soundscape Audio (Procedural Web Audio Synthesizer)">
+            <span id="hub-audio-icon">🔊</span>
+            <span class="btn-text" id="hub-audio-text">Audio: ON</span>
+          </button>
+
+          <button class="hub-util-btn" id="hub-fullscreen-toggle" title="Toggle Fullscreen">
+            <span>⛶</span>
+            <span class="btn-text">Fullscreen</span>
+          </button>
+        </div>
+      </div>
+    </header>

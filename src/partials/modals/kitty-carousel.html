@@ -1,0 +1,37 @@
+  <!-- =========================================================================
+       COMPANION KITTY GUIDE ROBOT SELECTION CAROUSEL MODAL
+       ========================================================================= -->
+  <div class="modal-backdrop" id="kitty-carousel-modal">
+    <div class="modal-card wide-card kitty-carousel-card">
+      <button class="modal-close-btn" id="kitty-modal-close-btn">✕</button>
+
+      <div class="modal-header centered">
+        <div class="modal-type-badge cyan-glow">EXPEDITION COMPANION PROTOCOL</div>
+        <h2 class="modal-title">CHOOSE YOUR COMPANION DRONE</h2>
+        <p class="modal-desc">Select an autonomous robotic guide equipped with voice telemetry and scientific scanners.
+        </p>
+      </div>
+
+      <div class="kitty-carousel-stage">
+        <button class="carousel-nav-btn prev-btn" id="kitty-carousel-prev"
+          title="Previous Companion (Left Arrow)">‹</button>
+
+        <div class="kitty-cards-track" id="kitty-cards-track">
+          <!-- Rendered dynamically by KittyCompanionManager -->
+        </div>
+
+        <button class="carousel-nav-btn next-btn" id="kitty-carousel-next"
+          title="Next Companion (Right Arrow)">›</button>
+      </div>
+
+      <div class="kitty-detail-panel" id="kitty-detail-panel">
+        <!-- Perks & Stats rendered by KittyCompanionManager -->
+      </div>
+
+      <div class="modal-footer centered">
+        <button class="modal-action-btn glow-gold wide-btn" id="btn-confirm-kitty">
+          <span>CONFIRM COMPANION &amp; SYNC TELEMETRY 🐾 ➔</span>
+        </button>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,65 @@
+  <!-- POPUP MODAL: STORY PROLOGUE (THE DREAM PROJECT — ASHA & LEO) -->
+  <div class="modal-backdrop" id="prologue-modal-backdrop">
+    <div class="modal-card wide-card prologue-modal-card">
+      <button class="modal-hdr-back-btn" id="btn-prologue-back-to-hub" type="button"
+        onclick="document.getElementById('prologue-modal-backdrop').classList.remove('active'); window.openGameHub();">⬅
+        Back to Hub</button>
+      <button class="modal-close-btn" id="prologue-close-btn">✕</button>
+
+      <div class="modal-header">
+        <div class="modal-type-badge" id="prologue-step-tag">PROLOGUE • SCENE 1 OF 4</div>
+        <h2 class="modal-title" id="prologue-step-title">A Rooftop in Dhaka, Bangladesh</h2>
+        <div class="modal-abbrev">THE DREAM PROJECT • JUNIOR DEEP SPACE NETWORK (JDSN)</div>
+      </div>
+
+      <div class="modal-body">
+        <!-- Animated Dual Actor Stage: Asha (Dhaka) and Leo (Florida) -->
+        <div class="prologue-actors-stage">
+          <div class="prologue-actor-card active-actor" id="prologue-actor-asha">
+            <div class="actor-svg-stage" id="prologue-asha-rig-box"></div>
+            <div class="actor-card-meta">
+              <strong>ASHA (Age 12)</strong>
+              <span>Dhaka, Bangladesh • Rooftop Yagi Antenna</span>
+            </div>
+          </div>
+
+          <div class="prologue-signal-bridge">
+            <div class="signal-bridge-label">2.29 GHz S-BAND TELEMETRY BRIDGE</div>
+            <div class="signal-wave-track">
+              <span class="sig-pulse"></span>
+              <span class="sig-pulse delay-1"></span>
+              <span class="sig-pulse delay-2"></span>
+            </div>
+            <div class="signal-bridge-quote">"Not Space Junk — Monuments to Human Curiosity"</div>
+          </div>
+
+          <div class="prologue-actor-card" id="prologue-actor-leo">
+            <div class="actor-svg-stage" id="prologue-leo-rig-box"></div>
+            <div class="actor-card-meta">
+              <strong>LEO (Age 12)</strong>
+              <span>Cape Canaveral, Florida • Robotics Console</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dialogue & Real JPL Science Note -->
+        <div class="prologue-dialogue-card">
+          <div class="prologue-speaker-pill" id="prologue-speaker-name">Asha (Dhaka, Bangladesh — 23.81° N, 90.41° E)
+          </div>
+          <p class="prologue-dialogue-text" id="prologue-dialogue-text">
+            "People think you need a billion-dollar laboratory to touch the stars. Up here on my rooftop in Dhaka, all I
+            have is soldered copper wire, an old SDR dongle, and a notebook full of frequencies..."
+          </p>
+          <div class="prologue-science-pill" id="prologue-science-note">
+            📡 REAL SCIENCE: Amateur radio astronomers worldwide regularly track S-band (2.2–2.3 GHz) and X-band (8.4
+            GHz) deep-space downlinks using handmade Yagi and dish antennas!
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer modal-footer-dual">
+        <button class="modal-action-btn secondary-btn" id="prologue-skip-btn">✕ RETURN TO HUB</button>
+        <button class="modal-action-btn glow-gold" id="prologue-next-btn">NEXT SCENE (2/4) ➔</button>
+      </div>
+    </div>
+  </div>

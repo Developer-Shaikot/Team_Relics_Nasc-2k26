@@ -1,0 +1,76 @@
+  <!-- TOP HEADER HUD (In-Simulation) -->
+  <header class="top-nav-bar">
+    <div class="brand-section" style="display: none;">
+      <div class="nasa-meatball-badge">
+        <span class="badge-dot"></span>
+        <span class="badge-text" id="top-badge-text">MISSION CONTROL • JDSN</span>
+      </div>
+    </div>
+
+    <!-- Mode Navigation Tabs -->
+    <nav class="mode-nav-group" id="mode-tabs">
+      <button class="nav-tab home-hub-btn" id="tab-home-hub" title="Back to Game Hub">
+        <span class="tab-icon">🏠</span>
+        <span class="tab-label" id="lbl-tab-hub">Hub</span>
+      </button>
+      <button class="nav-tab active" data-mode="archaeologist" id="tab-archaeologist">
+        <span class="tab-icon">📡</span>
+        <span class="tab-label" id="lbl-tab-archaeologist">3D Scanner</span>
+      </button>
+      <button class="nav-tab highlight-cyan-tab" id="open-minigames-tab-btn"
+        title="Open Interactive NASA JPL Science Labs">
+        <span class="tab-icon">🧪</span>
+        <span class="tab-label">JPL Science Labs</span>
+      </button>
+      <button class="nav-tab" data-mode="sol5111" id="tab-sol5111">
+        <span class="tab-icon">🌪️</span>
+        <span class="tab-label" id="lbl-tab-sol5111">Sol 5111 Storm</span>
+      </button>
+      <button class="nav-tab" data-mode="drive" id="tab-drive">
+        <span class="tab-icon">🕹️</span>
+        <span class="tab-label" id="lbl-tab-drive">Drive Vehicle</span>
+      </button>
+      <button class="nav-tab highlight-gold" id="open-missions-btn">
+        <span class="tab-icon">🎯</span>
+        <span class="tab-label" id="lbl-tab-missions">Roadmap (<span id="top-badge-count">0/6</span>)</span>
+      </button>
+      <button class="nav-tab highlight" data-mode="pitch" id="tab-pitch">
+        <span class="tab-icon">🎬</span>
+        <span class="tab-label" id="lbl-tab-pitch">120s Pitch</span>
+      </button>
+    </nav>
+
+    <!-- Header Actions -->
+    <div class="header-actions">
+      <!-- Story Prologue Button -->
+      <button class="action-btn prologue-top-btn" id="btn-open-prologue" title="Open Asha & Leo Story Prologue">
+        <span>🎭</span>
+        <span class="btn-text">Prologue</span>
+      </button>
+
+      <!-- Fullscreen / Sidebar Collapse Toggle -->
+      <button class="action-btn highlight-cyan-tab" id="toggle-sidebar-btn"
+        title="Toggle Fullscreen Immersive Exploration Mode (Press F)">
+        <span id="sidebar-toggle-icon">⛶</span>
+        <span class="btn-text" id="lbl-sidebar-btn">Fullscreen</span>
+      </button>
+
+      <!-- Space Cadet Quiz -->
+      <button class="action-btn quiz-btn" id="open-quiz-btn" title="Play Multi-Tier Cadet Quiz & View Leaderboard">
+        <span>🏆</span>
+        <span class="btn-text" id="lbl-quiz-btn">Quiz &amp; Ranks</span>
+      </button>
+
+      <!-- Audio Toggle -->
+      <button class="action-btn audio-active" id="audio-toggle-btn" title="Toggle Atmospheric Soundscape">
+        <span id="audio-icon">🔊</span>
+        <span class="btn-text" id="lbl-audio-btn">Audio: ON</span>
+      </button>
+    </div>
+  </header>
+  <!-- FLOATING EXIT FULLSCREEN BUTTON (Active in Fullscreen Mode) -->
+  <button class="fullscreen-exit-floating-btn" id="btn-exit-fullscreen-floating"
+    title="Exit Fullscreen Mode (Press ESC or F)">
+    <span class="exit-icon">⛶</span>
+    <span class="exit-text">EXIT FULLSCREEN (ESC)</span>
+  </button>

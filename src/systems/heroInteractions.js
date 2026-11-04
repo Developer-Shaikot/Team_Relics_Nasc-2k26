@@ -137,10 +137,7 @@ export class HeroInteractionsManager {
       const el = document.getElementById(body.id);
       if (!el) return;
 
-      // Hover sound
-      el.addEventListener('mouseenter', () => {
-        martianAudio.playUiHover();
-      });
+      // Hover sound: handled globally (main.js 'hoverstart' listener)
 
       // Click: locks target, plays planet sound & switches destination
       el.addEventListener('click', (e) => {
@@ -203,7 +200,7 @@ export class HeroInteractionsManager {
         card.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
       });
 
-      card.addEventListener('mouseleave', () => {
+      card.addEventListener('hoverend', () => {
         card.style.transform = '';
       });
     });
@@ -244,10 +241,6 @@ export class HeroInteractionsManager {
   initLaunchIgnitionButton() {
     const startBtn = document.getElementById('hero-start-mission-btn');
     if (!startBtn) return;
-
-    startBtn.addEventListener('mouseenter', () => {
-      martianAudio.playUiHover();
-    });
 
     startBtn.addEventListener('click', (e) => {
       e.preventDefault();

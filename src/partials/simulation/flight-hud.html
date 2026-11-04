@@ -1,0 +1,84 @@
+  <!-- SPACEFLIGHT COCKPIT & FLIGHT AVIONICS HUD (Inspired by spaceflight.flexzonicgames.com) -->
+  <div class="spaceflight-hud-overlay" id="spaceflight-hud-overlay">
+    <!-- Top Avionics Heading Compass Tape -->
+    <div class="flight-compass-bar">
+      <div class="compass-marker-center">▼</div>
+      <div class="compass-tape-wrapper">
+        <div class="compass-tape" id="flight-compass-tape">
+          <span class="compass-point">N</span><span class="compass-tick">·</span>
+          <span class="compass-point">030</span><span class="compass-tick">·</span>
+          <span class="compass-point">060</span><span class="compass-tick">·</span>
+          <span class="compass-point">E</span><span class="compass-tick">·</span>
+          <span class="compass-point">120</span><span class="compass-tick">·</span>
+          <span class="compass-point">150</span><span class="compass-tick">·</span>
+          <span class="compass-point">S</span><span class="compass-tick">·</span>
+          <span class="compass-point">210</span><span class="compass-tick">·</span>
+          <span class="compass-point">240</span><span class="compass-tick">·</span>
+          <span class="compass-point">W</span><span class="compass-tick">·</span>
+          <span class="compass-point">300</span><span class="compass-tick">·</span>
+          <span class="compass-point">330</span><span class="compass-tick">·</span>
+        </div>
+      </div>
+      <div class="compass-readout" id="flight-compass-readout">HDG: 000° N</div>
+    </div>
+
+    <!-- Center Artificial Horizon / Pitch & Roll Gyro Attitude Ladder (REMOVED for clean rover view) -->
+    <div class="flight-attitude-center" id="flight-attitude-center" style="display: none !important;"></div>
+
+    <!-- DYNAMIC FLOATING COMPANION KITTY SPEECH BUBBLE (Audible Web Speech TTS) -->
+    <div class="hud-companion-speech" id="hud-companion-speech">
+      <div class="bubble-arrow-left"></div>
+      <div class="bubble-bot-avatar">🐱</div>
+      <div class="bubble-content">
+        <span class="bubble-speaker" id="hud-companion-speech-name">ASTRO-BOT (COMPANION)</span>
+        <p class="bubble-message" id="hud-companion-speech-text">Welcome to the surface, Commander! Follow my beacon to
+          Opportunity's resting place.</p>
+      </div>
+    </div>
+
+    <!-- DYNAMIC INCOMING RADIO TRANSMISSION ALERT PILL (Asha & Leo Radio) -->
+    <div class="hud-comms-alert-pill" id="hud-comms-alert-pill" style="display: none;">
+      <div class="comms-radio-wave pulse">📡</div>
+      <div class="comms-alert-text">
+        <strong id="comms-alert-caller">ASHA • DHAKA ROOFTOP</strong>
+        <span id="comms-alert-msg">Incoming telemetry transmission detected!</span>
+      </div>
+      <button class="comms-open-action-btn" id="btn-comms-open-action">OPEN ➔</button>
+      <button class="comms-dismiss-btn" id="btn-comms-dismiss">✕</button>
+    </div>
+
+    <!-- Left Avionics Speed & Flight Telemetry Flank -->
+    <div class="flight-avionics-left">
+      <div class="avionics-box">
+        <div class="avionics-label">SPEED</div>
+        <div class="avionics-val" id="flight-speed-val">0.0 <small>m/s</small></div>
+        <div class="avionics-bar">
+          <div class="avionics-bar-fill" id="flight-speed-bar" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div class="avionics-box">
+        <div class="avionics-label">G-FORCE</div>
+        <div class="avionics-val" id="flight-g-val">0.38 <small>G</small></div>
+      </div>
+      <div class="avionics-status-badge">
+        <span class="status-pulse-dot"></span>
+        <span id="flight-status-text">FLIGHT LINK: NOMINAL</span>
+      </div>
+    </div>
+
+    <!-- Right Avionics Altitude & Target Telemetry Flank -->
+    <div class="flight-avionics-right">
+      <div class="avionics-box">
+        <div class="avionics-label">ALTITUDE</div>
+        <div class="avionics-val" id="flight-alt-val">1.8 <small>m</small></div>
+      </div>
+      <div class="avionics-box">
+        <div class="avionics-label">TARGET RELIC</div>
+        <div class="avionics-val target-name" id="flight-target-val">OPPORTUNITY</div>
+        <div class="avionics-sub" id="flight-target-dist">DIST: 18.2m</div>
+      </div>
+      <button class="flight-hud-toggle-btn" id="flight-hud-toggle-btn" title="Toggle Cockpit Flight HUD">
+        <span>🛩️ HUD: ACTIVE</span>
+      </button>
+    </div>
+  </div>

@@ -1,0 +1,133 @@
+        <!-- STEP 5: LEVEL SELECTION (OPTIONAL DIRECT ACCESS) -->
+        <div class="aqua-step-panel" id="aqua-step-5-panel">
+          <div class="aqua-story-banner compact">
+            <div class="aqua-story-tag" data-i18n-en="STEP 5 • MISSION SELECTOR" data-i18n-bn="ধাপ ৫ • মিশন নির্বাচন">
+              STEP 5 • MISSION SELECTOR</div>
+            <h2 class="aqua-panel-title" data-i18n-en="Choose Any NASA Mission Level"
+              data-i18n-bn="যেকোনো নাসার মিশন বেছে নাও">Choose Any NASA Mission Level</h2>
+            <p class="aqua-panel-subtitle"
+              data-i18n-en="Select any flagship mission to launch immediately with your chosen companion bot."
+              data-i18n-bn="তোমার পছন্দের বটের সাথে সরাসরি যেকোনো মিশনে প্রবেশ করো।">Select any flagship mission to
+              launch immediately with your chosen companion bot.</p>
+          </div>
+
+          <div class="aqua-levels-grid">
+            <!-- Level 1: Moon Apollo 11 -->
+            <div class="aqua-level-card moon-card" id="aqua-lvl-card-1" data-dest="moon"
+              data-mission-id="moon_quest_apollo11"
+              onclick="window.launchAquaMission?.('moon', 'moon_quest_apollo11')">
+              <div class="aqua-lvl-top-row">
+                <span class="aqua-lvl-badge moon-badge">🌕 LEVEL 1 • MOON</span>
+                <div class="aqua-lvl-stars" id="aqua-stars-lvl-1">⭐⭐⭐</div>
+              </div>
+              <h3 class="aqua-lvl-title" data-i18n-en="Apollo 11 &amp; Tranquility Base"
+                data-i18n-bn="অ্যাপোলো ১১ ও শান্তিসাগর ঘাঁটি">Apollo 11 &amp; Tranquility Base</h3>
+              <p class="aqua-lvl-desc"
+                data-i18n-en="Drive your Lunar Rover to Apollo 11's ascent stage and solve the Delta-v Staging equation to achieve lunar orbit!"
+                data-i18n-bn="তোমার লুনার রোভার চালিয়ে অ্যাপোলো ১১ খুঁজে বের করো এবং রকেট সমীকরণ সমাধান করো!">Drive your
+                Lunar Rover to Apollo 11's ascent stage and solve the Delta-v Staging equation to achieve lunar orbit!
+              </p>
+              <div class="aqua-lvl-rewards">
+                <span>🪙 +100 Dust</span>
+                <span>⭐ +25 XP</span>
+                <span>🧪 Rocket Δv Lab</span>
+              </div>
+              <button class="aqua-lvl-launch-btn moon-btn" type="button" data-dest="moon"
+                data-mission-id="moon_quest_apollo11"
+                onclick="window.launchAquaMission?.('moon', 'moon_quest_apollo11'); event.stopPropagation();">
+                <span>🚀 START NOW ➔</span>
+              </button>
+            </div>
+
+            <!-- Level 2: Mars Opportunity -->
+            <div class="aqua-level-card mars-card" id="aqua-lvl-card-2" data-dest="mars"
+              data-mission-id="mission_locate"
+              onclick="window.launchAquaMission?.('mars', 'mission_locate')">
+              <div class="aqua-lvl-top-row">
+                <span class="aqua-lvl-badge mars-badge">🔴 LEVEL 2 • MARS</span>
+                <div class="aqua-lvl-stars" id="aqua-stars-lvl-2">⭐⭐⭐</div>
+              </div>
+              <h3 class="aqua-lvl-title" data-i18n-en="Opportunity: Blueberries of Life"
+                data-i18n-bn="অপরচুনিটি: জীবনের ব্লুবেরি">Opportunity: Blueberries of Life</h3>
+              <p class="aqua-lvl-desc"
+                data-i18n-en="Navigate Perseverance Valley, calibrate Opportunity's APXS spectrometer, and prove that rivers flowed on Mars!"
+                data-i18n-bn="পারসিভেরেন্স ভ্যালিতে অপরচুনিটির এপিএক্সএস স্পেকট্রোমিটার পরীক্ষা করে প্রমাণ করো মঙ্গলে নদী ছিল!">
+                Navigate Perseverance Valley, calibrate Opportunity's APXS spectrometer, and prove that rivers flowed on
+                Mars!</p>
+              <div class="aqua-lvl-rewards">
+                <span>🪙 +200 Dust</span>
+                <span>⭐ +50 XP</span>
+                <span>🔬 APXS Hematite Lab</span>
+              </div>
+              <button class="aqua-lvl-launch-btn mars-btn" type="button" data-dest="mars"
+                data-mission-id="mission_locate"
+                onclick="window.launchAquaMission?.('mars', 'mission_locate'); event.stopPropagation();">
+                <span>🚀 START NOW ➔</span>
+              </button>
+            </div>
+
+            <!-- Level 3: Mars InSight -->
+            <div class="aqua-level-card mars-card" id="aqua-lvl-card-3" data-dest="mars"
+              data-mission-id="mission_mossbauer"
+              onclick="window.launchAquaMission?.('mars', 'mission_mossbauer')">
+              <div class="aqua-lvl-top-row">
+                <span class="aqua-lvl-badge mars-badge">🔴 LEVEL 3 • MARS</span>
+                <div class="aqua-lvl-stars" id="aqua-stars-lvl-3">⭐⭐⭐</div>
+              </div>
+              <h3 class="aqua-lvl-title" data-i18n-en="InSight: The Heartbeat of Mars"
+                data-i18n-bn="ইনসাইট: মঙ্গলের হৃদস্পন্দন">InSight: The Heartbeat of Mars</h3>
+              <p class="aqua-lvl-desc"
+                data-i18n-en="Deploy the SEIS seismometer dome, triangulate P-wave and S-wave quakes, and listen to the core of the Red Planet!"
+                data-i18n-bn="ইনসাইটের সোনালী সিসমোমিটার চালু করো এবং মঙ্গলের গভীরে কম্পন পরিমাপ করো!">Deploy the SEIS
+                seismometer dome, triangulate P-wave and S-wave quakes, and listen to the core of the Red Planet!</p>
+              <div class="aqua-lvl-rewards">
+                <span>🪙 +300 Dust</span>
+                <span>⭐ +75 XP</span>
+                <span>💓 Seismometer Lab</span>
+              </div>
+              <button class="aqua-lvl-launch-btn mars-btn" type="button" data-dest="mars"
+                data-mission-id="mission_mossbauer"
+                onclick="window.launchAquaMission?.('mars', 'mission_mossbauer'); event.stopPropagation();">
+                <span>🚀 START NOW ➔</span>
+              </button>
+            </div>
+
+            <!-- Level 4: Deep Space Voyager 1 -->
+            <div class="aqua-level-card deep-card" id="aqua-lvl-card-4" data-dest="deepspace"
+              data-mission-id="mission_blackbox"
+              onclick="window.launchAquaMission?.('deepspace', 'mission_blackbox')">
+              <div class="aqua-lvl-top-row">
+                <span class="aqua-lvl-badge deep-badge">🌌 LEVEL 4 • DEEP SPACE</span>
+                <div class="aqua-lvl-stars" id="aqua-stars-lvl-4">⭐⭐⭐</div>
+              </div>
+              <h3 class="aqua-lvl-title" data-i18n-en="Voyager 1: The Golden Record"
+                data-i18n-bn="ভয়েজার ১: দ্য গোল্ডেন রেকর্ড">Voyager 1: The Golden Record</h3>
+              <p class="aqua-lvl-desc"
+                data-i18n-en="Relay scientific telemetry across 24.3 billion km, balance the RTG nuclear generator, and play the Golden Record!"
+                data-i18n-bn="২৪.৩ বিলিয়ন কিলোমিটার দূর থেকে সিগন্যাল রিলে করো এবং ঐতিহাসিক গোল্ডেন রেকর্ড বাজাও!">
+                Relay scientific telemetry across 24.3 billion km, balance the RTG nuclear generator, and play the
+                Golden Record!</p>
+              <div class="aqua-lvl-rewards">
+                <span>🪙 +500 Dust</span>
+                <span>⭐ +100 XP</span>
+                <span>📡 RTG Telemetry Lab</span>
+              </div>
+              <button class="aqua-lvl-launch-btn deep-btn" type="button" data-dest="deepspace"
+                data-mission-id="mission_blackbox"
+                onclick="window.launchAquaMission?.('deepspace', 'mission_blackbox'); event.stopPropagation();">
+                <span>🚀 START NOW ➔</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="aqua-panel-footer">
+            <button class="aqua-btn-secondary" id="btn-aqua-step5-back" type="button" onclick="window.setAquaStep(4)">
+              <span data-i18n-en="⬅ Back to Bots" data-i18n-bn="⬅ বট নির্বাচনে ফিরে যাও">⬅ Back to Bots</span>
+            </button>
+            <button class="aqua-btn-secondary" id="btn-aqua-finish-close" type="button"
+              onclick="window.closeAquaGuidedModal?.()">
+              <span data-i18n-en="✕ Close &amp; Return to Hub" data-i18n-bn="✕ বন্ধ করো ও হাবে যাও">✕ Close &amp; Return
+                to Hub</span>
+            </button>
+          </div>
+        </div>

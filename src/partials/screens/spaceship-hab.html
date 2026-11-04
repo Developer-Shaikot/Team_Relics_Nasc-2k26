@@ -1,0 +1,113 @@
+  <!-- =========================================================================
+       ABANDONED SPACESHIP HABITATION & READY ROOM SCREEN (DISABLED / BYPASSED)
+       ========================================================================= -->
+  <div class="spaceship-hab-screen" id="spaceship-hab-screen" style="display: none !important;">
+    <!-- Atmospheric Hab Interior Background with Bulkheads & Flickering Consoles -->
+    <div class="hab-interior-bg">
+      <div class="hab-bulkhead-grid"></div>
+      <div class="hab-ambient-fog"></div>
+      <div class="hab-floating-sparks"></div>
+    </div>
+
+    <!-- Hab Header -->
+    <header class="hab-top-bar">
+      <div class="hab-header-title">
+        <span class="hab-dot pulse"></span>
+        <span>ABANDONED SPACESHIP BRIDGE • HABITATION &amp; AIRLOCK READY ROOM</span>
+      </div>
+      <button class="hab-return-hub-btn" id="hab-return-hub-btn" title="Back to Game Hub">
+        <span>🏠 HUB</span>
+      </button>
+    </header>
+
+    <!-- Hab Stage: Character Staging + Interactive Exploration Stations -->
+    <main class="hab-main-stage">
+      <!-- Left: Character Status Pod -->
+      <aside class="hab-character-column">
+        <div class="hab-char-card">
+          <div class="hab-char-avatar-pod" id="hab-char-avatar-pod">
+            <!-- Rendered by SpaceshipHabManager -->
+          </div>
+          <h2 class="hab-character-name" id="hab-character-name">ASHA (DHAKA)</h2>
+          <span class="hab-character-role" id="hab-character-role">ASTROPHYSICIST &amp; RF HACKER</span>
+          <div class="hab-suit-status-tag" id="hab-suit-status">STATUS: CIVILIAN ATTIRE</div>
+        </div>
+
+        <div class="hab-guide-info-box">
+          <span class="info-icon">💡</span>
+          <p>Explore the abandoned consoles to recover historical mission dossiers &amp; star maps, then equip your
+            pressurized EVA spacesuit!</p>
+        </div>
+      </aside>
+
+      <!-- Center & Right: 3 Discovery Stations -->
+      <section class="hab-stations-grid">
+        <!-- Station 1: Mission Dossiers & Logs -->
+        <div class="hab-station-card" id="hab-station-files" role="button">
+          <div class="station-icon-glow">📁</div>
+          <div class="station-meta">
+            <span class="station-badge">HISTORICAL LOGS</span>
+            <h3 class="station-title">Abandoned Mission Dossiers</h3>
+            <p class="station-desc">Inspect classified NASA logs: Apollo 11 fuel math, Opportunity Sol 5111 decodes
+              &amp; Voyager 1 Golden Record trajectory.</p>
+          </div>
+          <div class="station-action-pill">INSPECT DOSSIER ➔</div>
+        </div>
+
+        <!-- Station 2: Star Map Navigation Console -->
+        <div class="hab-station-card" id="hab-station-map" role="button">
+          <div class="station-icon-glow">🗺️</div>
+          <div class="station-meta">
+            <span class="station-badge">CELESTIAL RADAR</span>
+            <h3 class="station-title">Holographic Star Map</h3>
+            <p class="station-desc">View interactive interplanetary corridor: Earth to Moon (Sea of Tranquility), Mars
+              (Endeavour Rim), and Interstellar Void.</p>
+          </div>
+          <div class="station-action-pill">VIEW STAR MAP ➔</div>
+        </div>
+
+        <!-- Station 3: Pressurized EVA Spacesuit Locker -->
+        <div class="hab-station-card locker-card" id="hab-station-suit">
+          <div class="station-icon-glow">👨‍🚀</div>
+          <div class="station-meta">
+            <span class="station-badge cyan">AIRLOCK LOCKER</span>
+            <h3 class="station-title">NASA EVA Spacesuit</h3>
+            <p class="station-desc">Equip high-durability thermal spacesuit equipped with heads-up display visor, oxygen
+              recyclers and radio comms.</p>
+          </div>
+          <button class="suit-up-action-btn" id="btn-suit-up">
+            <span>👨‍🚀 EQUIP NASA EVA SPACESUIT</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Guide Robot Arrival & Ride Launch Banner (Appears after suiting up) -->
+    <div class="hab-robot-arrival-banner" id="hab-robot-arrival-banner">
+      <div class="robot-speech-group">
+        <div class="robot-avatar-mini" id="hab-robot-avatar-mini">🤖</div>
+        <div class="robot-speech-bubble-hab">
+          <strong id="hab-robot-speech">"ASTRO-BOT: Commander Asha! Your ride is ready, let's go for
+            exploration!"</strong>
+          <span class="speech-sub">Select your planetary exploration vehicle destination:</span>
+        </div>
+      </div>
+
+      <div class="hab-ride-launch-buttons">
+        <button class="hab-launch-btn moon-btn" id="hab-launch-moon">
+          <span class="btn-icon">🌕</span>
+          <div class="btn-text-group">
+            <strong>EXPLORE MOON</strong>
+            <small>Apollo 11 Tranquility Base &amp; Lunar Buggy</small>
+          </div>
+        </button>
+        <button class="hab-launch-btn mars-btn" id="hab-launch-mars">
+          <span class="btn-icon">🔴</span>
+          <div class="btn-text-group">
+            <strong>EXPLORE MARS</strong>
+            <small>Opportunity, InSight &amp; Rocker-Bogie Rover</small>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
