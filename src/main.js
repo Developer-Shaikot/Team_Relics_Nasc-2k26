@@ -3628,17 +3628,26 @@ function initApplication() {
       flightAltVal.innerHTML = `${alt}`;
     }
 
-    // 4. Target Relic & Distance
+    // 4. Target Relic & Distance (always follows the ACTIVE mission, never hard-coded per planet)
     if (flightTargetVal && flightTargetDist) {
-      if (currentPlanet === 'moon') {
-        flightTargetVal.innerText = 'APOLLO 11 (LM EAGLE)';
-        flightTargetDist.innerText = 'TRANQUILITY BASE • HISTORIC SITE';
-      } else if (currentPlanet === 'deepspace') {
+      if (currentPlanet === 'deepspace') {
         flightTargetVal.innerText = 'VOYAGER 1 & GOLDEN RECORD';
         flightTargetDist.innerText = 'HELIOPAUSE • 24.3 BILLION KM';
       } else {
-        flightTargetVal.innerText = 'OPPORTUNITY (MER-B)';
-        flightTargetDist.innerText = 'PERSEVERANCE VALLEY • CRATER RIM';
+        const activeMissionForHud = getActiveMission();
+        const activeArtifactForHud = activeMissionForHud ? getActiveMissionArtifact(activeMissionForHud.id) : null;
+        const siteName = currentPlanet === 'moon' ? 'TRANQUILITY BASE' : 'PERSEVERANCE VALLEY';
+        if (activeArtifactForHud) {
+          flightTargetVal.innerText = String(activeArtifactForHud.title || '').toUpperCase();
+          const missionTag = activeMissionForHud.stationYear ? ` • ${activeMissionForHud.stationYear}` : '';
+          flightTargetDist.innerText = `${siteName}${missionTag}`;
+        } else if (currentPlanet === 'moon') {
+          flightTargetVal.innerText = 'LUNAR RELIC';
+          flightTargetDist.innerText = 'TRANQUILITY BASE • HISTORIC SITE';
+        } else {
+          flightTargetVal.innerText = 'MARTIAN RELIC';
+          flightTargetDist.innerText = 'PERSEVERANCE VALLEY • CRATER RIM';
+        }
       }
     }
   }
