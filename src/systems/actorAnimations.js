@@ -424,7 +424,11 @@ export class ActorAnimationDirector {
     const ashaAvatar = document.getElementById('comms-asha-avatar');
     const leoAvatar = document.getElementById('comms-leo-avatar');
 
-    if (bubble) bubble.classList.add('visible');
+    if (bubble) {
+      bubble.classList.remove('visible');
+      bubble.style.display = 'none';
+    }
+    if (widget) widget.style.display = 'none';
     if (widget) {
       widget.dataset.speaker = speaker;
       widget.dataset.emotion = emotion;

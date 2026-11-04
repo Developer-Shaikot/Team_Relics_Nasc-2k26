@@ -109,6 +109,7 @@ export class MissionQuestManager {
 
     // Update Top & Hub UI bars
     this.updateXPDisplays();
+    window.profileManager?.syncProgressFromGame();
     if (this.onXPChangeCallback) {
       this.onXPChangeCallback(this.userXP, this.userLevel, this.userGems);
     }
@@ -227,7 +228,23 @@ export class MissionQuestManager {
     const discGems = document.getElementById('disc-modal-gems');
     const discIcon = document.getElementById('disc-modal-icon');
 
-    if (discBadge) discBadge.innerText = isBn ? `মিশন ${mission.level} সম্পন্ন!` : `GREAT JOB! MISSION COMPLETED!`;
+    if (mission.level === 1) {
+      if (discBadge) discBadge.innerText = isBn ? 'মিশন ১ সম্পন্ন! 🌟' : 'MISSION 1 COMPLETE! 🌟';
+      if (discTitle) discTitle.innerText = isBn ? 'দারুণ করেছ, মহাকাশ অভিযাত্রী! 🌟' : 'Awesome work, Space Explorer! 🌟';
+      if (discDesc) discDesc.innerText = isBn ? 'তুমি পেরেছ! তোমার প্রথম Mission সম্পন্ন হয়েছে। এবার আরও কিছু আবিষ্কার করতে প্রস্তুত?' : 'You did it! Your first mission is complete. Ready to explore more?';
+    } else {
+      if (discBadge) discBadge.innerText = isBn ? `মিশন ${mission.level} সম্পন্ন!` : 'GREAT JOB! MISSION COMPLETED!';
+      if (discTitle) discTitle.innerText = isBn ? mission.title_bn : mission.title_en;
+      if (discDesc) discDesc.innerText = isBn ? mission.desc_bn : mission.desc_en;
+    }
+    const homeBtnText = document.getElementById('disc-home-btn-text');
+    if (homeBtnText) {
+      homeBtnText.innerText = isBn ? '🏠 হোমপেজে যাও' : '🏠 GO TO HOMEPAGE';
+    }
+    const nextBtnText = document.getElementById('disc-next-btn-text');
+    if (nextBtnText) {
+      nextBtnText.innerText = isBn ? '🚀 আরও এক্সপ্লোর করো ➔' : '🚀 EXPLORE MORE MISSIONS ➔';
+    }
     if (discTitle) discTitle.innerText = isBn ? mission.title_bn : mission.title_en;
     if (discDesc) discDesc.innerText = isBn ? mission.desc_bn : mission.desc_en;
     if (discFact) discFact.innerText = isBn ? (mission.discoveryFact_bn || '') : (mission.discoveryFact_en || '');

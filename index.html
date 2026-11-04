@@ -19,6 +19,10 @@
 </head>
 
 <body>
+  <!-- Persistent In-Game 3D Back to Hub Button -->
+  <button id="btn-in-game-back-to-hub" class="in-game-back-to-hub-btn" style="display: none;" title="Back to Game Hub" onclick="window.openGameHub();">
+    <span>⬅ Back to Hub</span>
+  </button>
   <!-- 3D WebGL Canvas Container -->
   <div id="webgl-container"></div>
 
@@ -67,10 +71,17 @@
   </div>
 
   <script>
-    // Immediate early handlers for Aqua Guided Wizard (fail-safe)
+    // Immediate early handlers for Aqua Guided Wizard & NASA 2026 Onboarding (Fail-Safe)
+    window.__currentWizardLang = localStorage.getItem('nasa_lang') || 'en';
+    window.__currentWizardStep = 1;
+    window.__currentVideoSlide = 1;
+    window.__currentTourStep = 1;
+    window.__selectedBotId = localStorage.getItem('nasa_selected_bot') || 'echo';
+
     window.setAquaStep = function(step) {
-      var currentStep = Math.max(1, Math.min(3, step));
-      for (var i = 1; i <= 3; i++) {
+      var currentStep = Math.max(1, Math.min(5, step));
+      window.__currentWizardStep = currentStep;
+      for (var i = 1; i <= 5; i++) {
         var node = document.getElementById('aqua-step-indicator-' + i);
         var panel = document.getElementById('aqua-step-' + i + '-panel');
         if (node) {
@@ -81,15 +92,84 @@
           panel.classList.toggle('active', i === currentStep);
         }
       }
-      var conn1 = document.getElementById('aqua-step-conn-1');
-      var conn2 = document.getElementById('aqua-step-conn-2');
-      if (conn1) conn1.classList.toggle('filled', currentStep >= 2);
-      if (conn2) conn2.classList.toggle('filled', currentStep >= 3);
+      for (var c = 1; c <= 4; c++) {
+        var conn = document.getElementById('aqua-step-conn-' + c);
+        if (conn) conn.classList.toggle('filled', currentStep > c);
+      }
+      if (currentStep === 3) {
+        window.startVideoPlayback && window.startVideoPlayback();
+      }
+    };
+
+    window.openGameHub = function() {
+      var modal = document.getElementById('aqua-guided-modal-backdrop');
+      if (modal) {
+        modal.classList.remove('active');
+        modal.style.setProperty('display', 'none', 'important');
+      }
+      var splash = document.getElementById('aqua-splash-screen');
+      if (splash) {
+        splash.classList.remove('active');
+        splash.classList.add('fading-out');
+        splash.style.setProperty('display', 'none', 'important');
+        splash.style.pointerEvents = 'none';
+      }
+      window.__isSplashActive = false;
+
+      var hub = document.getElementById('game-hub-screen');
+      if (hub) {
+        hub.style.setProperty('display', 'grid', 'important');
+        hub.classList.add('active');
+      }
+      var inGameBack = document.getElementById('btn-in-game-back-to-hub');
+      if (inGameBack) inGameBack.style.display = 'none';
+      document.querySelectorAll('.modal-backdrop.active').forEach(function(m) {
+        m.classList.remove('active');
+      });
+      window.profileManager?.recordScreen('game-hub', { tab: 'home' });
+    };
+
+    window.completeOnboardingToHub = function() {
+      try {
+        var nameInput = document.getElementById('aqua-cadet-name-input');
+        var val = (nameInput && nameInput.value.trim()) || 'Cadet Explorer';
+        var curAge = parseInt(localStorage.getItem('nasa_player_age'), 10) || 10;
+        var chosenBot = localStorage.getItem('nasa_selected_bot') || window.__selectedBotId || 'echo';
+
+        if (window.__isRegisteringNewCadet || !window.profileManager?.getActiveProfile()) {
+          window.profileManager?.createProfile({
+            name: val,
+            age: curAge,
+            botId: chosenBot
+          });
+          window.__isRegisteringNewCadet = false;
+        } else {
+          window.profileManager?.updateActiveProfile({
+            name: val,
+            age: curAge,
+            botId: chosenBot
+          });
+        }
+        localStorage.removeItem('nasa_user_logged_out');
+        window.setGameCompanion && window.setGameCompanion(chosenBot);
+      } catch(e) {}
+      window.openGameHub();
+    };
+
+    window.closeGameHub = function() {
+      var hub = document.getElementById('game-hub-screen');
+      if (hub) {
+        hub.classList.remove('active');
+        hub.style.display = 'none';
+      }
     };
 
     window.closeAquaGuidedModal = function() {
       var modal = document.getElementById('aqua-guided-modal-backdrop');
-      if (modal) modal.classList.remove('active');
+      if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+      }
       var hub = document.getElementById('game-hub-screen');
       if (hub) {
         hub.style.display = 'grid';
@@ -104,33 +184,131 @@
         modal.style.display = 'flex';
         modal.classList.add('active');
       }
-      var hub = document.getElementById('game-hub-screen');
-      if (hub) {
-        hub.style.display = 'grid';
-        hub.classList.add('active');
+    };
+
+    // Age Selector (6 to 16)
+    window.setCadetAge = function(age) {
+      var a = parseInt(age, 10) || 10;
+      a = Math.max(6, Math.min(16, a));
+      try {
+        localStorage.setItem('nasa_player_age', a);
+      } catch(e) {}
+      document.querySelectorAll('.aqua-age-pill').forEach(function(pill) {
+        pill.classList.toggle('active', parseInt(pill.getAttribute('data-age'), 10) === a);
+      });
+      var profileTitle = document.getElementById('aqua-age-profile-title');
+      var profileDesc = document.getElementById('aqua-age-profile-desc');
+      var isBn = window.__currentWizardLang === 'bn';
+      if (a <= 10) {
+        if (profileTitle) profileTitle.innerText = isBn ? '🌟 জুনিয়র এক্সপ্লোরার (বয়স ৬–১০)' : '🌟 Junior Explorer (Ages 6–10)';
+        if (profileDesc) profileDesc.innerText = isBn ? 'সহজ রোভার চালনা, বড় আইকন ও বন্ধুত্বপূর্ণ দিকনির্দেশনা!' : 'Visual hints, friendly bot guidance & easy rover controls!';
+      } else {
+        if (profileTitle) profileTitle.innerText = isBn ? '🚀 সিনিয়র স্পেস ক্যাডেট (বয়স ১১–১৬)' : '🚀 Senior Space Cadet (Ages 11–16)';
+        if (profileDesc) profileDesc.innerText = isBn ? 'আসল নাসার বৈজ্ঞানিক যন্ত্রপাতি, রেডিও সিগন্যাল ও রকেট ফিজিক্স!' : 'Authentic JPL spectrometers, deep space telemetry & orbital delta-v physics!';
       }
     };
 
-    window.selectAquaCommander = function(char) {
-      var isAsha = char === 'asha';
-      var cardAsha = document.getElementById('aqua-char-card-asha');
-      var cardLeo = document.getElementById('aqua-char-card-leo');
-      var statusAsha = document.getElementById('aqua-asha-select-status');
-      var statusLeo = document.getElementById('aqua-leo-select-status');
-
-      if (cardAsha) cardAsha.classList.toggle('active', isAsha);
-      if (cardLeo) cardLeo.classList.toggle('active', !isAsha);
-      if (statusAsha) statusAsha.innerText = isAsha ? '✓ SELECTED' : 'SELECT';
-      if (statusLeo) statusLeo.innerText = !isAsha ? '✓ SELECTED' : 'SELECT';
-
+    // Bot Selection: Echo (Astro-Bot), Nova (Cyber-Kitty), Orion (Rover-Drone)
+    window.selectWizardBot = function(botId) {
+      window.__selectedBotId = botId;
       try {
-        localStorage.setItem('jdsn_selected_commander', char);
-        localStorage.setItem('nasa_selected_commander', char);
-      } catch (err) {}
-
-      if (typeof window.setGameCommander === 'function') {
-        window.setGameCommander(char);
+        localStorage.setItem('nasa_selected_bot', botId);
+        localStorage.setItem('nasa_selected_companion', botId);
+      } catch(e) {}
+      ['echo', 'nova', 'orion'].forEach(function(id) {
+        var card = document.getElementById('aqua-bot-card-' + id);
+        var ind = document.getElementById('aqua-bot-ind-' + id);
+        var isActive = (id === botId);
+        if (card) card.classList.toggle('active', isActive);
+        if (ind) {
+          var isBn = window.__currentWizardLang === 'bn';
+          ind.innerText = isActive ? (isBn ? '✓ নির্বাচিত সঙ্গী' : '✓ SELECTED BUDDY') : (isBn ? 'এই বটটি বেছে নাও' : 'CHOOSE THIS BOT');
+        }
+      });
+      if (typeof window.setGameCompanion === 'function') {
+        window.setGameCompanion(botId);
       }
+    };
+
+    // Backward compatibility for commander cards if referenced
+    window.selectAquaCommander = function(char) {
+      window.selectWizardBot(char === 'asha' ? 'echo' : 'nova');
+    };
+
+    // Exploration Video Presentation Logic
+    window.setVideoSlide = function(slideNum) {
+      window.__currentVideoSlide = Math.max(1, Math.min(3, slideNum));
+      for (var s = 1; s <= 3; s++) {
+        var slide = document.getElementById('aqua-video-slide-' + s);
+        var dot = document.getElementById('aqua-video-dot-' + s);
+        if (slide) slide.style.display = (s === window.__currentVideoSlide) ? 'block' : 'none';
+        if (dot) dot.classList.toggle('active', s === window.__currentVideoSlide);
+      }
+      var fill = document.getElementById('aqua-video-progress-fill');
+      if (fill) fill.style.width = (window.__currentVideoSlide * 33.33) + '%';
+    };
+
+    window.advanceVideoSlide = function() {
+      if (window.__currentVideoSlide < 3) {
+        window.setVideoSlide(window.__currentVideoSlide + 1);
+      } else {
+        window.setAquaStep(4);
+      }
+    };
+
+    window.replayVideo = function() {
+      window.setVideoSlide(1);
+    };
+
+    window.skipVideo = function() {
+      window.setAquaStep(4);
+    };
+
+    window.startVideoPlayback = function() {
+      window.setVideoSlide(1);
+    };
+
+    // Language Toggle (English <-> Bengali)
+    window.toggleWizardLanguage = function() {
+      var next = (window.__currentWizardLang === 'en') ? 'bn' : 'en';
+      window.applyWizardLanguage(next);
+      if (typeof window.setGlobalGameLanguage === 'function') {
+        window.setGlobalGameLanguage(next);
+      }
+    };
+
+    window.applyWizardLanguage = function(lang) {
+      window.__currentWizardLang = lang;
+      try { localStorage.setItem('nasa_lang', lang); } catch(e) {}
+      var isBn = lang === 'bn';
+      var langLabel = document.getElementById('aqua-lang-label');
+      if (langLabel) langLabel.innerText = isBn ? 'English (EN)' : 'বাংলা (BN)';
+
+      // Update text nodes across the wizard
+      document.querySelectorAll('[data-i18n-en]').forEach(function(el) {
+        var txt = isBn ? el.getAttribute('data-i18n-bn') : el.getAttribute('data-i18n-en');
+        if (txt) el.innerText = txt;
+      });
+      document.querySelectorAll('[data-i18n-placeholder-en]').forEach(function(el) {
+        var ph = isBn ? el.getAttribute('data-i18n-placeholder-bn') : el.getAttribute('data-i18n-placeholder-en');
+        if (ph) el.placeholder = ph;
+      });
+      var curAge = parseInt(localStorage.getItem('nasa_player_age'), 10) || 10;
+      window.setCadetAge(curAge);
+      window.selectWizardBot(window.__selectedBotId || 'echo');
+    };
+
+    // Direct Launch First Mission -> Opens Game Hub
+    window.launchFirstMission = function() {
+      var nameInput = document.getElementById('aqua-cadet-name-input');
+      var nameVal = (nameInput && nameInput.value.trim()) || 'Cadet Explorer';
+      try {
+        localStorage.setItem('nasa_player_callsign', nameVal);
+        localStorage.setItem('nasa_selected_bot', window.__selectedBotId || 'echo');
+        localStorage.removeItem('nasa_user_logged_out');
+      } catch(e) {}
+
+      window.openGameHub();
     };
 
     window.launchAquaMission = function(dest, missionId) {
@@ -175,6 +353,93 @@
     window.startGame = window.dismissAquaSplash;
     window.handleStartGameClick = window.dismissAquaSplash;
 
+    // Guided Homepage Tour Handlers (Section 8 & ৮)
+    window.startHomepageTour = function() {
+      window.__currentTourStep = 1;
+      var tour = document.getElementById('aqua-tour-backdrop');
+      if (tour) {
+        tour.classList.add('active');
+        tour.style.display = 'flex';
+        window.renderTourStep(1);
+      }
+    };
+
+    window.closeHomepageTour = function() {
+      var tour = document.getElementById('aqua-tour-backdrop');
+      if (tour) {
+        tour.classList.remove('active');
+        tour.style.display = 'none';
+      }
+    };
+
+    window.nextTourStep = function() {
+      if (window.__currentTourStep < 4) {
+        window.__currentTourStep++;
+        window.renderTourStep(window.__currentTourStep);
+      } else {
+        window.closeHomepageTour();
+      }
+    };
+
+    window.prevTourStep = function() {
+      if (window.__currentTourStep > 1) {
+        window.__currentTourStep--;
+        window.renderTourStep(window.__currentTourStep);
+      }
+    };
+
+    window.renderTourStep = function(step) {
+      var isBn = window.__currentWizardLang === 'bn';
+      var titleEl = document.getElementById('aqua-tour-title');
+      var descEl = document.getElementById('aqua-tour-desc');
+      var numEl = document.getElementById('aqua-tour-step-num');
+      var nextBtn = document.getElementById('aqua-tour-next-btn');
+      var prevBtn = document.getElementById('aqua-tour-prev-btn');
+
+      if (numEl) numEl.innerText = step + ' / 4';
+      if (prevBtn) prevBtn.style.display = step > 1 ? 'inline-flex' : 'none';
+      if (nextBtn) {
+        if (step === 4) {
+          nextBtn.innerText = isBn ? 'অভিযান শুরু করো! 🚀' : 'Start Exploring! 🚀';
+        } else {
+          nextBtn.innerText = isBn ? 'পরবর্তী অংশ ➔' : 'Next Section ➔';
+        }
+      }
+
+      var tourData = [
+        {
+          titleEn: '1. Planetary Gateways 🪐',
+          titleBn: '১. গ্রহের প্রবেশদ্বার 🪐',
+          descEn: 'Choose your cosmic destination! Venture across lunar craters, navigate Martian valleys, or journey into Deep Space.',
+          descBn: 'তোমার পছন্দের মহাজাগতিক গন্তব্য বেছে নাও—চাঁদের জ্বালামুখী, মঙ্গলের লাল মাটি কিংবা গভীর মহাশূন্যে পাড়ি দাও!'
+        },
+        {
+          titleEn: '2. 3D Solar System & Orrery 🌌',
+          titleBn: '২. সৌরজগতের ৩D অরারি 🌌',
+          descEn: 'Inspect real-time 3D planetary orbits! Watch how worlds circle the Sun in accurate celestial mechanics.',
+          descBn: 'গ্রহগুলোর বাস্তবসম্মত ৩D কক্ষপথ পর্যবেক্ষণ করো এবং কীভাবে তারা সূর্যের চারদিকে ঘোরে তা দেখো!'
+        },
+        {
+          titleEn: '3. JPL Science & Telemetry Labs 🧪',
+          titleBn: '৩. নাসার সায়েন্স ল্যাব 🧪',
+          descEn: 'Calibrate real NASA instruments! Run rocket delta-v staging, decode hematite spectra, and analyze marsquakes.',
+          descBn: 'নাসার আসল যন্ত্রপাতি ব্যবহার করো—রকেট সমীকরণ সমাধান করো এবং মঙ্গল-কম্পন পরিমাপ করো!'
+        },
+        {
+          titleEn: '4. Cosmic Quizzes & Badges 🏆',
+          titleBn: '৪. কুইজ ও স্পেস ব্যাজ 🏆',
+          descEn: 'Test your space knowledge, climb the global cadet leaderboard, and unlock official NASA Space Apps Grand Master badges!',
+          descBn: 'মহাকাশ কুইজে অংশ নিয়ে লিডারবোর্ডে এগিয়ে যাও এবং গ্র্যান্ড মাস্টার ব্যাজ অর্জন করো!'
+        }
+      ];
+
+      var d = tourData[step - 1];
+      if (d) {
+        if (titleEl) titleEl.innerText = isBn ? d.titleBn : d.titleEn;
+        if (descEl) descEl.innerText = isBn ? d.descBn : d.descEn;
+      }
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
       const btn = document.getElementById('btn-aqua-splash-start');
       if (btn) {
@@ -206,6 +471,9 @@
       </div>
 
       <!-- Center: Cadet Profile Capsule -->
+      <button class="hub-profile-switch-btn" id="btn-hub-switch-profile" type="button" title="Switch Space Cadet Profile or Log Out" onclick="window.profileManager?.openProfileSwitcherModal();">
+        <span>👤 Switch Cadet</span>
+      </button>
       <div class="hub-center-profile-capsule hub-profile-click hub-profile-chip" id="hub-profile-click" title="Click to view Badges & Certificate">
         <div class="hub-avatar-circle" id="hub-profile-avatar-icon">🧑‍🚀</div>
         <div class="hub-user-meta">
@@ -323,6 +591,14 @@
 
       <!-- Navigation Links -->
       <nav class="drawer-nav-list">
+        <button class="drawer-nav-item" id="drawer-nav-logout" type="button" onclick="window.closeDrawerSidebar?.(); window.profileManager?.logout();">
+          <span class="d-icon">🚪</span>
+          <div class="d-text-col">
+            <span class="d-label">Switch Cadet / Log Out</span>
+            <span class="d-sub">Manage Cadet Profiles &amp; Achievements</span>
+          </div>
+        </button>
+
         <button class="drawer-nav-item active" id="drawer-nav-home">
           <span class="d-icon">🏠</span>
           <div class="d-text-col">
@@ -423,7 +699,17 @@
       <!-- Center Hero Showcase: Moving Celestial Background + Character Selector + Guide Robot + Start Mission -->
       <section class="hub-hero-section full-hero-section">
         <!-- Moving Space Background with Mars, Moon & Voyager Beacon -->
-        <div class="hub-hero-bg">
+        <div class="hub-hero-bg nasa-eyes-active" id="hub-hero-bg">
+          <!-- NASA Eyes on the Solar System 3D Interactive Simulation Background -->
+          <iframe 
+            id="hub-nasa-eyes-frame" 
+            class="hub-nasa-eyes-iframe" 
+            src="https://eyes.nasa.gov/apps/solar-system/#/home" 
+            title="NASA Eyes on the Solar System 3D Simulation" 
+            loading="eager" 
+            allow="fullscreen; autoplay; accelerometer; gyroscope"
+            tabindex="-1">
+          </iframe>
           <!-- Real 3D Three.js WebGL Celestial Orrery Canvas Container -->
           <div id="hero-3d-webgl-container" class="hero-3d-webgl-container"></div>
           <div class="hub-hero-overlay"></div>
@@ -438,7 +724,12 @@
                 <span id="lbl-hero-tag">JUNIOR DEEP SPACE NETWORK • MISSION STAGING CONSOLE</span>
               </div>
               <div class="hero-meta-interactive-group">
-                <span class="hero-3d-hint-pill" id="hero-3d-hint-pill" title="Drag anywhere in space to orbit the 3D celestial bodies!">🎮 3D ORRERY • DRAG TO ROTATE</span>
+                <span class="hero-3d-hint-pill" id="hero-3d-hint-pill" title="Hover over Moon, Mars or Voyager to lock 3D focus!">🛰️ NASA EYES: SOLAR SYSTEM REAL-TIME • HOVER WORLD TO FLY</span>
+                <button class="hero-engine-toggle-btn" id="btn-toggle-hero-engine" type="button" title="Switch 3D Simulation Engine: NASA Eyes Live ↔ Procedural Three.js">
+                  <span class="engine-badge-icon">🌐</span>
+                  <span class="engine-badge-label" id="lbl-hero-engine-mode">NASA EYES 3D</span>
+                  <span class="engine-toggle-pill">SWITCH ▾</span>
+                </button>
                 <!-- Interactive Stardust Hunter Counter for Children! -->
                 <div class="hero-dust-hunter-badge" id="hero-dust-hunter-badge" title="Click floating crystals in 3D space to collect Cosmic Dust!">
                   <span class="mote-icon pulse">✨</span>
@@ -447,118 +738,121 @@
               </div>
             </div>
 
-            <!-- Title Row with Quote -->
-            <div class="hero-title-wrap centered-title">
-              <h1 class="hero-game-title" id="lbl-hero-title">RELICS OF THE COSMIC DUST</h1>
+            <!-- Transmission Quote Bar -->
+            <div class="hero-quote-bar">
+              <span class="quote-satellite-icon pulse">🛰️</span>
               <p class="hero-game-subtitle" id="lbl-hero-sub">
-                "When we leave something behind on the Moon or Mars, it is not 'Space Junk'—it is a permanent monument to human curiosity etched into the cosmos."
+                "When we leave something behind on the Moon or Mars, it is not 'Space Junk'—it is a permanent monument to human curiosity."
               </p>
             </div>
           </div>
 
-          <!-- FIRST PAGE: MISSION COMMANDER SELECTION DECK -->
-          <div class="hub-commander-selection-deck" id="hub-commander-selection-deck">
-            <div class="cmd-deck-label-row">
-              <span class="cmd-deck-tag">👨‍🚀 CHOOSE MISSION COMMANDER</span>
-              <span class="cmd-deck-hint">Selected character leads all expeditions, collects points on the Leaderboard &amp; earns your NASA Master Certificate!</span>
+          <!-- COMPACT MISSION COMMANDER SELECTOR -->
+          <div class="hub-commander-compact-bar" id="hub-commander-selection-deck">
+            <div class="cmd-compact-lead-label">
+              <span class="cmd-icon-pulse">👨‍🚀</span>
+              <span class="cmd-lead-title">MISSION COMMANDER:</span>
             </div>
-            <div class="cmd-deck-cards-grid">
-              <!-- Commander Asha Card -->
-              <div class="hub-commander-card active" id="hub-cmd-card-asha" data-commander="asha" role="button" tabindex="0">
-                <div class="cmd-card-avatar-wrap asha-avatar-wrap">
-                  <span class="cmd-avatar-icon">👩‍🚀</span>
-                  <span class="cmd-online-pulse"></span>
-                </div>
-                <div class="cmd-card-content">
-                  <div class="cmd-card-topline">
-                    <strong class="cmd-card-name">COMMANDER ASHA</strong>
+            <div class="cmd-compact-cards-row">
+              <!-- Commander Asha -->
+              <div class="hub-commander-compact-chip active" id="hub-cmd-card-asha" data-commander="asha" role="button" tabindex="0">
+                <div class="cmd-chip-avatar asha">👩‍🚀</div>
+                <div class="cmd-chip-info">
+                  <div class="cmd-chip-name-row">
+                    <strong class="cmd-chip-name">COMMANDER ASHA</strong>
                     <span class="cmd-card-status-badge active-lead" id="badge-status-asha">✓ ACTIVE LEAD</span>
                   </div>
-                  <span class="cmd-card-location">Dhaka, Bangladesh • Rooftop Antenna Ground Station</span>
-                  <div class="cmd-card-stats-row">
-                    <span class="cmd-stat-pill">🪙 <strong id="asha-points-val">3,250</strong> PTS</span>
-                    <span class="cmd-stat-pill gold">🏆 RANK <strong id="asha-rank-val">#1</strong></span>
-                    <span class="cmd-stat-pill cyan">📡 RF Signals</span>
+                  <div class="cmd-chip-meta">
+                    <span>Dhaka Rooftop</span> • <span>🪙 <strong id="asha-points-val">7,475</strong> PTS</span>
+                    <span id="asha-rank-val" style="display:none;">#1</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Commander Leo Card -->
-              <div class="hub-commander-card" id="hub-cmd-card-leo" data-commander="leo" role="button" tabindex="0">
-                <div class="cmd-card-avatar-wrap leo-avatar-wrap">
-                  <span class="cmd-avatar-icon">👨‍🚀</span>
-                  <span class="cmd-online-pulse"></span>
-                </div>
-                <div class="cmd-card-content">
-                  <div class="cmd-card-topline">
-                    <strong class="cmd-card-name">COMMANDER LEO</strong>
+              <!-- Commander Leo -->
+              <div class="hub-commander-compact-chip" id="hub-cmd-card-leo" data-commander="leo" role="button" tabindex="0">
+                <div class="cmd-chip-avatar leo">👨‍🚀</div>
+                <div class="cmd-chip-info">
+                  <div class="cmd-chip-name-row">
+                    <strong class="cmd-chip-name">COMMANDER LEO</strong>
                     <span class="cmd-card-status-badge" id="badge-status-leo">SELECT LEAD</span>
                   </div>
-                  <span class="cmd-card-location">Cape Canaveral, Florida • Flight Telemetry &amp; Robotics</span>
-                  <div class="cmd-card-stats-row">
-                    <span class="cmd-stat-pill">🪙 <strong id="leo-points-val">3,410</strong> PTS</span>
-                    <span class="cmd-stat-pill gold">🏆 RANK <strong id="leo-rank-val">#2</strong></span>
-                    <span class="cmd-stat-pill cyan">🕹️ Robotics</span>
+                  <div class="cmd-chip-meta">
+                    <span>Cape Canaveral</span> • <span>🪙 <strong id="leo-points-val">3,410</strong> PTS</span>
+                    <span id="leo-rank-val" style="display:none;">#2</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- DUAL PRIMARY EXPLORATION GATEWAYS (MOON & MARS) -->
-          <div class="hero-primary-portals-grid" role="region" aria-label="Choose Planetary Destination">
+          <!-- 3 PRIMARY CELESTIAL EXPEDITION GATEWAYS (MOON, MARS & DEEP SPACE) -->
+          <div class="hero-primary-portals-grid triple-portals-grid" role="region" aria-label="Choose Planetary Destination">
             <!-- Portal 1: Explore the Moon -->
             <div class="exploration-portal-card moon-portal" id="portal-explore-moon" role="button" tabindex="0">
-              <div class="portal-badge-pill moon-pill">🌕 MOON EXPEDITION</div>
+              <div class="portal-badge-pill moon-pill">🌕 MOON BASE</div>
               <div class="portal-icon-wrap">
                 <div class="portal-halo moon-halo"></div>
                 <span class="portal-big-icon">🌕</span>
               </div>
               <div class="portal-info-col">
-                <h2 class="portal-title">EXPLORE THE MOON</h2>
-                <p class="portal-desc">Tranquility Base • Apollo 11 Ascent Staging &amp; Surveyor Soft Landers</p>
+                <h2 class="portal-title">THE MOON</h2>
+                <p class="portal-desc">Tranquility Base • Apollo 11</p>
                 <div class="portal-meta-tags">
-                  <span class="p-tag">🚀 6 Lunar Relics</span>
-                  <span class="p-tag">⭐ Delta-v Staging</span>
+                  <span class="p-tag">🚀 6 Relics</span>
+                  <span class="p-tag">⭐ Delta-v</span>
                 </div>
               </div>
               <div class="portal-action-col">
                 <button class="portal-launch-btn moon-btn" id="btn-portal-launch-moon" type="button">
-                  <span>ENTER LUNAR BASE ➔</span>
+                  <span>ENTER BASE ➔</span>
                 </button>
               </div>
             </div>
 
             <!-- Portal 2: Explore Mars -->
             <div class="exploration-portal-card mars-portal active" id="portal-explore-mars" role="button" tabindex="0">
-              <div class="portal-badge-pill mars-pill">🔴 MARS EXPEDITION</div>
+              <div class="portal-badge-pill mars-pill">🔴 MARS VALLEY</div>
               <div class="portal-icon-wrap">
                 <div class="portal-halo mars-halo"></div>
                 <span class="portal-big-icon">🔴</span>
               </div>
               <div class="portal-info-col">
-                <h2 class="portal-title">EXPLORE MARS</h2>
-                <p class="portal-desc">Perseverance Valley • Opportunity 5,111 Sols &amp; InSight Seismology</p>
+                <h2 class="portal-title">PLANET MARS</h2>
+                <p class="portal-desc">Perseverance Valley • Opportunity</p>
                 <div class="portal-meta-tags">
-                  <span class="p-tag">🤖 MER-B Hematite</span>
-                  <span class="p-tag">💓 Marsquake Waves</span>
+                  <span class="p-tag">🤖 MER-B</span>
+                  <span class="p-tag">💓 InSight</span>
                 </div>
               </div>
               <div class="portal-action-col">
                 <button class="portal-launch-btn mars-btn" id="btn-portal-launch-mars" type="button">
-                  <span>ENTER MARTIAN VALLEY ➔</span>
+                  <span>ENTER VALLEY ➔</span>
                 </button>
               </div>
             </div>
-          </div>
 
-          <!-- Deep Space Voyager 1 Quick Link -->
-          <div class="hero-deepspace-strip">
-            <button class="deepspace-strip-btn" id="portal-explore-voyager" type="button">
-              <span class="strip-icon">🌌</span>
-              <span class="strip-label">INTERSTELLAR EXPEDITION: <strong>VOYAGER 1 &amp; THE GOLDEN RECORD</strong> (24.3 BILLION KM)</span>
-              <span class="strip-arrow">➔</span>
-            </button>
+            <!-- Portal 3: Deep Space Voyager 1 -->
+            <div class="exploration-portal-card voyager-portal" id="portal-explore-voyager" role="button" tabindex="0">
+              <div class="portal-badge-pill voyager-pill">🌌 DEEP SPACE</div>
+              <div class="portal-icon-wrap">
+                <div class="portal-halo voyager-halo"></div>
+                <span class="portal-big-icon">🛰️</span>
+              </div>
+              <div class="portal-info-col">
+                <h2 class="portal-title">VOYAGER 1</h2>
+                <p class="portal-desc">Golden Record • 24.3B KM</p>
+                <div class="portal-meta-tags">
+                  <span class="p-tag">📀 Record</span>
+                  <span class="p-tag">📡 Telemetry</span>
+                </div>
+              </div>
+              <div class="portal-action-col">
+                <button class="portal-launch-btn voyager-btn" id="btn-portal-launch-voyager" type="button">
+                  <span>INTERSTELLAR ➔</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- ARCADE TITLE ACTION STACK -->
@@ -895,8 +1189,8 @@
     <span class="exit-text">EXIT FULLSCREEN (ESC)</span>
   </button>
 
-  <!-- HOLOGRAPHIC MISSION RELIC HISTORY BILLBOARD -->
-  <div class="mission-billboard-overlay" id="mission-billboard-overlay" style="display: none;">
+  <!-- HOLOGRAPHIC MISSION RELIC HISTORY BILLBOARD (REMOVED PER USER REQUEST) -->
+  <div class="mission-billboard-overlay" id="mission-billboard-overlay" style="display: none !important;">
     <div class="billboard-holo-card">
       <div class="billboard-holo-header">
         <div class="billboard-tag-row">
@@ -1189,14 +1483,14 @@
     </div>
   </aside>
 
-  <!-- ANIMATED DUAL-ACTOR (ASHA & LEO) JDSN COMMS DIALOGUE WIDGET -->
-  <div class="companion-bot-widget" id="companion-bot-widget">
+  <!-- ANIMATED DUAL-ACTOR (ASHA & LEO) JDSN COMMS DIALOGUE WIDGET (REMOVED PER USER REQUEST) -->
+  <div class="companion-bot-widget" id="companion-bot-widget" style="display: none !important;">
     <div class="jdsn-avatars-dock" id="bot-avatar-btn" title="Click to toggle Junior Deep Space Network Comms">
       <div class="jdsn-mini-avatar active-speaker" id="comms-asha-avatar" title="Asha (Dhaka Rooftop Antenna)"></div>
       <div class="jdsn-mini-avatar" id="comms-leo-avatar" title="Leo (Florida Robotics Console)"></div>
       <span class="bot-pulse-ring"></span>
     </div>
-    <div class="bot-speech-bubble visible" id="bot-speech-bubble">
+    <div class="bot-speech-bubble" id="bot-speech-bubble" style="display: none !important;">
       <div class="bubble-header">
         <div class="bubble-speaker-meta">
           <strong id="bot-name-label">Asha (Dhaka Rooftop) &amp; Leo (KSC Florida)</strong>
@@ -1274,7 +1568,7 @@
     </div>
   </footer>
 
-  <!-- DYNAMIC ROVER PROXIMITY RADAR HUD -->
+  <!-- DYNAMIC ROVER PROXIMITY RADAR HUD (APPEARS WHEN NEAR A RELIC) -->
   <div class="rover-radar-hud" id="rover-radar-hud" style="display: none;">
     <div class="radar-ping-icon pulse">📍</div>
     <div class="radar-info">
@@ -1309,6 +1603,7 @@
   <!-- POPUP MODAL: MISSIONS & DUAL ROADMAP DRAWER -->
   <div class="modal-backdrop" id="missions-modal-backdrop">
     <div class="modal-card wide-card">
+      <button class="modal-hdr-back-btn" id="btn-missions-back-to-hub" type="button" onclick="document.getElementById('missions-modal-backdrop').classList.remove('active'); window.openGameHub();">⬅ Back to Hub</button>
       <button class="modal-close-btn" id="missions-close-btn">✕</button>
 
       <div class="modal-header">
@@ -1378,6 +1673,7 @@
   <!-- POPUP MODAL: LEVEL-WISE BADGES SHOWCASE -->
   <div class="modal-backdrop" id="badges-modal-backdrop">
     <div class="modal-card wide-card">
+      <button class="modal-hdr-back-btn" id="btn-badges-back-to-hub" type="button" onclick="document.getElementById('badges-modal-backdrop').classList.remove('active'); window.openGameHub();">⬅ Back to Hub</button>
       <button class="modal-close-btn" id="badges-close-btn">✕</button>
 
       <div class="modal-header">
@@ -1401,6 +1697,7 @@
   <!-- POPUP MODAL: MULTI-TIER QUIZ & LEADERBOARD -->
   <div class="modal-backdrop" id="quiz-modal-backdrop">
     <div class="modal-card quiz-card">
+      <button class="modal-hdr-back-btn" id="btn-quiz-back-to-hub" type="button" onclick="document.getElementById('quiz-modal-backdrop').classList.remove('active'); window.openGameHub();">⬅ Back to Hub</button>
       <button class="modal-close-btn" id="quiz-close-btn">✕</button>
 
       <div class="modal-header">
@@ -1420,6 +1717,7 @@
        ========================================================================= -->
   <div class="modal-backdrop" id="mission-story-modal">
     <div class="modal-card wide-card story-editorial-card">
+      <button class="modal-hdr-back-btn" id="btn-story-modal-back-to-hub" type="button" onclick="document.getElementById('mission-story-modal').classList.remove('active'); window.openGameHub();">⬅ Back to Hub</button>
       <button class="modal-close-btn" id="story-modal-close-btn">✕</button>
 
       <div class="story-article-header">
@@ -1544,11 +1842,14 @@
       </div>
 
       <div class="modal-footer modal-footer-dual centered">
-        <button class="modal-action-btn secondary-btn" id="disc-quiz-btn">
-          <span>📝 TEST KNOWLEDGE / PLAY QUIZ</span>
+        <button class="modal-action-btn secondary-btn" id="disc-home-btn" onclick="window.handleDiscoveryHomeClick &amp;&amp; window.handleDiscoveryHomeClick()">
+          <span id="disc-home-btn-text">🏠 GO TO HOMEPAGE</span>
         </button>
         <button class="modal-action-btn glow-gold" id="disc-next-level-btn">
-          <span>PROCEED TO NEXT MISSION ➔</span>
+          <span id="disc-next-btn-text">🚀 EXPLORE MORE MISSIONS ➔</span>
+        </button>
+        <button class="modal-action-btn secondary-btn" id="disc-quiz-btn" style="display: none;">
+          <span>📝 TEST KNOWLEDGE</span>
         </button>
         <button class="modal-action-btn" id="disc-dismiss-btn" style="display: none;">CONTINUE</button>
       </div>
@@ -1647,6 +1948,7 @@
   <!-- POPUP MODAL: STORY PROLOGUE (THE DREAM PROJECT — ASHA & LEO) -->
   <div class="modal-backdrop" id="prologue-modal-backdrop">
     <div class="modal-card wide-card prologue-modal-card">
+      <button class="modal-hdr-back-btn" id="btn-prologue-back-to-hub" type="button" onclick="document.getElementById('prologue-modal-backdrop').classList.remove('active'); window.openGameHub();">⬅ Back to Hub</button>
       <button class="modal-close-btn" id="prologue-close-btn">✕</button>
 
       <div class="modal-header">
@@ -1799,6 +2101,7 @@
   <!-- POPUP MODAL: NASA JPL SCIENCE MINI-GAME WORKBENCH (4 FLAGSHIP MISSIONS) -->
   <div class="modal-backdrop" id="minigame-modal-backdrop">
     <div class="modal-card wide-card minigame-modal-card">
+      <button class="modal-hdr-back-btn" id="btn-minigames-back-to-hub" type="button" onclick="document.getElementById('minigame-modal-backdrop').classList.remove('active'); window.openGameHub();">⬅ Back to Hub</button>
       <button class="modal-close-btn" id="minigame-close-btn">✕</button>
 
       <div class="modal-header">
@@ -1905,9 +2208,10 @@
   </div>
 
   <!-- =============================================================== -->
-  <!-- AQUA EXPLORER GUIDED GAME WIZARD MODAL (STORY ➔ CADET ➔ LEVELS) -->
   <!-- =============================================================== -->
-  <div class="aqua-guided-modal-backdrop" id="aqua-guided-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="aqua-wizard-title">
+  <!-- NASA SPACE APPS 2026: INTERACTIVE ONBOARDING WIZARD (STAGES 1-5) -->
+  <!-- =============================================================== -->
+  <div class="aqua-guided-modal-backdrop" id="aqua-guided-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="aqua-wizard-title" style="display: none;">
     <div class="aqua-guided-modal-container">
       
       <!-- Top Header & Stepper Bar -->
@@ -1915,26 +2219,41 @@
         <div class="aqua-header-title-row">
           <div class="aqua-header-badge">
             <span class="badge-dot"></span>
-            <span>NASA SPACE APPS • EXPEDITION WIZARD</span>
+            <span id="wizard-badge-text" data-i18n-en="NASA SPACE APPS • EXPEDITION ONBOARDING" data-i18n-bn="নাসা স্পেস অ্যাপস • মহাকাশ অনবোর্ডিং">NASA SPACE APPS • EXPEDITION ONBOARDING</span>
           </div>
-          <button class="aqua-modal-close-btn" id="btn-aqua-modal-close" aria-label="Close Wizard" onclick="window.closeAquaGuidedModal &amp;&amp; window.closeAquaGuidedModal()">✕</button>
+          <div class="aqua-header-actions">
+            <button class="aqua-lang-toggle-btn" id="aqua-lang-toggle-btn" type="button" onclick="window.toggleWizardLanguage &amp;&amp; window.toggleWizardLanguage()" title="Switch Language (English / বাংলা)">
+              <span class="lang-flag">🌐</span> <span id="aqua-lang-label">বাংলা (BN)</span>
+            </button>
+            <button class="aqua-modal-close-btn" id="btn-aqua-modal-close" aria-label="Close Wizard" onclick="window.closeAquaGuidedModal &amp;&amp; window.closeAquaGuidedModal()">✕</button>
+          </div>
         </div>
 
-        <!-- 3-Step Navigation Stepper -->
+        <!-- 5-Step Navigation Stepper -->
         <div class="aqua-stepper-bar">
           <button class="aqua-step-node active" id="aqua-step-indicator-1" data-step="1" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(1)">
             <span class="step-num">1</span>
-            <span class="step-name">MISSION STORY</span>
+            <span class="step-name" id="stepper-label-1" data-i18n-en="WELCOME" data-i18n-bn="স্বাগতম">WELCOME</span>
           </button>
           <div class="aqua-step-connector" id="aqua-step-conn-1"></div>
           <button class="aqua-step-node" id="aqua-step-indicator-2" data-step="2" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(2)">
             <span class="step-num">2</span>
-            <span class="step-name">CHOOSE CADET</span>
+            <span class="step-name" id="stepper-label-2" data-i18n-en="THE STORY" data-i18n-bn="গল্প">THE STORY</span>
           </button>
           <div class="aqua-step-connector" id="aqua-step-conn-2"></div>
           <button class="aqua-step-node" id="aqua-step-indicator-3" data-step="3" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(3)">
             <span class="step-num">3</span>
-            <span class="step-name">SELECT LEVEL</span>
+            <span class="step-name" id="stepper-label-3" data-i18n-en="VIDEO" data-i18n-bn="ভিডিও">VIDEO</span>
+          </button>
+          <div class="aqua-step-connector" id="aqua-step-conn-3"></div>
+          <button class="aqua-step-node" id="aqua-step-indicator-4" data-step="4" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(4)">
+            <span class="step-num">4</span>
+            <span class="step-name" id="stepper-label-4" data-i18n-en="MEET BOTS" data-i18n-bn="বট সঙ্গী">MEET BOTS</span>
+          </button>
+          <div class="aqua-step-connector" id="aqua-step-conn-4"></div>
+          <button class="aqua-step-node" id="aqua-step-indicator-5" data-step="5" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(5)">
+            <span class="step-num">5</span>
+            <span class="step-name" id="stepper-label-5" data-i18n-en="LEVELS" data-i18n-bn="মিশন">LEVELS</span>
           </button>
         </div>
       </div>
@@ -1942,12 +2261,72 @@
       <!-- Step Panels Container -->
       <div class="aqua-modal-body">
         
-        <!-- STEP 1: BACKGROUND HISTORY & MISSION STORY -->
+        <!-- STEP 1: FIRST-TIME WELCOME EXPERIENCE & CADET PROFILE -->
         <div class="aqua-step-panel active" id="aqua-step-1-panel">
           <div class="aqua-story-banner">
-            <div class="aqua-story-tag">PROLOGUE • HISTORICAL DISCOVERY</div>
-            <h2 class="aqua-panel-title" id="aqua-wizard-title">Abandoned But Not Forgotten</h2>
-            <p class="aqua-panel-subtitle">Relics of the Cosmic Dust: Humanity's Greatest Solitary Explorers</p>
+            <div class="aqua-story-tag" data-i18n-en="FIRST CONTACT • WELCOME CADET" data-i18n-bn="প্রথম প্রবেশ • স্বাগতম ক্যাডেট">FIRST CONTACT • WELCOME CADET</div>
+            <h2 class="aqua-panel-title" id="aqua-wizard-title" data-i18n-en="Hey, Space Explorer! 🚀" data-i18n-bn="এই যে, মহাকাশ অভিযাত্রী! 🚀">Hey, Space Explorer! 🚀</h2>
+            <p class="aqua-panel-subtitle" data-i18n-en="Ready for an adventure beyond Earth? We've got an exciting mission waiting for you. Let's explore!" data-i18n-bn="পৃথিবীর বাইরে এক দারুণ অভিযানে যেতে প্রস্তুত? তোমার জন্য অপেক্ষা করছে এক মজার মিশন। চলো, শুরু করা যাক!">Ready for an adventure beyond Earth? We've got an exciting mission waiting for you. Let's explore!</p>
+          </div>
+
+          <!-- Name Input -->
+          <div class="aqua-cadet-input-group">
+            <label for="aqua-cadet-name-input" class="aqua-input-label" data-i18n-en="NAME: WHAT SHOULD WE CALL YOU?" data-i18n-bn="নাম: তোমাকে কী নামে ডাকব?">NAME: WHAT SHOULD WE CALL YOU?</label>
+            <div class="aqua-input-wrapper">
+              <span class="input-icon">🧑‍🚀</span>
+              <input type="text" id="aqua-cadet-name-input" class="aqua-text-input" placeholder="Enter your explorer name..." data-i18n-placeholder-en="Enter your explorer name..." data-i18n-placeholder-bn="তোমার নাম লেখো..." maxlength="24" value="Cadet Explorer" />
+            </div>
+          </div>
+
+          <!-- Age Selector (Ages 6 to 16) -->
+          <div class="aqua-age-section">
+            <div class="aqua-age-label-row">
+              <label class="aqua-input-label" data-i18n-en="AGE: HOW OLD ARE YOU? (AGES 6 TO 16)" data-i18n-bn="বয়স: তোমার বয়স কত? (৬ থেকে ১৬ বছর)">AGE: HOW OLD ARE YOU? (AGES 6 TO 16)</label>
+            </div>
+            
+            <div class="aqua-age-selector-row">
+              <button type="button" class="aqua-age-pill" data-age="6" onclick="window.setCadetAge(6)">6</button>
+              <button type="button" class="aqua-age-pill" data-age="7" onclick="window.setCadetAge(7)">7</button>
+              <button type="button" class="aqua-age-pill" data-age="8" onclick="window.setCadetAge(8)">8</button>
+              <button type="button" class="aqua-age-pill" data-age="9" onclick="window.setCadetAge(9)">9</button>
+              <button type="button" class="aqua-age-pill active" data-age="10" onclick="window.setCadetAge(10)">10</button>
+              <button type="button" class="aqua-age-pill" data-age="11" onclick="window.setCadetAge(11)">11</button>
+              <button type="button" class="aqua-age-pill" data-age="12" onclick="window.setCadetAge(12)">12</button>
+              <button type="button" class="aqua-age-pill" data-age="13" onclick="window.setCadetAge(13)">13</button>
+              <button type="button" class="aqua-age-pill" data-age="14" onclick="window.setCadetAge(14)">14</button>
+              <button type="button" class="aqua-age-pill" data-age="15" onclick="window.setCadetAge(15)">15</button>
+              <button type="button" class="aqua-age-pill" data-age="16" onclick="window.setCadetAge(16)">16</button>
+            </div>
+
+            <!-- Age Adaptive Profile Badge -->
+            <div class="aqua-age-profile-badge" id="aqua-age-profile-badge">
+              <span class="aqua-age-profile-icon">🌟</span>
+              <div class="aqua-age-profile-text">
+                <h4 id="aqua-age-profile-title">🌟 Junior Explorer (Ages 6–10)</h4>
+                <p id="aqua-age-profile-desc">Visual hints, friendly bot guidance &amp; easy rover controls!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="aqua-panel-footer">
+            <button class="aqua-btn-secondary" id="btn-aqua-step1-profiles" type="button" onclick="window.profileManager?.openProfileSwitcherModal();" style="display: inline-flex;">
+              <span data-i18n-en="⬅ All Profiles" data-i18n-bn="⬅ সকল প্রোফাইল">⬅ All Profiles</span>
+            </button>
+            <button class="aqua-btn-secondary" id="btn-aqua-skip-to-bots" type="button" onclick="window.setAquaStep(4)">
+              <span data-i18n-en="Skip to Meet Bots ➔" data-i18n-bn="সরাসরি বট বেছে নাও ➔">Skip to Meet Bots ➔</span>
+            </button>
+            <button class="aqua-btn-primary glow" id="btn-aqua-step1-next" type="button" onclick="window.setAquaStep(2)">
+              <span data-i18n-en="Next: The Mission Story ➔" data-i18n-bn="পরবর্তী: অভিযানের গল্প ➔">Next: The Mission Story ➔</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2: STORY & PURPOSE INTRODUCTION (LOST EQUIPMENT) -->
+        <div class="aqua-step-panel" id="aqua-step-2-panel">
+          <div class="aqua-story-banner">
+            <div class="aqua-story-tag" data-i18n-en="MISSION PROLOGUE • LOST EQUIPMENT" data-i18n-bn="মিশন প্রস্তাবনা • হারিয়ে যাওয়া ইকুইপমেন্ট">MISSION PROLOGUE • LOST EQUIPMENT</div>
+            <h2 class="aqua-panel-title" data-i18n-en="Uh-oh! Something Important Is Lost!" data-i18n-bn="ওহ না! অন্য একটি গ্রহে কিছু জিনিস হারিয়ে গেছে!">Uh-oh! Something Important Is Lost!</h2>
+            <p class="aqua-panel-subtitle" data-i18n-en="Critical NASA equipment &amp; relics have been lost on other planets!" data-i18n-bn="গুরুত্বপূর্ণ নাসার যন্ত্র ও উপাদান মহাকাশে খুঁজে পাওয়া যাচ্ছে না!">Critical NASA equipment &amp; relics have been lost on other planets!</p>
           </div>
 
           <div class="aqua-story-content-grid">
@@ -1957,112 +2336,195 @@
             </div>
             
             <div class="aqua-story-text-box">
-              <p class="aqua-story-paragraph">
-                For over six decades, humanity has sent intrepid robotic pioneers across our solar system. When their primary missions ended, they were left in profound solitude—frozen in the dust of Tranquility Base, resting beneath Martian sandstorms, or voyaging silently into interstellar space.
+              <p class="aqua-story-paragraph" data-i18n-en="For over six decades, humanity has sent intrepid robotic pioneers across the solar system. When their missions ended, they were left in profound solitude—frozen in lunar dust, buried beneath Martian sandstorms, or voyaging silently into interstellar space." data-i18n-bn="ছয় দশকেরও বেশি সময় ধরে মানুষ মহাকাশে সাহসী রোবটিক অনুসন্ধানকারী পাঠিয়েছে। কাজ শেষ হওয়ার পর তারা চাঁদের ধূলিকণা কিংবা মঙ্গলের ঝড়ের নিচে একা রয়ে গেছে।">
+                For over six decades, humanity has sent intrepid robotic pioneers across the solar system. When their missions ended, they were left in profound solitude—frozen in lunar dust, buried beneath Martian sandstorms, or voyaging silently into interstellar space.
               </p>
-              <p class="aqua-story-paragraph highlight">
-                ✨ <strong>Your Mission as a Junior Deep Space Cadet:</strong> Rediscover and re-energize these cosmic legends! Pilot your robotic rover across lunar craters and Martian valleys, locate the forgotten probes, calibrate authentic JPL scientific instruments, and return humanity's cosmic heritage to Earth.
+              <p class="aqua-story-paragraph highlight" data-i18n-en="✨ Some special elements and equipment are missing on Mars and other planets. We need brave explorers like YOU to help us find and recover them! Are you ready to investigate?" data-i18n-bn="✨ আমাদের কিছু বিশেষ উপাদান এবং Equipment খুঁজে পাওয়া যাচ্ছে না। সেগুলো খুঁজে বের করতে তোমার মতো সাহসী অভিযাত্রী দরকার! তুমি কি এই অভিযানের জন্য প্রস্তুত?">
+                ✨ <strong>Some special elements and equipment are missing on Mars and other planets. We need brave explorers like YOU to help us find and recover them! Are you ready to investigate?</strong>
               </p>
               
               <div class="aqua-story-stats-strip">
                 <div class="aqua-stat-item">
                   <span class="stat-icon">🌕</span>
-                  <div><strong>Moon Base</strong><span>Apollo 11 &amp; Surveyor</span></div>
+                  <div><strong data-i18n-en="Moon Base" data-i18n-bn="চাঁদের ঘাঁটি">Moon Base</strong><span>Apollo 11 &amp; Surveyor</span></div>
                 </div>
                 <div class="aqua-stat-item">
                   <span class="stat-icon">🔴</span>
-                  <div><strong>Mars Valley</strong><span>Opportunity &amp; InSight</span></div>
+                  <div><strong data-i18n-en="Mars Valley" data-i18n-bn="মঙ্গল উপত্যকা">Mars Valley</strong><span>Opportunity &amp; InSight</span></div>
                 </div>
                 <div class="aqua-stat-item">
                   <span class="stat-icon">🌌</span>
-                  <div><strong>Interstellar</strong><span>Voyager 1 (24.3B km)</span></div>
+                  <div><strong data-i18n-en="Deep Space" data-i18n-bn="মহাশূন্য">Deep Space</strong><span>Voyager 1 (24.3B km)</span></div>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="aqua-panel-footer">
-            <button class="aqua-btn-secondary" id="btn-aqua-skip-to-levels" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(3)">
-              <span>Skip Story ➔ Jump to Levels</span>
+            <button class="aqua-btn-secondary" id="btn-aqua-step2-back" type="button" onclick="window.setAquaStep(1)">
+              <span data-i18n-en="⬅ Back" data-i18n-bn="⬅ পেছনে">⬅ Back</span>
             </button>
-            <button class="aqua-btn-primary glow" id="btn-aqua-step1-next" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(2)">
-              <span>Next: Choose Commander ➔</span>
+            <button class="aqua-btn-secondary" id="btn-aqua-skip-video" type="button" onclick="window.setAquaStep(4)">
+              <span data-i18n-en="Skip Video ➔ Meet Bots" data-i18n-bn="ভিডিও এড়িয়ে যাও ➔ বট বেছে নাও">Skip Video ➔ Meet Bots</span>
+            </button>
+            <button class="aqua-btn-primary glow" id="btn-aqua-step2-next" type="button" onclick="window.setAquaStep(3)">
+              <span data-i18n-en="Watch Exploration Video ➔" data-i18n-bn="পরিচিতিমূলক ভিডিও দেখো ➔">Watch Exploration Video ➔</span>
             </button>
           </div>
         </div>
 
-        <!-- STEP 2: SELECT CHARACTER & CALL-SIGN -->
-        <div class="aqua-step-panel" id="aqua-step-2-panel">
+        <!-- STEP 3: EXPLORATION INTRODUCTION VIDEO (ANIMATED BRIEFING) -->
+        <div class="aqua-step-panel" id="aqua-step-3-panel">
           <div class="aqua-story-banner compact">
-            <div class="aqua-story-tag">STEP 2 • CADET PROFILE</div>
-            <h2 class="aqua-panel-title">Choose Your Lead Commander</h2>
-            <p class="aqua-panel-subtitle">Your commander accompanies you on every mission and guides your telemetry to victory.</p>
+            <div class="aqua-story-tag" data-i18n-en="EXPLORATION BRIEFING • VIDEO PRESENTATION" data-i18n-bn="অভিযান পরিচিতি • ভিডিও উপস্থাপনা">EXPLORATION BRIEFING • VIDEO PRESENTATION</div>
+            <h2 class="aqua-panel-title" data-i18n-en="Briefing: Why These Relics Matter" data-i18n-bn="সংক্ষিপ্ত ব্রিফিং: কেন এই রিলিকগুলো গুরুত্বপূর্ণ">Briefing: Why These Relics Matter</h2>
+            <p class="aqua-panel-subtitle" data-i18n-en="Understand the lost equipment, scientific breakthroughs, and how your mission works." data-i18n-bn="হারিয়ে যাওয়া যন্ত্রপাতি, তাদের বৈজ্ঞানিক ইতিহাস এবং কীভাবে মিশন সফল করতে হবে তা জেনে নাও।">Understand the lost equipment, scientific breakthroughs, and how your mission works.</p>
           </div>
 
-          <!-- Cadet Name Input -->
-          <div class="aqua-cadet-input-group">
-            <label for="aqua-cadet-name-input" class="aqua-input-label">CADET CALL-SIGN / NAME:</label>
-            <div class="aqua-input-wrapper">
-              <span class="input-icon">🧑‍🚀</span>
-              <input type="text" id="aqua-cadet-name-input" class="aqua-text-input" placeholder="Enter your cadet name (e.g. Cadet Ayan)" maxlength="24" value="Cadet Explorer" />
-            </div>
-          </div>
+          <!-- Video Player Box with Animated Slides -->
+          <div class="aqua-video-box">
+            <div class="aqua-video-screen">
+              <div class="aqua-video-scanlines"></div>
+              <div class="aqua-video-hud-overlay">
+                <span>FEED: NASA-JDSN-LIVE</span>
+                <span>RES: 4K ORBITAL</span>
+              </div>
 
-          <!-- Character Cards -->
-          <div class="aqua-characters-grid">
-            <!-- Commander Asha -->
-            <div class="aqua-char-card active" id="aqua-char-card-asha" data-char="asha" role="button" tabindex="0" onclick="window.selectAquaCommander &amp;&amp; window.selectAquaCommander('asha')">
-              <div class="aqua-char-badge">DHAKA BASE • JDSN</div>
-              <div class="aqua-char-avatar-box">
-                <span class="aqua-char-avatar">👩‍🚀</span>
-                <span class="aqua-char-flag">🇧🇩</span>
+              <!-- Slide 1 -->
+              <div class="aqua-video-slide" id="aqua-video-slide-1">
+                <span class="aqua-slide-visual">🛰️</span>
+                <h3 class="aqua-slide-title" data-i18n-en="1. The Lost Robotic Pioneers" data-i18n-bn="১. হারিয়ে যাওয়া মহাকাশ পথিকেরা">1. The Lost Robotic Pioneers</h3>
+                <p class="aqua-slide-desc" data-i18n-en="Historic rovers and landers explored unknown worlds, then fell silent waiting for future cadets to find them beneath Martian dust and lunar craters." data-i18n-bn="ঐতিহাসিক রোভার ও ল্যান্ডারগুলো নতুন জগত আবিষ্কার করেছিল, আর এখন নতুন অভিযাত্রীর জন্য অপেক্ষা করছে চাঁদের খাঁদে কিংবা মঙ্গলের লাল ধূলার নিচে।">
+                  Historic rovers and landers explored unknown worlds, then fell silent waiting for future cadets to find them beneath Martian dust and lunar craters.
+                </p>
               </div>
-              <h3 class="aqua-char-name">COMMANDER ASHA</h3>
-              <p class="aqua-char-role">Lead Telemetry &amp; Signal Architect</p>
-              <p class="aqua-char-desc">Directs signals from the Dhaka Rooftop Antenna array. Specializes in long-range radio telemetry, spectrographic decoding, and deep space relays.</p>
-              <div class="aqua-char-stats">
-                <span class="char-stat-pill">📡 Telemetry Master</span>
-                <span class="char-stat-pill">🪙 <span id="aqua-asha-pts">4,850</span> PTS</span>
-                <span class="char-stat-pill gold">🏆 RANK #1</span>
+
+              <!-- Slide 2 -->
+              <div class="aqua-video-slide" id="aqua-video-slide-2" style="display: none;">
+                <span class="aqua-slide-visual">🔬</span>
+                <h3 class="aqua-slide-title" data-i18n-en="2. Missing Science Secrets" data-i18n-bn="২. হারিয়ে যাওয়া বিজ্ঞানের রহস্য">2. Missing Science Secrets</h3>
+                <p class="aqua-slide-desc" data-i18n-en="Opportunity holds hematite blueberries proving ancient Martian rivers; InSight holds seismic records of marsquakes; Voyager 1 carries the Golden Record of Earth!" data-i18n-bn="অপরচুনিটির হেমাটাইট ব্লুবেরি প্রমাণ করেছে মঙ্গলে পানি ছিল; ইনসাইটের সিসমোমিটার রেকর্ড করেছে মঙ্গল-কম্পন; আর ভয়েজার ১ বয়ে নিয়ে চলেছে পৃথিবীর সোনালী রেকর্ড!">
+                  Opportunity holds hematite blueberries proving ancient Martian rivers; InSight holds seismic records of marsquakes; Voyager 1 carries the Golden Record of Earth!
+                </p>
               </div>
-              <div class="aqua-char-select-indicator" id="aqua-asha-select-status" onclick="window.selectAquaCommander &amp;&amp; window.selectAquaCommander('asha'); event.stopPropagation();">✓ SELECTED</div>
+
+              <!-- Slide 3 -->
+              <div class="aqua-video-slide" id="aqua-video-slide-3" style="display: none;">
+                <span class="aqua-slide-visual">🚀</span>
+                <h3 class="aqua-slide-title" data-i18n-en="3. Your Mission as Explorer" data-i18n-bn="৩. অভিযাত্রী হিসেবে তোমার দায়িত্ব">3. Your Mission as Explorer</h3>
+                <p class="aqua-slide-desc" data-i18n-en="Pilot your rover, follow waypoint beacons, calibrate authentic JPL instruments, and return humanity's cosmic discoveries back to Earth!" data-i18n-bn="রোভার চালাও, উজ্জ্বল দিকনির্দেশক বিকন অনুসরণ করো, নাসার আসল বৈজ্ঞানিক যন্ত্রপাতি ক্যালিব্রেট করো এবং আবিষ্কারগুলো ফিরিয়ে আনো!">
+                  Pilot your rover, follow waypoint beacons, calibrate authentic JPL instruments, and return humanity's cosmic discoveries back to Earth!
+                </p>
+              </div>
             </div>
 
-            <!-- Commander Leo -->
-            <div class="aqua-char-card" id="aqua-char-card-leo" data-char="leo" role="button" tabindex="0" onclick="window.selectAquaCommander &amp;&amp; window.selectAquaCommander('leo')">
-              <div class="aqua-char-badge">FLORIDA CONSOLE • KSC</div>
-              <div class="aqua-char-avatar-box">
-                <span class="aqua-char-avatar">👨‍🚀</span>
-                <span class="aqua-char-flag">🇺🇸</span>
+            <!-- Bottom Progress & Controls Bar -->
+            <div class="aqua-video-bottom-bar">
+              <div class="aqua-video-progress-track">
+                <div class="aqua-video-progress-fill" id="aqua-video-progress-fill"></div>
               </div>
-              <h3 class="aqua-char-name">COMMANDER LEO</h3>
-              <p class="aqua-char-role">Robotics Engineer &amp; Rover Mobility</p>
-              <p class="aqua-char-desc">Commands rovers from the Florida Space Coast console. Specializes in terrain navigation, rock abrasion grinding, and low-gravity rover mobility.</p>
-              <div class="aqua-char-stats">
-                <span class="char-stat-pill">🕹️ Mobility Specialist</span>
-                <span class="char-stat-pill">🪙 <span id="aqua-leo-pts">3,410</span> PTS</span>
-                <span class="char-stat-pill gold">🏆 RANK #2</span>
+
+              <div class="aqua-video-controls-row">
+                <div class="aqua-video-indicators">
+                  <span class="aqua-video-dot active" id="aqua-video-dot-1" onclick="window.setVideoSlide(1)"></span>
+                  <span class="aqua-video-dot" id="aqua-video-dot-2" onclick="window.setVideoSlide(2)"></span>
+                  <span class="aqua-video-dot" id="aqua-video-dot-3" onclick="window.setVideoSlide(3)"></span>
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                  <button type="button" class="aqua-video-btn" onclick="window.replayVideo()">
+                    <span data-i18n-en="🔄 Replay" data-i18n-bn="🔄 আবার দেখো">🔄 Replay</span>
+                  </button>
+                  <button type="button" class="aqua-video-btn" onclick="window.advanceVideoSlide()">
+                    <span data-i18n-en="Next Scene ➔" data-i18n-bn="পরবর্তী দৃশ্য ➔">Next Scene ➔</span>
+                  </button>
+                </div>
               </div>
-              <div class="aqua-char-select-indicator" id="aqua-leo-select-status" onclick="window.selectAquaCommander &amp;&amp; window.selectAquaCommander('leo'); event.stopPropagation();">SELECT</div>
             </div>
           </div>
 
           <div class="aqua-panel-footer">
-            <button class="aqua-btn-secondary" id="btn-aqua-step2-back" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(1)">
-              <span>⬅ Back to Story</span>
+            <button class="aqua-btn-secondary" id="btn-aqua-step3-back" type="button" onclick="window.setAquaStep(2)">
+              <span data-i18n-en="⬅ Back to Story" data-i18n-bn="⬅ গল্পে ফিরে যাও">⬅ Back to Story</span>
             </button>
-            <button class="aqua-btn-primary glow" id="btn-aqua-step2-next" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(3)">
-              <span>Select &amp; Choose Level ➔</span>
+            <button class="aqua-btn-primary glow" id="btn-aqua-step3-next" type="button" onclick="window.setAquaStep(4)">
+              <span data-i18n-en="Next: Meet Your Bots ➔" data-i18n-bn="পরবর্তী: বটদের সাথে পরিচিত হও ➔">Next: Meet Your Bots ➔</span>
             </button>
           </div>
         </div>
 
-        <!-- STEP 3: LEVEL SELECTION -->
-        <div class="aqua-step-panel" id="aqua-step-3-panel">
+        <!-- STEP 4: INTRODUCE THE BOTS (SELECT PREDEFINED MISSION BUDDY) -->
+        <div class="aqua-step-panel" id="aqua-step-4-panel">
           <div class="aqua-story-banner compact">
-            <div class="aqua-story-tag">STEP 3 • MISSION SELECTOR</div>
-            <h2 class="aqua-panel-title">Choose Your NASA Mission Level</h2>
-            <p class="aqua-panel-subtitle">Select any flagship mission to launch immediately with your chosen commander.</p>
+            <div class="aqua-story-tag" data-i18n-en="STEP 4 • SELECT COMPANION BOT" data-i18n-bn="ধাপ ৪ • মিশন সঙ্গী বট নির্বাচন">STEP 4 • SELECT COMPANION BOT</div>
+            <h2 class="aqua-panel-title" data-i18n-en="Every Space Explorer Needs a Partner! 🤖" data-i18n-bn="প্রতিটি মহাকাশ অভিযাত্রীর একজন সঙ্গী প্রয়োজন! 🤖">Every Space Explorer Needs a Partner! 🤖</h2>
+            <p class="aqua-panel-subtitle" data-i18n-en="Meet your new mission buddies. Choose one to join your adventure! Predefined bot guides will assist you every step of the way." data-i18n-bn="তোমার নতুন Mission Buddy-দের সঙ্গে পরিচিত হও। তোমার অভিযানের জন্য একজনকে বেছে নাও! নির্ধারিত বট পুরো মিশনে তোমাকে পথ দেখাবে।">Meet your new mission buddies. Choose one to join your adventure! Predefined bot guides will assist you every step of the way.</p>
+          </div>
+
+          <!-- 3 Predefined Bot Cards -->
+          <div class="aqua-bots-grid">
+            <!-- Bot 1: Echo -->
+            <div class="aqua-bot-card active" id="aqua-bot-card-echo" data-bot="echo" role="button" tabindex="0" onclick="window.selectWizardBot('echo')">
+              <span class="aqua-bot-badge">SCIENCE &amp; RADAR</span>
+              <div class="aqua-bot-avatar-box">
+                <span class="aqua-bot-avatar">🤖</span>
+              </div>
+              <h3 class="aqua-bot-name">ASTRO-BOT "ECHO"</h3>
+              <p class="aqua-bot-role" data-i18n-en="Lead Science &amp; Telemetry Specialist" data-i18n-bn="বিজ্ঞান ও টেলিম্যাট্রি বিশেষজ্ঞ">Lead Science &amp; Telemetry Specialist</p>
+              <div class="aqua-bot-quote" data-i18n-en="&quot;Beep-boop! I'm Echo! My long-range LiDAR radar will spot lost relics from kilometers away!&quot;" data-i18n-bn="&quot;বিপ-বুপ! আমি ইকো! আমার ডুয়েল লিডার রাডার দিয়ে বহু দূর থেকেই হারিয়ে যাওয়া যন্ত্র খুঁজে বের করব!&quot;">
+                "Beep-boop! I'm Echo! My long-range LiDAR radar will spot lost relics from kilometers away!"
+              </div>
+              <span class="aqua-bot-perk">📡 +50% LiDAR Scan Range</span>
+              <div class="aqua-bot-indicator" id="aqua-bot-ind-echo">✓ SELECTED BUDDY</div>
+            </div>
+
+            <!-- Bot 2: Nova -->
+            <div class="aqua-bot-card" id="aqua-bot-card-nova" data-bot="nova" role="button" tabindex="0" onclick="window.selectWizardBot('nova')">
+              <span class="aqua-bot-badge" style="color: #a855f7; border-color: rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.1);">AGILE SCOUT</span>
+              <div class="aqua-bot-avatar-box" style="background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%);">
+                <span class="aqua-bot-avatar">🐱</span>
+              </div>
+              <h3 class="aqua-bot-name">CYBER-KITTY "NOVA"</h3>
+              <p class="aqua-bot-role" style="color: #c084fc;" data-i18n-en="Fast Rover Scout &amp; Mineral Detector" data-i18n-bn="চটপটে স্কাউট ও খনিজ শনাক্তকারী">Fast Rover Scout &amp; Mineral Detector</p>
+              <div class="aqua-bot-quote" style="border-left-color: #a855f7;" data-i18n-en="&quot;Purr-fect! I'm Nova! I can dart across rocky craters and sniff out magnetic mineral dust!&quot;" data-i18n-bn="&quot;মিয়াও! আমি নোভা! আমি পাথুরে গর্তের ওপর দিয়ে উড়ে গিয়ে খনিজের সন্ধান দেব!&quot;">
+                "Purr-fect! I'm Nova! I can dart across rocky craters and sniff out magnetic mineral dust!"
+              </div>
+              <span class="aqua-bot-perk" style="color: #c084fc; border-color: rgba(168, 85, 247, 0.3); background: rgba(168, 85, 247, 0.1);">⚡ +40% Speed &amp; Coin Magnet</span>
+              <div class="aqua-bot-indicator" id="aqua-bot-ind-nova">CHOOSE THIS BOT</div>
+            </div>
+
+            <!-- Bot 3: Orion -->
+            <div class="aqua-bot-card" id="aqua-bot-card-orion" data-bot="orion" role="button" tabindex="0" onclick="window.selectWizardBot('orion')">
+              <span class="aqua-bot-badge" style="color: #10b981; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1);">TERRAIN GUARDIAN</span>
+              <div class="aqua-bot-avatar-box" style="background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);">
+                <span class="aqua-bot-avatar">🛸</span>
+              </div>
+              <h3 class="aqua-bot-name">ROVER-DRONE "ORION"</h3>
+              <p class="aqua-bot-role" style="color: #34d399;" data-i18n-en="Hazard Radar &amp; Storm Navigator" data-i18n-bn="ধূলিঝড় রাডার ও ভূখণ্ড রক্ষক">Hazard Radar &amp; Storm Navigator</p>
+              <div class="aqua-bot-quote" style="border-left-color: #10b981;" data-i18n-en="&quot;All systems green! I'm Orion! No Martian dust storm or steep crater can stop our expedition!&quot;" data-i18n-bn="&quot;সব সিস্টেম প্রস্তুত! আমি ওরিয়ন! ধূলিঝড় বা দুর্গম পাহাড়েও আমি তোমার সুরক্ষা দেব!&quot;">
+                "All systems green! I'm Orion! No Martian dust storm or steep crater can stop our expedition!"
+              </div>
+              <span class="aqua-bot-perk" style="color: #34d399; border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1);">🛡️ +35% Storm Stability &amp; Armor</span>
+              <div class="aqua-bot-indicator" id="aqua-bot-ind-orion">CHOOSE THIS BOT</div>
+            </div>
+          </div>
+
+          <div class="aqua-panel-footer">
+            <button class="aqua-btn-secondary" id="btn-aqua-step4-back" type="button" onclick="window.setAquaStep(3)">
+              <span data-i18n-en="⬅ Back to Video" data-i18n-bn="⬅ ভিডিওতে ফিরে যাও">⬅ Back to Video</span>
+            </button>
+            <button class="aqua-btn-primary glow launch-first-btn" id="btn-aqua-step4-to-hub" type="button" onclick="window.completeOnboardingToHub ? window.completeOnboardingToHub() : window.openGameHub()">
+              <span data-i18n-en="🚀 Enter Mission Control Hub ➔" data-i18n-bn="🚀 মিশন কন্ট্রোল হাবে প্রবেশ করো ➔">🚀 Enter Mission Control Hub ➔</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 5: LEVEL SELECTION (OPTIONAL DIRECT ACCESS) -->
+        <div class="aqua-step-panel" id="aqua-step-5-panel">
+          <div class="aqua-story-banner compact">
+            <div class="aqua-story-tag" data-i18n-en="STEP 5 • MISSION SELECTOR" data-i18n-bn="ধাপ ৫ • মিশন নির্বাচন">STEP 5 • MISSION SELECTOR</div>
+            <h2 class="aqua-panel-title" data-i18n-en="Choose Any NASA Mission Level" data-i18n-bn="যেকোনো নাসার মিশন বেছে নাও">Choose Any NASA Mission Level</h2>
+            <p class="aqua-panel-subtitle" data-i18n-en="Select any flagship mission to launch immediately with your chosen companion bot." data-i18n-bn="তোমার পছন্দের বটের সাথে সরাসরি যেকোনো মিশনে প্রবেশ করো।">Select any flagship mission to launch immediately with your chosen companion bot.</p>
           </div>
 
           <div class="aqua-levels-grid">
@@ -2072,8 +2534,8 @@
                 <span class="aqua-lvl-badge moon-badge">🌕 LEVEL 1 • MOON</span>
                 <div class="aqua-lvl-stars" id="aqua-stars-lvl-1">⭐⭐⭐</div>
               </div>
-              <h3 class="aqua-lvl-title">Apollo 11 &amp; Tranquility Base</h3>
-              <p class="aqua-lvl-desc">Drive your Lunar Rover to Apollo 11's ascent stage and solve the Delta-v Staging equation to achieve lunar orbit!</p>
+              <h3 class="aqua-lvl-title" data-i18n-en="Apollo 11 &amp; Tranquility Base" data-i18n-bn="অ্যাপোলো ১১ ও শান্তিসাগর ঘাঁটি">Apollo 11 &amp; Tranquility Base</h3>
+              <p class="aqua-lvl-desc" data-i18n-en="Drive your Lunar Rover to Apollo 11's ascent stage and solve the Delta-v Staging equation to achieve lunar orbit!" data-i18n-bn="তোমার লুনার রোভার চালিয়ে অ্যাপোলো ১১ খুঁজে বের করো এবং রকেট সমীকরণ সমাধান করো!">Drive your Lunar Rover to Apollo 11's ascent stage and solve the Delta-v Staging equation to achieve lunar orbit!</p>
               <div class="aqua-lvl-rewards">
                 <span>🪙 +100 Dust</span>
                 <span>⭐ +25 XP</span>
@@ -2085,19 +2547,19 @@
             </div>
 
             <!-- Level 2: Mars Opportunity -->
-            <div class="aqua-level-card mars-card" id="aqua-lvl-card-2" data-dest="mars" data-mission-id="mission_blueberries" onclick="window.launchAquaMission &amp;&amp; window.launchAquaMission('mars', 'mission_blueberries')">
+            <div class="aqua-level-card mars-card" id="aqua-lvl-card-2" data-dest="mars" data-mission-id="mission_locate" onclick="window.launchAquaMission &amp;&amp; window.launchAquaMission('mars', 'mission_locate')">
               <div class="aqua-lvl-top-row">
                 <span class="aqua-lvl-badge mars-badge">🔴 LEVEL 2 • MARS</span>
                 <div class="aqua-lvl-stars" id="aqua-stars-lvl-2">⭐⭐⭐</div>
               </div>
-              <h3 class="aqua-lvl-title">Opportunity: Blueberries of Life</h3>
-              <p class="aqua-lvl-desc">Navigate Perseverance Valley, calibrate Opportunity's APXS spectrometer, and prove that rivers flowed on Mars!</p>
+              <h3 class="aqua-lvl-title" data-i18n-en="Opportunity: Blueberries of Life" data-i18n-bn="অপরচুনিটি: জীবনের ব্লুবেরি">Opportunity: Blueberries of Life</h3>
+              <p class="aqua-lvl-desc" data-i18n-en="Navigate Perseverance Valley, calibrate Opportunity's APXS spectrometer, and prove that rivers flowed on Mars!" data-i18n-bn="পারসিভেরেন্স ভ্যালিতে অপরচুনিটির এপিএক্সএস স্পেকট্রোমিটার পরীক্ষা করে প্রমাণ করো মঙ্গলে নদী ছিল!">Navigate Perseverance Valley, calibrate Opportunity's APXS spectrometer, and prove that rivers flowed on Mars!</p>
               <div class="aqua-lvl-rewards">
                 <span>🪙 +200 Dust</span>
                 <span>⭐ +50 XP</span>
                 <span>🔬 APXS Hematite Lab</span>
               </div>
-              <button class="aqua-lvl-launch-btn mars-btn" type="button" data-dest="mars" data-mission-id="mission_blueberries" onclick="window.launchAquaMission &amp;&amp; window.launchAquaMission('mars', 'mission_blueberries'); event.stopPropagation();">
+              <button class="aqua-lvl-launch-btn mars-btn" type="button" data-dest="mars" data-mission-id="mission_locate" onclick="window.launchAquaMission &amp;&amp; window.launchAquaMission('mars', 'mission_locate'); event.stopPropagation();">
                 <span>🚀 START NOW ➔</span>
               </button>
             </div>
@@ -2108,8 +2570,8 @@
                 <span class="aqua-lvl-badge mars-badge">🔴 LEVEL 3 • MARS</span>
                 <div class="aqua-lvl-stars" id="aqua-stars-lvl-3">⭐⭐⭐</div>
               </div>
-              <h3 class="aqua-lvl-title">InSight: The Heartbeat of Mars</h3>
-              <p class="aqua-lvl-desc">Deploy the SEIS seismometer dome, triangulate P-wave and S-wave quakes, and listen to the core of the Red Planet!</p>
+              <h3 class="aqua-lvl-title" data-i18n-en="InSight: The Heartbeat of Mars" data-i18n-bn="ইনসাইট: মঙ্গলের হৃদস্পন্দন">InSight: The Heartbeat of Mars</h3>
+              <p class="aqua-lvl-desc" data-i18n-en="Deploy the SEIS seismometer dome, triangulate P-wave and S-wave quakes, and listen to the core of the Red Planet!" data-i18n-bn="ইনসাইটের সোনালী সিসমোমিটার চালু করো এবং মঙ্গলের গভীরে কম্পন পরিমাপ করো!">Deploy the SEIS seismometer dome, triangulate P-wave and S-wave quakes, and listen to the core of the Red Planet!</p>
               <div class="aqua-lvl-rewards">
                 <span>🪙 +300 Dust</span>
                 <span>⭐ +75 XP</span>
@@ -2126,8 +2588,8 @@
                 <span class="aqua-lvl-badge deep-badge">🌌 LEVEL 4 • DEEP SPACE</span>
                 <div class="aqua-lvl-stars" id="aqua-stars-lvl-4">⭐⭐⭐</div>
               </div>
-              <h3 class="aqua-lvl-title">Voyager 1: The Golden Record</h3>
-              <p class="aqua-lvl-desc">Relay scientific telemetry across 24.3 billion km, balance the RTG nuclear generator, and play the Golden Record!</p>
+              <h3 class="aqua-lvl-title" data-i18n-en="Voyager 1: The Golden Record" data-i18n-bn="ভয়েজার ১: দ্য গোল্ডেন রেকর্ড">Voyager 1: The Golden Record</h3>
+              <p class="aqua-lvl-desc" data-i18n-en="Relay scientific telemetry across 24.3 billion km, balance the RTG nuclear generator, and play the Golden Record!" data-i18n-bn="২৪.৩ বিলিয়ন কিলোমিটার দূর থেকে সিগন্যাল রিলে করো এবং ঐতিহাসিক গোল্ডেন রেকর্ড বাজাও!">Relay scientific telemetry across 24.3 billion km, balance the RTG nuclear generator, and play the Golden Record!</p>
               <div class="aqua-lvl-rewards">
                 <span>🪙 +500 Dust</span>
                 <span>⭐ +100 XP</span>
@@ -2140,15 +2602,46 @@
           </div>
 
           <div class="aqua-panel-footer">
-            <button class="aqua-btn-secondary" id="btn-aqua-step3-back" type="button" onclick="window.setAquaStep &amp;&amp; window.setAquaStep(2)">
-              <span>⬅ Back to Commander</span>
+            <button class="aqua-btn-secondary" id="btn-aqua-step5-back" type="button" onclick="window.setAquaStep(4)">
+              <span data-i18n-en="⬅ Back to Bots" data-i18n-bn="⬅ বট নির্বাচনে ফিরে যাও">⬅ Back to Bots</span>
             </button>
             <button class="aqua-btn-secondary" id="btn-aqua-finish-close" type="button" onclick="window.closeAquaGuidedModal &amp;&amp; window.closeAquaGuidedModal()">
-              <span>✕ Close &amp; Return to Hub</span>
+              <span data-i18n-en="✕ Close &amp; Return to Hub" data-i18n-bn="✕ বন্ধ করো ও হাবে যাও">✕ Close &amp; Return to Hub</span>
             </button>
           </div>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- GUIDED HOMEPAGE TOUR OVERLAY (SECTION 8 & ৮)                   -->
+  <!-- =============================================================== -->
+  <div class="aqua-tour-backdrop" id="aqua-tour-backdrop" role="dialog" aria-modal="true">
+    <div class="aqua-tour-container">
+      <div class="aqua-tour-header">
+        <div class="aqua-tour-badge">
+          <span>🚀 JDSN SPACE STATION GUIDE</span>
+        </div>
+        <button class="aqua-tour-close-btn" onclick="window.closeHomepageTour()" aria-label="Skip Tour">✕</button>
+      </div>
+
+      <div class="aqua-tour-body">
+        <div class="aqua-tour-bot-avatar" id="aqua-tour-avatar">🤖</div>
+        <div class="aqua-tour-content">
+          <h3 id="aqua-tour-title">1. Planetary Gateways 🪐</h3>
+          <p id="aqua-tour-desc">Choose your cosmic destination! Venture across lunar craters, navigate Martian valleys, or journey into Deep Space.</p>
+        </div>
+      </div>
+
+      <div class="aqua-tour-footer">
+        <span class="aqua-tour-step-indicator" id="aqua-tour-step-num">1 / 4</span>
+        <div class="aqua-tour-btns">
+          <button type="button" class="aqua-video-btn" id="aqua-tour-prev-btn" onclick="window.prevTourStep()" style="display: none;">⬅ Previous</button>
+          <button type="button" class="aqua-video-btn" onclick="window.closeHomepageTour()">Skip Tour ✕</button>
+          <button type="button" class="aqua-btn-primary glow" id="aqua-tour-next-btn" onclick="window.nextTourStep()">Next Section ➔</button>
+        </div>
       </div>
     </div>
   </div>

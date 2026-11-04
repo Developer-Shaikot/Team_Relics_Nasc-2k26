@@ -44,6 +44,7 @@ export class CoinsManager {
     const el = document.getElementById('hub-dust-val');
     if (el) el.innerText = this.balance.toLocaleString();
     localStorage.setItem('jdsn_cosmic_dust', this.balance.toString());
+    window.profileManager?.syncProgressFromGame();
   }
 
   addCoins(amount = 25) {

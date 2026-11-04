@@ -83,9 +83,39 @@ export class KittyCompanionManager {
     return this.archetypes[this.currentIndex];
   }
 
-  setIndex(index) {
-    this.currentIndex = (index + this.archetypes.length) % this.archetypes.length;
-    this.activeKitty = this.archetypes[this.currentIndex];
+  selectCompanion(index) {
+    this.setIndex(index);
+  }
+
+  say(text, durationMs = 6000) {
+    this.speak(text, durationMs);
+  }
+
+  setIndex(indexOrId) {
+    let resolvedIndex = 0;
+    if (typeof indexOrId === 'number' && !isNaN(indexOrId)) {
+      resolvedIndex = Math.floor(indexOrId);
+    } else if (typeof indexOrId === 'string') {
+      const lower = indexOrId.toLowerCase().trim();
+      const botMap = {
+        'echo': 0,
+        'astro_bot': 0,
+        'nova': 1,
+        'solar_kitty': 1,
+        'cyber_kitty': 2,
+        'orion': 3,
+        'emerald_scout': 3
+      };
+      if (botMap[lower] !== undefined) {
+        resolvedIndex = botMap[lower];
+      } else {
+        const found = this.archetypes.findIndex(a => a.id.toLowerCase() === lower || a.name.toLowerCase().includes(lower));
+        resolvedIndex = found !== -1 ? found : 0;
+      }
+    }
+
+    this.currentIndex = ((resolvedIndex % this.archetypes.length) + this.archetypes.length) % this.archetypes.length;
+    this.activeKitty = this.archetypes[this.currentIndex] || this.archetypes[0];
     localStorage.setItem('jdsn_selected_kitty', this.activeKitty.id);
 
     this.update3DAppearance();
@@ -364,7 +394,7 @@ export class KittyCompanionManager {
 
     if (bubble && bubbleText) {
       bubbleText.innerText = text;
-      if (bubbleSpeaker) bubbleSpeaker.innerText = `${this.activeKitty.name.toUpperCase()} (COMPANION)`;
+      if (bubbleSpeaker) bubbleSpeaker.innerText = `${(this.activeKitty?.name || 'COMPANION').toUpperCase()} (COMPANION)`;
       bubble.classList.add('visible');
 
       clearTimeout(this.speechTimer);
