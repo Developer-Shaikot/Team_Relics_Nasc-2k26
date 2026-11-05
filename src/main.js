@@ -13,6 +13,7 @@ import { Sol5111TimelineManager } from './systems/sol5111.js';
 import { PitchShowcaseDirector } from './systems/pitchMode.js';
 import { martianAudio } from './systems/audio.js';
 import { installHoverStabilizer } from './systems/hoverStabilizer.js';
+import { installWizardFit } from './systems/wizardFit.js';
 import { MissionQuestManager } from './systems/quests.js';
 import { CoinsManager } from './systems/coinsManager.js';
 import { GuideBotEscort } from './systems/guideBotEscort.js';
@@ -40,6 +41,7 @@ import { KIDS_MISSIONS_MARS, KIDS_MISSIONS_MOON } from './data/kidsContent.js';
 function initApplication() {
   // Must run first: stops lift-on-hover flicker site-wide and provides hoverstart/hoverend
   installHoverStabilizer();
+  installWizardFit();
   const container = document.getElementById('webgl-container');
   if (!container) return;
 

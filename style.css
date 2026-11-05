@@ -14876,3 +14876,133 @@ body.fullscreen-mode-active .in-game-back-to-hub-btn {
     transition: none;
   }
 }
+
+/* ==========================================================================
+   ONBOARDING WIZARD: ALWAYS FIT THE VIEWPORT (no inner scrolling)
+   The modal is capped to the visible viewport; the body never scrolls and
+   src/systems/wizardFit.js scales the active step down until it fits.
+   ========================================================================== */
+.aqua-guided-modal-backdrop {
+  padding: clamp(6px, 2vmin, 16px);
+}
+
+.aqua-guided-modal-container {
+  width: 100%;
+  max-width: 900px;
+  /* Never taller than the screen; on big screens stay a compact card */
+  max-height: min(calc(100vh - 2 * clamp(6px, 2vmin, 16px)), 860px);
+  max-height: min(calc(100dvh - 2 * clamp(6px, 2vmin, 16px)), 860px);
+}
+
+.aqua-modal-header {
+  flex-shrink: 0;
+  padding: clamp(10px, 2.2vh, 20px) clamp(12px, 2.5vw, 24px) clamp(8px, 1.8vh, 16px);
+}
+
+.aqua-header-title-row {
+  gap: 10px;
+  margin-bottom: clamp(6px, 1.6vh, 16px);
+}
+
+.aqua-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding: clamp(10px, 2.4vh, 24px) clamp(12px, 2.5vw, 24px);
+}
+
+/* Last-resort safety net: only if the step can't fit even at minimum scale */
+.aqua-modal-body.aqua-fit-overflow {
+  overflow-y: auto;
+}
+
+.aqua-step-panel {
+  /* wizardFit.js may set a fixed width + zoom; keep the shrunk panel centred */
+  margin-inline: auto;
+  max-width: none;
+}
+
+/* Narrow screens: keep the stepper on one row by dropping its labels */
+@media (max-width: 760px) {
+  .aqua-stepper-bar .step-name {
+    display: none;
+  }
+
+  .aqua-step-node.active .step-name {
+    display: inline;
+  }
+
+  .aqua-step-node {
+    padding: 4px 6px;
+  }
+
+  .aqua-step-connector {
+    margin: 0 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .aqua-header-badge {
+    font-size: 9px;
+    letter-spacing: 0.6px;
+    min-width: 0;
+  }
+
+  .aqua-header-badge span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .aqua-lang-toggle-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}
+
+/* Short screens (landscape laptops, phones sideways): tighten the header */
+@media (max-height: 640px) {
+  .aqua-header-title-row {
+    margin-bottom: 4px;
+  }
+
+  .aqua-step-node .step-num {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+}
+
+/* Wizard: keep the tour video from forcing a shrink (letterboxes inside the player) */
+.aqua-modal-body .tour-video {
+  max-height: 40vh;
+  max-height: 40dvh;
+}
+
+/* Wizard: tighter vertical rhythm so steps fit at full width more often */
+.aqua-modal-body .aqua-step-panel {
+  gap: clamp(10px, 1.8vh, 18px);
+}
+
+.aqua-modal-body .aqua-story-banner {
+  margin-bottom: 0;
+}
+
+.aqua-modal-body .aqua-panel-footer {
+  margin-top: 0;
+  padding-top: clamp(8px, 1.4vh, 14px);
+}
+
+@media (max-height: 820px) {
+  .aqua-modal-body .aqua-panel-title {
+    font-size: 26px;
+  }
+
+  .aqua-modal-body .aqua-panel-subtitle {
+    font-size: 14.5px;
+  }
+
+  .aqua-modal-body .kid-greeting {
+    gap: 12px;
+  }
+}
