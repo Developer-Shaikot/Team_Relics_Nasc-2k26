@@ -7,10 +7,10 @@
               data-i18n-bn="নাসা স্পেস অ্যাপস • মহাকাশ অনবোর্ডিং">NASA SPACE APPS • EXPEDITION ONBOARDING</span>
           </div>
           <div class="aqua-header-actions">
-            <button class="aqua-lang-toggle-btn" id="aqua-lang-toggle-btn" type="button"
-              onclick="window.toggleWizardLanguage?.()"
-              title="Switch Language (English / বাংলা)">
-              <span class="lang-flag">🌐</span> <span id="aqua-lang-label">বাংলা (BN)</span>
+            <!-- Game audio on/off (same switch as the HUD and Game Hub audio buttons; also mutes the story film) -->
+            <button class="aqua-lang-toggle-btn aqua-audio-toggle-btn audio-active" id="aqua-audio-toggle" type="button"
+              aria-pressed="true" title="Game sound on / off">
+              <span class="lang-flag" id="aqua-audio-icon" aria-hidden="true">🔊</span> <span id="aqua-audio-text">Audio: ON</span>
             </button>
             <button class="aqua-modal-close-btn" id="btn-aqua-modal-close" aria-label="Close Wizard"
               onclick="window.dismissAquaGuidedModal?.()">✕</button>

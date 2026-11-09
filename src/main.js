@@ -1763,7 +1763,11 @@ function initApplication() {
   }
 
   function openGameHub() {
+    // Was the hub opened by finishing (or closing) the onboarding wizard? Only then do the
+    // wizard's name/age/bot fields describe the player. Checked before the wizard is hidden below.
+    const fromOnboarding = !!document.getElementById('aqua-guided-modal-backdrop')?.classList.contains('active');
     isHubActive = true;
+    stopAllTalking();
     document.body.classList.add('hub-active', 'hub-open');
 
     // Always ensure in-game rover radar HUD & scan prompts are hidden on the homepage
@@ -1772,8 +1776,10 @@ function initApplication() {
     }
     activeRadarArtifact = null;
 
-    // 1. Sync cadet profile from onboarding input if present
-    try {
+    // 1. Sync cadet profile from the onboarding inputs, but only when the player is finishing onboarding
+    //    or has no profile yet. Opening the hub any other way (switching cadet, leaving a world, Back)
+    //    must not overwrite their saved name with the wizard's default "Cadet Explorer".
+    if (fromOnboarding || window.__isRegisteringNewCadet || !profileManager.getActiveProfile()) try {
       const nameInput = document.getElementById('aqua-cadet-name-input');
       const val = (nameInput && nameInput.value.trim()) || 'Cadet Explorer';
       const curAge = parseInt(localStorage.getItem('nasa_player_age'), 10) || 10;
@@ -2004,27 +2010,47 @@ function initApplication() {
   function updateCallSign(name) {
     playerCallSign = (name || 'CADET EXPLORER').trim().toUpperCase();
     localStorage.setItem('nasa_player_callsign', playerCallSign);
-    if (callsignInput) callsignInput.value = playerCallSign;
-    if (drawerCallsignInput) drawerCallsignInput.value = playerCallSign;
+    // Don't rewrite a field the player is typing in (it would jump the cursor)
+    if (callsignInput && document.activeElement !== callsignInput) callsignInput.value = playerCallSign;
+    if (drawerCallsignInput && document.activeElement !== drawerCallsignInput) drawerCallsignInput.value = playerCallSign;
     if (hubUserName) hubUserName.innerText = `${playerCallSign} • JDSN (${selectedCommander.toUpperCase()})`;
     if (drawerCadetName) drawerCadetName.innerText = playerCallSign;
     if (startCommanderName) startCommanderName.innerText = playerCallSign;
     if (certPlayerName) certPlayerName.innerText = `${playerCallSign} • MASTER EXPLORER`;
   }
+  // profileManager calls this whenever the active profile is created, switched or renamed,
+  // so the drawer's CALL SIGN / NAME field always shows the real player name
+  window.syncCallSignUI = (name) => updateCallSign(name);
 
-  callsignInput?.addEventListener('input', (e) => updateCallSign(e.target.value));
-  drawerCallsignInput?.addEventListener('input', (e) => updateCallSign(e.target.value));
+  // Renaming here renames the active profile too (so the profile card at the top matches)
+  // The profile keeps the name as typed ("Arni Star"); the HUD fields show it in capitals
+  const saveCallSignToProfile = (typed) => {
+    const name = (typeof typed === 'string' ? typed : playerCallSign).trim();
+    const active = profileManager.getActiveProfile?.();
+    if (active && name && active.name !== name) {
+      profileManager.updateActiveProfile({ name });
+    }
+  };
+
+  [callsignInput, drawerCallsignInput].forEach(field => {
+    if (!field) return;
+    field.addEventListener('input', (e) => updateCallSign(e.target.value));
+    field.addEventListener('change', (e) => saveCallSignToProfile(e.target.value));
+    field.addEventListener('blur', () => { field.value = playerCallSign; });
+  });
+  drawerCallsignInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.target.blur(); });
 
   const handleRandomCallsign = () => {
     const randomName = RANDOM_CALLSIGNS[Math.floor(Math.random() * RANDOM_CALLSIGNS.length)];
     updateCallSign(randomName);
+    saveCallSignToProfile();
     martianAudio.playClick();
   };
 
   randomCallsignBtn?.addEventListener('click', handleRandomCallsign);
   drawerRandomBtn?.addEventListener('click', handleRandomCallsign);
 
-  updateCallSign(playerCallSign);
+  updateCallSign(profileManager.getActiveProfile?.()?.name || playerCallSign);
 
   // Drawer Commander Buttons
   const drawerCmdAsha = document.getElementById('drawer-cmd-asha');
@@ -2544,6 +2570,14 @@ function initApplication() {
     isSplashActive = false;
     window.__isSplashActive = false;
 
+    // Cadets already saved on this device but nobody signed in (after Log Out)? Ask "who's playing?"
+    // instead of starting a new-player onboarding that would make another profile.
+    // The picker's "Register New Space Cadet" still opens the onboarding for a genuinely new player.
+    if (!profileManager.getActiveProfile() && profileManager.getAllProfiles().length > 0 && !window.__isRegisteringNewCadet) {
+      profileManager.openProfileSwitcherModal();
+      return;
+    }
+
     // Launch Aqua Explorer Guided Game Wizard at Step 1 (Mission Story)
     openAquaGuidedModal(1);
   }
@@ -2613,6 +2647,9 @@ function initApplication() {
 
   function setAquaStep(step) {
     currentAquaStep = Math.max(1, Math.min(5, step));
+    window.__currentWizardStep = currentAquaStep;
+    // Start downloading the story film as soon as the wizard is open, so step 3 plays without buffering
+    window.prefetchStoryFilm?.();
 
     // Update Step Indicators (1 through 5)
     for (let i = 1; i <= 5; i++) {
@@ -2846,13 +2883,16 @@ function initApplication() {
     setDestination('mars', true);
     openStoryArticle('opportunity');
   });
+  // (The managers have no open(); render, then show their modal, same as the hub's own buttons)
   document.getElementById('drawer-nav-calendar')?.addEventListener('click', () => {
     closeDrawerSidebar();
-    calendarManager.open();
+    calendarManager.render();
+    document.getElementById('calendar-modal-backdrop')?.classList.add('active');
   });
   document.getElementById('drawer-nav-archive')?.addEventListener('click', () => {
     closeDrawerSidebar();
-    newsManager.open();
+    newsManager.render();
+    document.getElementById('news-modal-backdrop')?.classList.add('active');
   });
   document.getElementById('drawer-nav-labs')?.addEventListener('click', () => {
     closeDrawerSidebar();
@@ -3638,11 +3678,35 @@ function initApplication() {
     if (hubAudioIcon) hubAudioIcon.innerText = iconText;
     if (hubAudioText) hubAudioText.innerText = labelText;
 
-    [audioBtn, hubAudioBtn].forEach(btn => {
+    // Onboarding wizard header button (bilingual label)
+    const wizAudioBtn = document.getElementById('aqua-audio-toggle');
+    const wizAudioIcon = document.getElementById('aqua-audio-icon');
+    const wizAudioText = document.getElementById('aqua-audio-text');
+    const isBn = window.__currentWizardLang === 'bn';
+    if (wizAudioIcon) wizAudioIcon.innerText = iconText;
+    if (wizAudioText) {
+      wizAudioText.innerText = blocked
+        ? (isBn ? 'শব্দের জন্য চাপো' : 'Tap for sound')
+        : (isUnmuted ? (isBn ? 'অডিও: চালু' : 'Audio: ON') : (isBn ? 'অডিও: বন্ধ' : 'Audio: OFF'));
+    }
+    if (wizAudioBtn) wizAudioBtn.setAttribute('aria-pressed', String(!!isUnmuted));
+
+    [audioBtn, hubAudioBtn, wizAudioBtn].forEach(btn => {
       if (!btn) return;
       btn.classList.toggle('audio-active', isUnmuted && !blocked);
       btn.classList.toggle('audio-blocked', !!blocked);
     });
+  }
+  window.syncGameAudioUI = () => syncAudioUI(!martianAudio.isMuted);
+
+  // One audio switch for everything: the onboarding story film follows the game's sound on/off
+  function syncStoryFilmSound(isUnmuted) {
+    const film = document.getElementById('tour-video');
+    if (!film) return;
+    film.__userMuted = !isUnmuted;
+    film.__autoMuted = false;
+    film.muted = !isUnmuted;
+    film.__syncSound?.();
   }
 
   // Audio unlock is handled inside martianAudio (persistent listeners on real
@@ -3654,21 +3718,13 @@ function initApplication() {
   // Initialize UI with Audio ON
   syncAudioUI(!martianAudio.isMuted);
 
-  const audioBtn = document.getElementById('audio-toggle-btn');
-  if (audioBtn) {
-    audioBtn.addEventListener('click', () => {
+  ['audio-toggle-btn', 'hub-audio-toggle', 'aqua-audio-toggle'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', () => {
       const isUnmuted = martianAudio.unlockOrToggle();
       syncAudioUI(isUnmuted);
+      syncStoryFilmSound(isUnmuted);
     });
-  }
-
-  const hubAudioBtn = document.getElementById('hub-audio-toggle');
-  if (hubAudioBtn) {
-    hubAudioBtn.addEventListener('click', () => {
-      const isUnmuted = martianAudio.unlockOrToggle();
-      syncAudioUI(isUnmuted);
-    });
-  }
+  });
 
   // Drive Touch D-Pad
   const btnUp = document.getElementById('btn-drive-up');
@@ -3807,10 +3863,17 @@ function initApplication() {
     martianAudio.playUiHover?.();
   }, true);
 
+  const onboardingModal = document.getElementById('aqua-guided-modal-backdrop');
+  let renderedFrames = 0; // always draw the first frames so the scene behind the wizard is never blank
   function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
     const elapsedTime = clock.getElapsedTime();
+
+    // The onboarding wizard (with its story film) covers the scene: skip the 3D work so the film
+    // downloads and plays without stalls (the last rendered frame stays on screen behind it).
+    if (renderedFrames > 10 && (window.__storyFilmPlaying || onboardingModal?.classList.contains('active'))) return;
+    renderedFrames++;
 
     // 1. Smooth Camera Damping & Cosmic Stardust Particles
     sceneManager.update(delta, elapsedTime);
