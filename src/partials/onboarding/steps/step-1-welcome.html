@@ -112,6 +112,23 @@
                   <button type="button" class="aqua-age-pill" data-age="16" onclick="window.setCadetAge(16)" aria-label="16 years old">16</button>
                 </div>
               </div>
+
+              <!-- Any other age (younger than 6 or older than 16): type it in -->
+              <div class="kid-age-group other" id="kid-age-other-group" role="group" aria-labelledby="kid-age-other">
+                <label class="kid-age-group-label" id="kid-age-other" for="aqua-age-custom-input"
+                  data-i18n-en="Another age? Type it here" data-i18n-bn="অন্য বয়স? এখানে লেখো">Another age? Type it here</label>
+                <div class="kid-age-custom-row">
+                  <input type="number" id="aqua-age-custom-input" class="kid-age-custom-input" min="3" max="99" step="1"
+                    inputmode="numeric" placeholder="e.g. 18" data-i18n-placeholder-en="e.g. 18" data-i18n-placeholder-bn="যেমন ১৮"
+                    aria-describedby="aqua-age-custom-msg"
+                    oninput="window.setCustomCadetAge(true)"
+                    onkeydown="if (event.key === 'Enter') { event.preventDefault(); window.setCustomCadetAge(false); }" />
+                  <button type="button" class="kid-age-custom-btn" onclick="window.setCustomCadetAge(false)">
+                    <span data-i18n-en="Use this age" data-i18n-bn="এই বয়স নাও">Use this age</span>
+                  </button>
+                </div>
+                <p class="kid-age-custom-msg" id="aqua-age-custom-msg" aria-live="polite"></p>
+              </div>
             </section>
           </div>
 

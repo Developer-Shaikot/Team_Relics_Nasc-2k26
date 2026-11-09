@@ -53,6 +53,30 @@ export class CadetProfileManager {
       }
     }
 
+    // Remove accidental duplicates of the same name (older builds made a new "Cadet Explorer"
+    // every time someone logged out and pressed Start). Per name, keep the active profile,
+    // else the one with the most progress; only delete copies with no progress at all.
+    {
+      const activeIdNow = localStorage.getItem(STORAGE_ACTIVE_ID_KEY);
+      const progress = p => (p.userXP || 0) + (p.completedMissions || []).length * 1000;
+      const groups = {};
+      Object.values(this.profiles).forEach(p => {
+        const key = (p.name || '').trim().replace(/\s+/g, ' ').toUpperCase();
+        (groups[key] = groups[key] || []).push(p);
+      });
+      let removed = false;
+      Object.values(groups).forEach(list => {
+        if (list.length < 2) return;
+        const keep = list.slice().sort((a, b) =>
+          (b.id === activeIdNow) - (a.id === activeIdNow) || progress(b) - progress(a) || (b.lastPlayed || 0) - (a.lastPlayed || 0)
+        )[0];
+        list.forEach(p => {
+          if (p.id !== keep.id && progress(p) === 0) { delete this.profiles[p.id]; removed = true; }
+        });
+      });
+      if (removed) this.saveDB();
+    }
+
     // Check if user has explicitly logged out
     const isExplicitlyLoggedOut = localStorage.getItem('nasa_user_logged_out') === 'true';
 
@@ -107,10 +131,43 @@ export class CadetProfileManager {
     return this.activeProfile;
   }
 
+  /** Case- and space-insensitive name lookup ("Cadet Explorer" == "CADET  EXPLORER"). */
+  findProfileByName(name) {
+    const key = (name || '').trim().replace(/\s+/g, ' ').toUpperCase();
+    if (!key) return null;
+    return Object.values(this.profiles).find(p => (p.name || '').trim().replace(/\s+/g, ' ').toUpperCase() === key) || null;
+  }
+
   createProfile({ name, age, botId = 'echo', commander = 'asha' }) {
     const trimmedName = (name || 'Cadet Explorer').trim();
-    const validAge = Math.max(6, Math.min(16, parseInt(age, 10) || 10));
+    // 6-16 are the quick-pick ages in the wizard; any other age (3-99) can be typed in
+    const validAge = Math.max(3, Math.min(99, parseInt(age, 10) || 10));
     const validBot = ['echo', 'nova', 'orion'].includes(botId) ? botId : 'echo';
+
+    // One cadet at a time: while someone is signed in, no new cadet can be created or switched to.
+    // (The wizard's answers just update the signed-in cadet.)
+    if (this.activeProfile) {
+      this.updateActiveProfile({ name: trimmedName, age: validAge, botId: validBot });
+      return this.activeProfile;
+    }
+
+    // Same name already on this device? That's the same cadet coming back: switch to them
+    // (keeping their progress) instead of making a duplicate profile.
+    const existing = this.findProfileByName(trimmedName);
+    if (existing) {
+      if (this.activeProfile && this.activeProfile.id !== existing.id) this.syncProgressFromGame();
+      localStorage.removeItem('nasa_user_logged_out');
+      existing.age = validAge;
+      existing.botId = validBot;
+      existing.lastPlayed = Date.now();
+      this.activeProfile = existing;
+      this.saveDB();
+      localStorage.setItem(STORAGE_ACTIVE_ID_KEY, existing.id);
+      this.syncActiveProfileToLegacyStorage();
+      this.syncActiveProfileToGame();
+      this.updateUI();
+      return existing;
+    }
 
     const id = 'cadet_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
     const newProfile = {
@@ -235,6 +292,11 @@ export class CadetProfileManager {
 
   selectProfile(id) {
     if (!this.profiles[id]) return false;
+    // One cadet at a time: while someone is signed in, nobody else can get in until they log out
+    if (this.activeProfile && this.activeProfile.id !== id) {
+      console.warn('Another cadet is signed in. Log out first to switch cadet.');
+      return false;
+    }
     this.syncProgressFromGame(); // Save whatever current character did
 
     localStorage.removeItem('nasa_user_logged_out');
@@ -266,14 +328,10 @@ export class CadetProfileManager {
     this.saveDB();
 
     if (this.activeProfile && this.activeProfile.id === id) {
+      // The signed-in cadet was deleted: back to the start screen (never auto sign-in someone else)
       this.activeProfile = null;
       localStorage.removeItem(STORAGE_ACTIVE_ID_KEY);
-      const remaining = Object.values(this.profiles);
-      if (remaining.length > 0) {
-        this.selectProfile(remaining[0].id);
-      } else {
-        this.logout();
-      }
+      this.logout();
     } else {
       this.renderProfileSwitcherModal();
     }
@@ -350,6 +408,9 @@ export class CadetProfileManager {
     // Hub Labels
     const nameEl = document.getElementById('lbl-hub-user-name');
     if (nameEl) nameEl.innerText = p.name.toUpperCase();
+
+    // Drawer "CALL SIGN / NAME" field, HUD call sign, certificate name (main.js owns these)
+    window.syncCallSignUI?.(p.name);
 
     const rankEl = document.getElementById('lbl-hub-rank');
     if (rankEl) {
@@ -590,10 +651,11 @@ export class CadetProfileManager {
       if (this.activeProfile) {
         this.closeProfileSwitcherModal();
       } else {
-        // If no active profile, pick the first one or open onboarding wizard
+        // Nobody signed in: closing "who's playing?" goes back to the start screen
+        // (it used to silently sign in as whichever cadet happened to be first in the list)
         const all = this.getAllProfiles();
         if (all.length > 0) {
-          this.selectProfile(all[0].id);
+          this.logout();
         } else {
           this.closeProfileSwitcherModal();
           window.openAquaGuidedModal?.(1);
@@ -620,7 +682,23 @@ export class CadetProfileManager {
     const container = document.getElementById('cadet-profiles-list-container');
     if (!container) return;
 
-    const allProfiles = this.getAllProfiles();
+    // One cadet at a time: while someone is signed in, only they are listed (Continue / Log Out),
+    // and registering a new cadet is hidden. Everyone else shows up again after Log Out.
+    const signedIn = this.activeProfile && this.profiles[this.activeProfile.id] ? this.activeProfile : null;
+    const allProfiles = signedIn ? [signedIn] : this.getAllProfiles();
+    const titleEl = document.querySelector('#cadet-profile-switcher-modal .cadet-profile-title-area h2');
+    const introEl = document.querySelector('#cadet-profile-switcher-modal .cadet-profile-title-area p');
+    const registerBtn = document.getElementById('btn-register-new-cadet');
+    const footerLogout = document.getElementById('btn-modal-logout');
+    if (titleEl) titleEl.textContent = signedIn ? `🧑‍🚀 Signed in as ${signedIn.name}` : "🚀 Who's playing?";
+    if (introEl) {
+      introEl.textContent = signedIn
+        ? 'Only one cadet can play at a time. To play as someone else or register a new cadet, log out first.'
+        : 'Pick your cadet to continue where you left off, or register a new cadet with their own missions and badges.';
+    }
+    if (registerBtn) registerBtn.style.display = signedIn ? 'none' : '';
+    if (footerLogout) footerLogout.style.display = signedIn ? '' : 'none';
+
     if (allProfiles.length === 0) {
       container.innerHTML = `
         <div class="cadet-profile-empty">
@@ -663,7 +741,7 @@ export class CadetProfileManager {
           <div class="profile-item-actions">
             <button type="button" class="btn-resume-profile" data-action="resume" data-profile-id="${p.id}">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              <span>${isActive ? 'Continue' : 'Switch &amp; Play'}</span>
+              <span>${isActive ? 'Continue' : 'Sign In &amp; Play'}</span>
             </button>
             ${isActive ? `
             <button type="button" class="btn-logout-profile" data-action="card-logout" data-profile-id="${p.id}" title="Log out this cadet and return to Start Game screen">
