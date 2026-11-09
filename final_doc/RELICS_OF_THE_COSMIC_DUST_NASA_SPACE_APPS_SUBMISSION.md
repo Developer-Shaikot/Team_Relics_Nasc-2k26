@@ -165,7 +165,7 @@ Pressing **Enter Base** places the child directly in a lunar rover on the surfac
 
 ![Figure 12 — Moon surface, rover ready to drive](./images/12_moon_surface.jpg)
 
-_Figure 12 — The lunar rover at the start of Moon Mission 1, "First Soft Landing". The top bar shows the mission and the distance to the target (32 m); the right panel names the target relic, Surveyor 1._
+_Figure 12 — The lunar rover at the start of Moon Mission 1, "First Soft Landing". The top bar shows the mission and the distance to the target (10 m); the right panel names the target relic, Surveyor 1._
 
 ![Figure 13 — Driving across the Moon](./images/12b_moon_driving.jpg)
 
@@ -185,7 +185,7 @@ _Figure 16 — After the scan the relic is logged, XP and Cosmic Dust are awarde
 
 #### Step 4 — Explore Mars
 
-On Mars the rover starts 32 m from the first relic, the **Opportunity (MER-B)** rover, in Perseverance Valley. The same drive → scan → discover loop applies, now with the real story of a rover built for 90 days that worked for more than fourteen years.
+On Mars the rover starts 10 m from the first relic, the **Opportunity (MER-B)** rover, in Perseverance Valley. The same drive → scan → discover loop applies, now with the real story of a rover built for 90 days that worked for more than fourteen years.
 
 ![Figure 17 — Mars surface](./images/13_mars_surface.jpg)
 
