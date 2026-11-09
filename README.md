@@ -28,26 +28,25 @@
 ## Table of Contents
 
 1. [Project Summary](#1-project-summary)
-2. [Project Demonstration](#2-project-demonstration)
-3. [Project Details — the WHY, the WHAT and the HOW](#3-project-details--the-why-the-what-and-the-how)
-   - 3.1 [The WHY — what problem we are solving](#31-the-why--what-problem-we-are-solving)
-   - 3.2 [The WHAT — the game in one page](#32-the-what--the-game-in-one-page)
-   - 3.3 [A guided tour of the game](#33-a-guided-tour-of-the-game)
-   - 3.4 [The hardware we tell stories about](#34-the-hardware-we-tell-stories-about)
-   - 3.5 [Science you can feel — the learning mechanics](#35-science-you-can-feel--the-learning-mechanics)
-   - 3.6 [Designing for children — "the child stays in control"](#36-designing-for-children--the-child-stays-in-control)
-   - 3.7 [The HOW — architecture and implementation](#37-the-how--architecture-and-implementation)
-   - 3.8 [Testing and quality](#38-testing-and-quality)
-   - 3.9 [Impact, community and future work](#39-impact-community-and-future-work)
-4. [Feature Highlights](#4-feature-highlights)
-5. [Responses to the Challenge Considerations](#5-responses-to-the-challenge-considerations)
-6. [Tools and Technologies](#6-tools-and-technologies)
-7. [Project Architecture](#7-project-architecture)
-8. [Use of Artificial Intelligence](#8-use-of-artificial-intelligence)
-9. [NASA Data, Resources and Space Agency References](#9-nasa-data-resources-and-space-agency-references)
-10. [Team](#10-team)
-11. [Game Controls](#11-game-controls)
-12. [License](#12-license)
+2. [Project Details — the WHY, the WHAT and the HOW](#2-project-details--the-why-the-what-and-the-how)
+   - 2.1 [The WHY — what problem we are solving](#21-the-why--what-problem-we-are-solving)
+   - 2.2 [The WHAT — the game in one page](#22-the-what--the-game-in-one-page)
+   - 2.3 [A guided tour of the game](#23-a-guided-tour-of-the-game)
+   - 2.4 [The hardware we tell stories about](#24-the-hardware-we-tell-stories-about)
+   - 2.5 [Science you can feel — the learning mechanics](#25-science-you-can-feel--the-learning-mechanics)
+   - 2.6 [Designing for children — "the child stays in control"](#26-designing-for-children--the-child-stays-in-control)
+   - 2.7 [The HOW — architecture and implementation](#27-the-how--architecture-and-implementation)
+   - 2.8 [Impact, community and future work](#28-impact-community-and-future-work)
+3. [Feature Highlights](#3-feature-highlights)
+4. [Responses to the Challenge Considerations](#4-responses-to-the-challenge-considerations)
+5. [Tools and Technologies](#5-tools-and-technologies)
+6. [Project Architecture](#6-project-architecture)
+7. [Use of Artificial Intelligence](#7-use-of-artificial-intelligence)
+8. [NASA Data, Resources and Space Agency References](#8-nasa-data-resources-and-space-agency-references)
+9. [Team](#9-team)
+10. [Game Controls](#10-game-controls)
+11. [License](#11-license)
+12. [References](#12-references)
 
 ---
 
@@ -78,23 +77,9 @@ _Figure 1 — The Mission Control Hub. Three large gateways lead to The Moon, Pl
 
 ---
 
-## 2. Project Demonstration
+## 2. Project Details — the WHY, the WHAT and the HOW
 
-| Item | Where |
-| :-- | :-- |
-| Playable web game | Hosted web version — runs in any modern browser, nothing to install (link below) |
-| Game tour video (57 s) | [`public/videos/game-tour.mp4`](./public/videos/game-tour.mp4) — a real gameplay recording, also played inside onboarding step 3 with English and Bengali captions |
-| Source code | This repository — see [Project Architecture](#7-project-architecture) |
-| Video scripts and production blueprint | [30-second video script](./final_doc/VIDEO_30_SEC_DEMO_SCRIPT.md) · [240-second pitch script](./final_doc/VIDEO_240_SEC_PITCH_SCRIPT.md) · [production blueprint](./documentation/06_OFFICIAL_PRODUCTION_BLUEPRINT_AND_VIDEO_SCRIPT.md) |
-| Submission documents | [`final_doc/`](./final_doc/) — the submission as Markdown, DOCX and PDF |
-
-> Public links (hosted demo, repository and video) are added to the submission form at hand-in time.
-
----
-
-## 3. Project Details — the WHY, the WHAT and the HOW
-
-### 3.1 The WHY — what problem we are solving
+### 2.1 The WHY — what problem we are solving
 
 The challenge asks for a story that "introduces school-age space enthusiasts to the hardware and the science it made possible". We identified four obstacles that stop children from engaging with this history:
 
@@ -107,7 +92,7 @@ The challenge asks for a story that "introduces school-age space enthusiasts to 
 
 Our central idea, **Planetary Archaeology 2085**, reframes the debate. In 2085 the landing sites are heritage monuments. The player is not cleaning up litter — they are *reading history from the objects themselves*.
 
-### 3.2 The WHAT — the game in one page
+### 2.2 The WHAT — the game in one page
 
 | Layer | What it is |
 | :-- | :-- |
@@ -120,7 +105,7 @@ Our central idea, **Planetary Archaeology 2085**, reframes the debate. In 2085 t
 | **Science labs** | Four hands-on JPL-style workbenches. |
 | **Profiles** | Multiple cadets can share one device; each keeps independent progress. |
 
-### 3.3 A guided tour of the game
+### 2.3 A guided tour of the game
 
 #### Step 1 — Start screen and onboarding
 
@@ -264,7 +249,7 @@ After exploring, the child can test their knowledge in the Space Cadet Quiz and 
 
 _Figure 28 — The quiz and leaderboard, which reinforce what the child discovered during play._
 
-### 3.4 The hardware we tell stories about
+### 2.4 The hardware we tell stories about
 
 Every relic in the game is real NASA hardware. Each one is paired with one clear idea a child can carry away.
 
@@ -296,7 +281,7 @@ Every relic in the game is real NASA hardware. Each one is paired with one clear
 | :-- | :-- |
 | **Voyager 1** | Launched in 1977, now more than 24 billion km away and still sending data using a plutonium power source that weakens every year. |
 
-### 3.5 Science you can feel — the learning mechanics
+### 2.5 Science you can feel — the learning mechanics
 
 The game never asks a child to memorise an equation. It lets them feel the idea first, and names it second.
 
@@ -310,7 +295,7 @@ The game never asks a child to memorise an equation. It lets them feel the idea 
 | **Dust and sunlight** | Mars Sol 5111 level | See how atmospheric dust reduces solar-panel power. |
 | **Low gravity** | Moon and Mars HUD | Watch the G-force read-out change between the Moon (0.16 g) and Mars (0.38 g). |
 
-### 3.6 Designing for children — "the child stays in control"
+### 2.6 Designing for children — "the child stays in control"
 
 During testing we found that children dislike being interrupted, but also get lost without help. We therefore made a deliberate rule:
 
@@ -328,7 +313,7 @@ During testing we found that children dislike being interrupted, but also get lo
 | Every screen | Dead ends. | A visible **Back to Hub** button on every game screen. |
 | Reload | Losing your place. | Progress and the active cadet are restored; logging out returns to a clean Start screen. |
 
-### 3.7 The HOW — architecture and implementation
+### 2.7 The HOW — architecture and implementation
 
 ```
 ┌──────────────────────── Browser (no install) ────────────────────────┐
@@ -366,15 +351,7 @@ During testing we found that children dislike being interrupted, but also get lo
 | **Hub background** | A live, draggable Three.js orrery of the Moon, Mars and Voyager 1 that flies to the world a child points at. |
 | **Build and performance** | Vite; a small build plugin assembles `index.html` from HTML partials; single-page; runs at interactive frame rates in a normal laptop browser. |
 
-### 3.8 Testing and quality
-
-- **Automated end-to-end capture.** Every screenshot in this document was captured automatically from the production build by a headless Chrome script that played the *real* game: onboarding → hub → launch the Moon → steer the rover to the mission's target using the radar map → press **E** → relic log, and the same for Mars, then the roadmap, Voyager and all four labs.
-- **Tour video.** The onboarding video was recorded the same way, from real gameplay, and encoded to a 1280×720 MP4 (about 4.5 MB).
-- **Layouts and languages.** The onboarding, tips and video player were checked at desktop (1440 px) and phone (390 px) widths, in English and Bengali.
-- **Bug-fix pass** carried out before submission: profile and logout persistence, duplicate-profile prevention, hub navigation, the onboarding ✕ button, overlapping modal buttons, the radar map hiding under the Back to Hub button, and the removal of every automatic interruption listed in [Section 3.6](#36-designing-for-children--the-child-stays-in-control).
-- **Production build** compiles cleanly with no errors.
-
-### 3.9 Impact, community and future work
+### 2.8 Impact, community and future work
 
 **Who benefits**
 
@@ -398,7 +375,7 @@ During testing we found that children dislike being interrupted, but also get lo
 
 ---
 
-## 4. Feature Highlights
+## 3. Feature Highlights
 
 ### 🎮 Game Hub and S-curve mission roadmap
 - **Sci-fi Mission Control Hub**: player rank, level progress (XP), recovered NASA data shards, Cosmic Dust, Gems and mission badges.
@@ -432,7 +409,7 @@ During testing we found that children dislike being interrupted, but also get lo
 
 ---
 
-## 5. Responses to the Challenge Considerations
+## 4. Responses to the Challenge Considerations
 
 ### What age group is your story designed for?
 
@@ -465,7 +442,7 @@ During testing we found that children dislike being interrupted, but also get lo
 
 ---
 
-## 6. Tools and Technologies
+## 5. Tools and Technologies
 
 | Area | Tools |
 | :-- | :-- |
@@ -491,7 +468,7 @@ During testing we found that children dislike being interrupted, but also get lo
 
 ---
 
-## 7. Project Architecture
+## 6. Project Architecture
 
 ```
 Nasa-2k26/
@@ -525,7 +502,7 @@ Nasa-2k26/
 
 ---
 
-## 8. Use of Artificial Intelligence
+## 7. Use of Artificial Intelligence
 
 In line with the Space Apps guidance, we state clearly how AI was used:
 
@@ -536,7 +513,7 @@ In line with the Space Apps guidance, we state clearly how AI was used:
 
 ---
 
-## 9. NASA Data, Resources and Space Agency References
+## 8. NASA Data, Resources and Space Agency References
 
 | Source | How it informed the project |
 | :-- | :-- |
@@ -554,13 +531,13 @@ In line with the Space Apps guidance, we state clearly how AI was used:
 2. **NASA Mars Reconnaissance Orbiter (MRO) HiRISE Archive**: Digital Terrain Model (DTM) of Perseverance Valley at Endeavour Crater (14.57° S, 354.67° E).
 3. **NASA 3D Resources and Jet Propulsion Laboratory (JPL)**: Mars Exploration Rover structural specifications, rocker-bogie chassis geometry and payload schematics.
 
-Detailed data notes are kept in [`documentation/NASA_DATA_SOURCES.md`](./documentation/NASA_DATA_SOURCES.md).
+Links to every source are listed in [Section 12 — References](#12-references). Detailed data notes are kept in [`documentation/NASA_DATA_SOURCES.md`](./documentation/NASA_DATA_SOURCES.md).
 
 > Terrain and hardware in the game are procedural and illustrative, informed by these sources rather than copied from them. Facts, dates and figures are drawn from NASA public sources.
 
 ---
 
-## 10. Team
+## 9. Team
 
 ![Team Relics — Shaikot Kundu Akash, Md. Wahiduzzaman Nayem, Arni Rani Nath, Tareq Jamil Sarkar Samrat and Tanjir Ahmed Fardin](./final_doc/images/00_team_relics.jpg)
 
@@ -576,7 +553,7 @@ _Team Relics — NASA International Space Apps Challenge 2026._
 
 ---
 
-## 11. Game Controls
+## 10. Game Controls
 
 | Action | Keyboard | Touch |
 | :-- | :-- | :-- |
@@ -590,9 +567,75 @@ _Team Relics — NASA International Space Apps Challenge 2026._
 
 ---
 
-## 12. License
+## 11. License
 
 This project is open source and released under the **[MIT License](LICENSE)**.
+
+---
+
+## 12. References
+
+Every NASA data set, archive and mission record used in the game, with its link. Section 8 explains how each one informed the project.
+
+### NASA data archives
+
+**[1]** **NASA Planetary Data System (PDS)** — the main archive for NASA planetary mission data: [https://pds.nasa.gov/](https://pds.nasa.gov/)
+
+**[2]** **PDS Geosciences Node — Mars Exploration Rover (MER) archive**: Opportunity's mission timeline, atmospheric dust opacity (τ) and power data: [https://pds-geosciences.wustl.edu/missions/mer/](https://pds-geosciences.wustl.edu/missions/mer/)
+
+**[3]** **MER Analyst's Notebook (PDS Geosciences Node)**: Opportunity's sol-by-sol activity and science observations: [https://an.rsl.wustl.edu/mer/](https://an.rsl.wustl.edu/mer/)
+
+**[4]** **PDS Imaging Node**: rover and orbiter images: [https://pds-imaging.jpl.nasa.gov/](https://pds-imaging.jpl.nasa.gov/)
+
+**[5]** **Mars Reconnaissance Orbiter — HiRISE**: Mars surface images used as the reference for the Perseverance Valley terrain: [https://www.uahirise.org/](https://www.uahirise.org/)
+
+**[6]** **HiRISE Digital Terrain Models (DTMs)**: [https://www.uahirise.org/dtm/](https://www.uahirise.org/dtm/)
+
+**[7]** **Mars Reconnaissance Orbiter mission**: [https://science.nasa.gov/mission/mars-reconnaissance-orbiter/](https://science.nasa.gov/mission/mars-reconnaissance-orbiter/)
+
+**[8]** **Lunar Reconnaissance Orbiter — LOLA altimeter data (PDS Geosciences Node)**: lunar elevation used as the reference for the Moon terrain: [https://pds-geosciences.wustl.edu/missions/lro/lola.htm](https://pds-geosciences.wustl.edu/missions/lro/lola.htm)
+
+**[9]** **Lunar Reconnaissance Orbiter mission**: [https://science.nasa.gov/mission/lro/](https://science.nasa.gov/mission/lro/)
+
+### Mission records for the relics in the game
+
+**The Moon**
+
+**[10]** **Surveyor 1 (1966)**: [https://science.nasa.gov/mission/surveyor-1/](https://science.nasa.gov/mission/surveyor-1/) · NSSDCA record: [https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1966-045A](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1966-045A)
+
+**[11]** **Surveyor 3 (1967)**: [https://science.nasa.gov/mission/surveyor-3/](https://science.nasa.gov/mission/surveyor-3/) · NSSDCA record: [https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1967-035A](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1967-035A)
+
+**[12]** **Apollo 11 (1969)**: [https://www.nasa.gov/mission/apollo-11/](https://www.nasa.gov/mission/apollo-11/) · Lunar Module "Eagle" NSSDCA record: [https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C)
+
+**[13]** **Apollo 12 (1969)**, the visit to Surveyor 3: [https://www.nasa.gov/mission/apollo-12/](https://www.nasa.gov/mission/apollo-12/)
+
+**[14]** **Apollo 15 (1971)**, the first Lunar Roving Vehicle: [https://www.nasa.gov/mission/apollo-15/](https://www.nasa.gov/mission/apollo-15/)
+
+**[15]** **LCROSS (2009)**: [https://science.nasa.gov/mission/lcross/](https://science.nasa.gov/mission/lcross/) · NSSDCA record: [https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2009-031B](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2009-031B)
+
+**Mars**
+
+**[16]** **Opportunity (MER-B, 2004–2018)**: [https://science.nasa.gov/mission/mer-opportunity/](https://science.nasa.gov/mission/mer-opportunity/) · NSSDCA record: [https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-032A](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-032A)
+
+**[17]** **Mars Exploration Rovers Spirit and Opportunity**: [https://science.nasa.gov/mission/mars-exploration-rovers-spirit-and-opportunity/](https://science.nasa.gov/mission/mars-exploration-rovers-spirit-and-opportunity/)
+
+**[18]** **InSight lander (2018–2022)**: [https://science.nasa.gov/mission/insight/](https://science.nasa.gov/mission/insight/)
+
+**Deep space**
+
+**[19]** **Voyager 1**: [https://science.nasa.gov/mission/voyager/](https://science.nasa.gov/mission/voyager/) · JPL mission status: [https://voyager.jpl.nasa.gov/](https://voyager.jpl.nasa.gov/)
+
+**[20]** **The Voyager Golden Record**: [https://science.nasa.gov/mission/voyager/voyager-golden-record-overview/](https://science.nasa.gov/mission/voyager/voyager-golden-record-overview/)
+
+### NASA tools and 3D resources
+
+**[21]** **NASA's Eyes on the Solar System**: [https://eyes.nasa.gov/](https://eyes.nasa.gov/)
+
+**[22]** **NASA 3D Resources**: [https://science.nasa.gov/3d-resources/](https://science.nasa.gov/3d-resources/)
+
+### The challenge
+
+**[23]** **NASA Space Apps Challenge 2026 — Abandoned but Not Forgotten**: [https://www.spaceappschallenge.org/2026/challenges/abandoned-but-not-forgotten-storytelling-about-nasas-discarded-equipment-on-the-moon-and-mars/](https://www.spaceappschallenge.org/2026/challenges/abandoned-but-not-forgotten-storytelling-about-nasas-discarded-equipment-on-the-moon-and-mars/)
 
 ---
 
