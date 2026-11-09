@@ -545,7 +545,14 @@ function initApplication() {
 
     updateMinimap(stats);
 
-    if (isHubActive || isSplashActive || window.__isSplashActive) {
+    const isHubActiveNow = isHubActive || isSplashActive || window.__isSplashActive ||
+      document.getElementById('game-hub-screen')?.classList.contains('active') ||
+      document.body.classList.contains('hub-active') ||
+      document.body.classList.contains('hub-open');
+
+    if (isHubActiveNow) {
+      if (radarHud) radarHud.style.display = 'none';
+      activeRadarArtifact = null;
       return;
     }
 
@@ -562,6 +569,11 @@ function initApplication() {
       // (Scan interaction handles relic detection without blocking modal)
 
       if (dist <= 4.5) {
+        if (isHubActiveNow) {
+          if (radarHud) radarHud.style.display = 'none';
+          activeRadarArtifact = null;
+          return;
+        }
         activeRadarArtifact = artifact;
         if (radarHud) radarHud.style.display = 'flex';
         if (radarTitle) radarTitle.innerText = `📍 TARGET: ${artifact.title}`;
@@ -963,6 +975,19 @@ function initApplication() {
   });
 
   roverController.onProximityAlert = (artifact, dist) => {
+    // Proximity alert is exclusively for the active 3D game screen.
+    // It must NEVER activate on the homepage/hub, splash screen, or when modals are active.
+    const isHubActiveNow = isHubActive || isSplashActive || window.__isSplashActive ||
+      document.getElementById('game-hub-screen')?.classList.contains('active') ||
+      document.body.classList.contains('hub-active') ||
+      document.body.classList.contains('hub-open');
+
+    if (isHubActiveNow) {
+      activeRadarArtifact = null;
+      if (radarHud) radarHud.style.display = 'none';
+      return;
+    }
+
     if (dist <= 4.5 && artifact) {
       activeRadarArtifact = artifact;
       if (radarHud) radarHud.style.display = 'flex';
@@ -995,6 +1020,12 @@ function initApplication() {
 
   if (radarScanBtn) {
     radarScanBtn.addEventListener('click', () => {
+      const isHubActiveNow = isHubActive || isSplashActive || window.__isSplashActive ||
+        document.getElementById('game-hub-screen')?.classList.contains('active') ||
+        document.body.classList.contains('hub-active') ||
+        document.body.classList.contains('hub-open');
+      if (isHubActiveNow) return;
+
       if (activeRadarArtifact) {
         scanner.triggerManualScan(activeRadarArtifact.id);
       }
@@ -1002,6 +1033,12 @@ function initApplication() {
   }
 
   window.addEventListener('keydown', (e) => {
+    const isHubActiveNow = isHubActive || isSplashActive || window.__isSplashActive ||
+      document.getElementById('game-hub-screen')?.classList.contains('active') ||
+      document.body.classList.contains('hub-active') ||
+      document.body.classList.contains('hub-open');
+    if (isHubActiveNow) return;
+
     if (['KeyE', 'e', 'E'].includes(e.code)) {
       if (activeRadarArtifact) {
         scanner.triggerManualScan(activeRadarArtifact.id);
@@ -1558,6 +1595,13 @@ function initApplication() {
 
   function openGameHub() {
     isHubActive = true;
+    document.body.classList.add('hub-active', 'hub-open');
+
+    // Always ensure in-game rover radar HUD & scan prompts are hidden on the homepage
+    if (radarHud) {
+      radarHud.style.display = 'none';
+    }
+    activeRadarArtifact = null;
 
     // 1. Sync cadet profile from onboarding input if present
     try {
@@ -1631,6 +1675,7 @@ function initApplication() {
 
   function closeGameHub() {
     isHubActive = false;
+    document.body.classList.remove('hub-active', 'hub-open');
     if (gameHubScreen) {
       gameHubScreen.classList.remove('active');
       gameHubScreen.style.display = 'none';

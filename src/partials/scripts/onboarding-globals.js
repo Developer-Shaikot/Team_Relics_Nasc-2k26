@@ -56,6 +56,11 @@ window.openGameHub = function () {
     hub.style.setProperty('display', 'grid', 'important');
     hub.classList.add('active');
   }
+  document.body.classList.add('hub-active', 'hub-open');
+  var radarHud = document.getElementById('rover-radar-hud');
+  if (radarHud) {
+    radarHud.style.display = 'none';
+  }
   var inGameBack = document.getElementById('btn-in-game-back-to-hub');
   if (inGameBack) inGameBack.style.display = 'none';
   document.querySelectorAll('.modal-backdrop.active').forEach(function (m) {
