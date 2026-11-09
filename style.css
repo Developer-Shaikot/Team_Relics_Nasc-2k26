@@ -1005,6 +1005,23 @@ input[type="range"] {
   pointer-events: auto;
 }
 
+/* Explicitly hide in-game rover radar HUD when the Game Hub (homepage) or splash is active */
+.game-hub-screen.active ~ .rover-radar-hud,
+.game-hub-screen.active ~ #rover-radar-hud,
+body.hub-active .rover-radar-hud,
+body.hub-open .rover-radar-hud,
+body.fullscreen-mode-active.hub-active .rover-radar-hud,
+body.fullscreen-mode-active.hub-open .rover-radar-hud,
+body.fullscreen-mode-active .game-hub-screen.active ~ .rover-radar-hud,
+body.fullscreen-mode-active .game-hub-screen.active ~ #rover-radar-hud,
+#aqua-splash-screen:not([style*="display: none"]) ~ .rover-radar-hud,
+#aqua-guided-modal-backdrop.active ~ .rover-radar-hud {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
 @keyframes radarSlideIn {
   from {
     opacity: 0;
@@ -6879,7 +6896,10 @@ input[type="range"] {
 }
 
 .game-hub-screen.active ~ .spaceflight-hud-overlay,
-body.hub-open .spaceflight-hud-overlay {
+body.hub-open .spaceflight-hud-overlay,
+.game-hub-screen.active ~ .rover-radar-hud,
+body.hub-open .rover-radar-hud,
+body.hub-active .rover-radar-hud {
   display: none !important;
 }
 
@@ -8694,7 +8714,7 @@ body.fullscreen-mode-active .waypoint-tracker-hud {
   transition: all 0.35s ease !important;
 }
 
-body.fullscreen-mode-active .rover-radar-hud {
+body.fullscreen-mode-active:not(.hub-active):not(.hub-open) .rover-radar-hud {
   position: fixed !important;
   top: 110px !important;
   left: 50% !important;
