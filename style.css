@@ -14577,25 +14577,38 @@ body.fullscreen-mode-active .in-game-back-to-hub-btn {
   }
 }
 
-/* ---------- Step 3: game tour video player ---------- */
+/* ---------- Step 3: game tour video player (True 16:9 YouTube Aspect Ratio) ---------- */
 .tour-player {
-  border-radius: 22px;
-  background: rgba(2, 8, 23, 0.7);
-  border: 2px solid rgba(56, 189, 248, 0.3);
+  width: 100%;
+  max-width: min(820px, 100%);
+  margin: 0 auto;
+  border-radius: 20px;
+  background: rgba(2, 8, 23, 0.85);
+  border: 2px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 24px rgba(56, 189, 248, 0.12);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
 .tour-stage {
   position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
   background: #000000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tour-video {
   display: block;
   width: 100%;
+  height: 100%;
   aspect-ratio: 16 / 9;
-  height: auto;
-  object-fit: contain;
+  object-fit: cover;
   background: #000000;
   cursor: pointer;
 }
@@ -14616,6 +14629,7 @@ body.fullscreen-mode-active .in-game-back-to-hub-btn {
   place-items: center;
   cursor: pointer;
   transition: transform 0.18s ease, opacity 0.2s ease;
+  z-index: 12;
 }
 
 .tour-big-play svg {
@@ -14642,24 +14656,150 @@ body.fullscreen-mode-active .in-game-back-to-hub-btn {
   max-width: calc(100% - 32px);
   width: max-content;
   padding: 8px 16px;
-  border-radius: 14px;
-  background: rgba(2, 8, 23, 0.82);
+  border-radius: 12px;
+  background: rgba(2, 8, 23, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: #ffffff;
   font-family: var(--kid-font);
-  font-size: 18px;
+  font-size: clamp(14px, 1.8vw, 17px);
   font-weight: 600;
   line-height: 1.35;
   text-align: center;
   pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
 }
 
 .tour-caption[hidden] {
-  display: none;
+  display: none !important;
 }
 
-.tour-stage:fullscreen .tour-caption {
-  font-size: 28px;
-  bottom: 40px;
+/* ==========================================================================
+   FULLSCREEN TOUR PLAYER (True Cinematic YouTube Fullscreen)
+   ========================================================================== */
+.tour-player:fullscreen,
+.tour-player:-webkit-full-screen,
+.tour-player.is-fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: #000000 !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.tour-player:fullscreen .tour-stage,
+.tour-player:-webkit-full-screen .tour-stage,
+.tour-player.is-fullscreen .tour-stage,
+.tour-stage:fullscreen,
+.tour-stage:-webkit-full-screen {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  aspect-ratio: auto !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  background: #000000 !important;
+  border-radius: 0 !important;
+}
+
+.tour-player:fullscreen .tour-video,
+.tour-player:-webkit-full-screen .tour-video,
+.tour-player.is-fullscreen .tour-video,
+.tour-stage:fullscreen .tour-video,
+.tour-stage:-webkit-full-screen .tour-video,
+:fullscreen .tour-video,
+:-webkit-full-screen .tour-video {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  max-height: none !important;
+  aspect-ratio: 16 / 9 !important;
+  object-fit: contain !important;
+  margin: auto !important;
+  background: #000000 !important;
+}
+
+.tour-player:fullscreen .tour-controls,
+.tour-player:-webkit-full-screen .tour-controls,
+.tour-player.is-fullscreen .tour-controls {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  z-index: 30 !important;
+  background: linear-gradient(0deg, rgba(2, 8, 23, 0.95) 0%, rgba(2, 8, 23, 0.7) 60%, transparent 100%) !important;
+  padding: 24px 32px 24px !important;
+  gap: 16px !important;
+  transition: opacity 0.3s ease !important;
+}
+
+.tour-player:fullscreen.hide-controls .tour-controls,
+.tour-player:-webkit-full-screen.hide-controls .tour-controls,
+.tour-player.is-fullscreen.hide-controls .tour-controls {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.tour-player:fullscreen .tour-caption,
+.tour-player:-webkit-full-screen .tour-caption,
+.tour-player.is-fullscreen .tour-caption,
+.tour-stage:fullscreen .tour-caption,
+.tour-stage:-webkit-full-screen .tour-caption {
+  bottom: 100px !important;
+  font-size: clamp(20px, 2.5vw, 32px) !important;
+  padding: 12px 24px !important;
+  max-width: 85% !important;
+  z-index: 25 !important;
+}
+
+.tour-player:fullscreen .tour-chapters,
+.tour-player:-webkit-full-screen .tour-chapters,
+.tour-player.is-fullscreen .tour-chapters {
+  display: none !important;
+}
+
+.tour-player:fullscreen .tour-ctrl-btn,
+.tour-player:-webkit-full-screen .tour-ctrl-btn,
+.tour-player.is-fullscreen .tour-ctrl-btn {
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 14px !important;
+}
+
+.tour-player:fullscreen .tour-ctrl-btn svg,
+.tour-player:-webkit-full-screen .tour-ctrl-btn svg,
+.tour-player.is-fullscreen .tour-ctrl-btn svg {
+  width: 26px !important;
+  height: 26px !important;
+}
+
+.tour-player:fullscreen .tour-time,
+.tour-player:-webkit-full-screen .tour-time,
+.tour-player.is-fullscreen .tour-time {
+  font-size: 16px !important;
+  font-weight: 700 !important;
 }
 
 .tour-controls {
@@ -14993,10 +15133,28 @@ body.fullscreen-mode-active .in-game-back-to-hub-btn {
   }
 }
 
-/* Wizard: keep the tour video from forcing a shrink (letterboxes inside the player) */
-.aqua-modal-body .tour-video {
-  max-height: 40vh;
-  max-height: 40dvh;
+/* Wizard: scale the tour player container on shorter viewports while strictly maintaining true 16:9 ratio */
+.aqua-modal-body .tour-player {
+  max-width: min(800px, 100%);
+  width: 100%;
+}
+
+@media (max-height: 850px) {
+  .aqua-modal-body .tour-player {
+    max-width: min(720px, 100%);
+  }
+}
+
+@media (max-height: 720px) {
+  .aqua-modal-body .tour-player {
+    max-width: min(600px, 100%);
+  }
+}
+
+@media (max-height: 600px) {
+  .aqua-modal-body .tour-player {
+    max-width: min(480px, 100%);
+  }
 }
 
 /* Wizard: tighter vertical rhythm so steps fit at full width more often */
