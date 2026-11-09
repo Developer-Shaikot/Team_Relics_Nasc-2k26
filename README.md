@@ -47,8 +47,7 @@
 9. [NASA Data, Resources and Space Agency References](#9-nasa-data-resources-and-space-agency-references)
 10. [Team](#10-team)
 11. [Game Controls](#11-game-controls)
-12. [Documentation](#12-documentation)
-13. [License](#13-license)
+12. [License](#12-license)
 
 ---
 
@@ -179,7 +178,7 @@ Pressing **Enter Base** places the child directly in a lunar rover on the surfac
 
 ![Figure 12 — Moon surface, rover ready to drive](./final_doc/images/12_moon_surface.jpg)
 
-_Figure 12 — The lunar rover at the start of Moon Mission 1, "First Soft Landing". The top bar shows the mission and the distance to the target (32 m); the right panel names the target relic, Surveyor 1._
+_Figure 12 — The lunar rover at the start of Moon Mission 1, "First Soft Landing". The top bar shows the mission and the distance to the target (10 m); the right panel names the target relic, Surveyor 1._
 
 ![Figure 13 — Driving across the Moon](./final_doc/images/12b_moon_driving.jpg)
 
@@ -199,7 +198,7 @@ _Figure 16 — After the scan the relic is logged, XP and Cosmic Dust are awarde
 
 #### Step 4 — Explore Mars
 
-On Mars the rover starts 32 m from the first relic, the **Opportunity (MER-B)** rover, in Perseverance Valley. The same drive → scan → discover loop applies, now with the real story of a rover built for 90 days that worked for more than fourteen years.
+On Mars the rover starts 10 m from the first relic, the **Opportunity (MER-B)** rover, in Perseverance Valley. The same drive → scan → discover loop applies, now with the real story of a rover built for 90 days that worked for more than fourteen years.
 
 ![Figure 17 — Mars surface](./final_doc/images/13_mars_surface.jpg)
 
@@ -591,25 +590,7 @@ _Team Relics — NASA International Space Apps Challenge 2026._
 
 ---
 
-## 12. Documentation
-
-**Submission package** — [`final_doc/`](./final_doc/)
-
-- 📘 [**Project submission**](./final_doc/RELICS_OF_THE_COSMIC_DUST_NASA_SPACE_APPS_SUBMISSION.md) — also as [DOCX](./final_doc/RELICS_OF_THE_COSMIC_DUST_NASA_SPACE_APPS_SUBMISSION.docx) and [PDF](./final_doc/RELICS_OF_THE_COSMIC_DUST_NASA_SPACE_APPS_SUBMISSION.pdf)
-- 🎬 [**30-second video script**](./final_doc/VIDEO_30_SEC_DEMO_SCRIPT.md) — also as [DOCX](./final_doc/VIDEO_30_SEC_DEMO_SCRIPT.docx) and [PDF](./final_doc/VIDEO_30_SEC_DEMO_SCRIPT.pdf)
-- 🎤 [**240-second pitch script**](./final_doc/VIDEO_240_SEC_PITCH_SCRIPT.md) — also as [DOCX](./final_doc/VIDEO_240_SEC_PITCH_SCRIPT.docx) and [PDF](./final_doc/VIDEO_240_SEC_PITCH_SCRIPT.pdf)
-
-**Software engineering documentation** — [`documentation/`](./documentation/)
-
-- 📄 [**01. Project Overview & SRS**](./documentation/01_PROJECT_OVERVIEW_AND_SRS.md): product scope, user personas, functional and non-functional requirements.
-- 🏗️ [**02. System Architecture & Design**](./documentation/02_SYSTEM_ARCHITECTURE_AND_DESIGN.md): modular component design, rendering loop and Web Audio architecture.
-- 📡 [**03. API & Data Specifications**](./documentation/03_API_AND_DATA_SPECIFICATIONS.md): telemetry schemas, physical formulas and mission quest structures.
-- 🏆 [**04. Space Apps Winning Strategy Alignment**](./documentation/04_NASA_SPACE_APPS_WINNING_STRATEGY_ALIGNMENT.md): rubric mapping across storytelling, art and tech, science and outreach.
-- 🚀 [**05. Deployment & Maintenance Guide**](./documentation/05_DEPLOYMENT_AND_MAINTENANCE_GUIDE.md): hosting, CI/CD and performance optimisation.
-
----
-
-## 13. License
+## 12. License
 
 This project is open source and released under the **[MIT License](LICENSE)**.
 
