@@ -80,7 +80,7 @@ const TOURS = {
 
   game: [
     {
-      target: '#drive-touch-controls',
+      target: ['#touch-drive-pad', '#drive-touch-controls'],
       center: true,
       en: ['Drive your explorer 🚀', 'Use W A S D or the arrow keys to move. On a phone, use the arrow pad.'],
       bn: ['এক্সপ্লোরার চালাও 🚀', 'W A S D বা অ্যারো কি দিয়ে চলো। ফোনে অ্যারো প্যাড ব্যবহার করো।']

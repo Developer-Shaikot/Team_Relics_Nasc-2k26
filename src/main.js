@@ -14,6 +14,7 @@ import { PitchShowcaseDirector } from './systems/pitchMode.js';
 import { martianAudio } from './systems/audio.js';
 import { installHoverStabilizer } from './systems/hoverStabilizer.js';
 import { installWizardFit } from './systems/wizardFit.js';
+import { installMobileLandscape } from './systems/mobileLandscape.js';
 import { MissionQuestManager } from './systems/quests.js';
 import { CoinsManager } from './systems/coinsManager.js';
 import { GuideBotEscort } from './systems/guideBotEscort.js';
@@ -42,6 +43,7 @@ function initApplication() {
   // Must run first: stops lift-on-hover flicker site-wide and provides hoverstart/hoverend
   installHoverStabilizer();
   installWizardFit();
+  installMobileLandscape();
   const container = document.getElementById('webgl-container');
   if (!container) return;
 
