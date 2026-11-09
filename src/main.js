@@ -118,7 +118,7 @@ function initApplication() {
 
   // 5. Setup Mission Quest Manager (100% English)
   const currentLanguage = 'en';
-  const questManager = new MissionQuestManager(() => {});
+  const questManager = new MissionQuestManager(() => { });
   questManager.setLanguage(currentLanguage);
 
   // Connect Cadet Multi-Profile & Reload State Manager
@@ -611,7 +611,14 @@ function initApplication() {
 
     updateMinimap(stats);
 
-    if (isHubActive || isSplashActive || window.__isSplashActive) {
+    const isHubActiveNow = isHubActive || isSplashActive || window.__isSplashActive ||
+      document.getElementById('game-hub-screen')?.classList.contains('active') ||
+      document.body.classList.contains('hub-active') ||
+      document.body.classList.contains('hub-open');
+
+    if (isHubActiveNow) {
+      if (radarHud) radarHud.style.display = 'none';
+      activeRadarArtifact = null;
       return;
     }
 
@@ -640,6 +647,11 @@ function initApplication() {
       // (Scan interaction handles relic detection without blocking modal)
 
       if (dist <= 4.5) {
+        if (isHubActiveNow) {
+          if (radarHud) radarHud.style.display = 'none';
+          activeRadarArtifact = null;
+          return;
+        }
         activeRadarArtifact = artifact;
         if (radarHud) radarHud.style.display = 'flex';
         if (radarTitle) radarTitle.innerText = `📍 TARGET: ${artifact.title}`;
@@ -882,7 +894,7 @@ function initApplication() {
 
     try {
       localStorage.setItem('nasa_completed_missions', JSON.stringify([...questManager.completedMissions]));
-    } catch(e) {}
+    } catch (e) { }
 
     const missions = questManager.activeMissionsList;
     const currentIdx = missions.findIndex(m => m.id === currentMissionId);
@@ -908,7 +920,7 @@ function initApplication() {
     isAdvancingMission = false;
   }
 
-    function spawnRoverForMission(missionId, forcedPlanet = null) {
+  function spawnRoverForMission(missionId, forcedPlanet = null) {
     if (forcedPlanet && questManager.currentPlanet !== forcedPlanet) {
       questManager.setPlanet(forcedPlanet);
     }
@@ -1079,6 +1091,19 @@ function initApplication() {
   });
 
   roverController.onProximityAlert = (artifact, dist) => {
+    // Proximity alert is exclusively for the active 3D game screen.
+    // It must NEVER activate on the homepage/hub, splash screen, or when modals are active.
+    const isHubActiveNow = isHubActive || isSplashActive || window.__isSplashActive ||
+      document.getElementById('game-hub-screen')?.classList.contains('active') ||
+      document.body.classList.contains('hub-active') ||
+      document.body.classList.contains('hub-open');
+
+    if (isHubActiveNow) {
+      activeRadarArtifact = null;
+      if (radarHud) radarHud.style.display = 'none';
+      return;
+    }
+
     if (dist <= 4.5 && artifact) {
       activeRadarArtifact = artifact;
       if (radarHud) radarHud.style.display = 'flex';
@@ -1111,6 +1136,12 @@ function initApplication() {
 
   if (radarScanBtn) {
     radarScanBtn.addEventListener('click', () => {
+      const isHubActiveNow = isHubActive || isSplashActive || window.__isSplashActive ||
+        document.getElementById('game-hub-screen')?.classList.contains('active') ||
+        document.body.classList.contains('hub-active') ||
+        document.body.classList.contains('hub-open');
+      if (isHubActiveNow) return;
+
       if (activeRadarArtifact) {
         scanner.triggerManualScan(activeRadarArtifact.id);
       }
@@ -1118,9 +1149,16 @@ function initApplication() {
   }
 
   window.addEventListener('keydown', (e) => {
-    if (['KeyE', 'e', 'E'].includes(e.code) && !e.target.matches?.('input, textarea')) {
-      // Deep Space first: a stale Mars/Moon radar target must not steal the E key here
-      if (currentPlanet === 'deepspace') {
+    const isHubActiveNow = isHubActive || isSplashActive || window.__isSplashActive ||
+      document.getElementById('game-hub-screen')?.classList.contains('active') ||
+      document.body.classList.contains('hub-active') ||
+      document.body.classList.contains('hub-open');
+    if (isHubActiveNow) return;
+
+    if (['KeyE', 'e', 'E'].includes(e.code)) {
+      if (activeRadarArtifact) {
+        scanner.triggerManualScan(activeRadarArtifact.id);
+      } else if (currentPlanet === 'deepspace') {
         miniGameManager.open('voyager1');
       } else if (activeRadarArtifact) {
         scanner.triggerManualScan(activeRadarArtifact.id);
@@ -1250,15 +1288,14 @@ function initApplication() {
         planetBadge.innerText = pitchState.planet === 'moon' ? '🌕 MOON SHOWCASE' : '🔴 MARS SHOWCASE';
       }
       if (actTag)
-        actTag.innerText = `ACT ${
-          pitchState.act.start < 21
+        actTag.innerText = `ACT ${pitchState.act.start < 21
             ? 'I'
             : pitchState.act.start < 56
               ? 'II'
               : pitchState.act.start < 89
                 ? 'III'
                 : 'IV'
-        }`;
+          }`;
       if (actTitle) actTitle.innerText = pitchState.act.title;
       if (timer) {
         const mins = Math.floor(pitchState.elapsed / 60);
@@ -1351,65 +1388,65 @@ function initApplication() {
       }
       const msg = scannedMissionId === 'mission_blackbox'
         ? (inDeepSpace
-            ? '📀 Level 6 task: balance Voyager\'s RTG power under 249W, then press Transmit Handshake!'
-            : '📀 Mission 6 is completed in Deep Space — launch it from the Roadmap!')
+          ? '📀 Level 6 task: balance Voyager\'s RTG power under 249W, then press Transmit Handshake!'
+          : '📀 Mission 6 is completed in Deep Space — launch it from the Roadmap!')
         : `📍 Drive to ${m ? `Level ${m.level}: ${m.shortTitle_en}` : 'the mission beacon'} on the map and scan it there to complete this level.`;
       coinsManager.showFloatingPickupText?.(msg);
       kittyCompanion?.speak(msg, 5000);
     }
 
     if (canCompleteMission) {
-    if (scannedMissionId && !activeBillboardArtifact) {
-      // Marks complete WITH the discovery popup, so kids clearly see the level finished
-      advanceMissionWithRocketProgression(scannedMissionId);
-    }
+      if (scannedMissionId && !activeBillboardArtifact) {
+        // Marks complete WITH the discovery popup, so kids clearly see the level finished
+        advanceMissionWithRocketProgression(scannedMissionId);
+      }
 
-    // Mars Mission Progressions
-    if (scanId === 'oppy_rover' || scanId === 'pancam' || scanId === 'mini_tes' || scanId === 'solar_array') {
-      questManager.markMissionCompleted('mission_locate');
-    } else if (scanId === 'hematite_blueberries') {
-      questManager.markMissionCompleted('mission_blueberries');
-      marsRover.triggerAPXSScanAnimation?.();
-    } else if (scanId === 'rat' || scanId === 'rat_grind_spot') {
-      questManager.markMissionCompleted('mission_rat');
-    } else if (scanId === 'mossbauer' || scanId === 'insight_lander' || scanId === 'artifact_insight_lander') {
-      questManager.markMissionCompleted('mission_mossbauer');
-      marsTerrain.insightActor?.triggerMarsquake3D?.();
-    } else if (scanId === 'storm_station') {
-      questManager.markMissionCompleted('mission_storm');
-    } else if (
-      scanId === 'blackbox_core' ||
-      scanId === 'voyager1' ||
-      scanId === 'artifact_voyager1' ||
-      scanId === 'golden_record' ||
-      scanId === 'voyager_rtg' ||
-      scanId === 'voyager_hga' ||
-      scanId === 'voyager_iss' ||
-      scanId === 'voyager_mag'
-    ) {
-      questManager.markMissionCompleted('mission_blackbox');
-      deepSpaceVoyager.triggerHandshakeWave?.();
-    }
+      // Mars Mission Progressions
+      if (scanId === 'oppy_rover' || scanId === 'pancam' || scanId === 'mini_tes' || scanId === 'solar_array') {
+        questManager.markMissionCompleted('mission_locate');
+      } else if (scanId === 'hematite_blueberries') {
+        questManager.markMissionCompleted('mission_blueberries');
+        marsRover.triggerAPXSScanAnimation?.();
+      } else if (scanId === 'rat' || scanId === 'rat_grind_spot') {
+        questManager.markMissionCompleted('mission_rat');
+      } else if (scanId === 'mossbauer' || scanId === 'insight_lander' || scanId === 'artifact_insight_lander') {
+        questManager.markMissionCompleted('mission_mossbauer');
+        marsTerrain.insightActor?.triggerMarsquake3D?.();
+      } else if (scanId === 'storm_station') {
+        questManager.markMissionCompleted('mission_storm');
+      } else if (
+        scanId === 'blackbox_core' ||
+        scanId === 'voyager1' ||
+        scanId === 'artifact_voyager1' ||
+        scanId === 'golden_record' ||
+        scanId === 'voyager_rtg' ||
+        scanId === 'voyager_hga' ||
+        scanId === 'voyager_iss' ||
+        scanId === 'voyager_mag'
+      ) {
+        questManager.markMissionCompleted('mission_blackbox');
+        deepSpaceVoyager.triggerHandshakeWave?.();
+      }
 
-    // Moon Mission Progressions
-    if (scanId === 'surveyor1' || scanId === 'artifact_surveyor1') {
-      questManager.markMissionCompleted('moon_quest_pioneer');
-    } else if (scanId === 'apollo_lm' || scanId === 'artifact_apollo_lm') {
-      questManager.markMissionCompleted('moon_quest_apollo11');
-    } else if (scanId === 'surveyor3' || scanId === 'artifact_surveyor3') {
-      questManager.markMissionCompleted('moon_quest_surveyor3_retrieval');
-    } else if (
-      scanId === 'lrv_station' ||
-      scanId === 'lrv_camera' ||
-      scanId === 'lrv_antenna' ||
-      scanId === 'lrv_controller'
-    ) {
-      questManager.markMissionCompleted('moon_quest_lrv_buggy');
-    } else if (scanId === 'lcross_ice' || scanId === 'artifact_lcross_ice') {
-      questManager.markMissionCompleted('moon_quest_lcross_ice');
-    } else if (scanId === 'artemis_beacon' || scanId === 'artifact_artemis_beacon') {
-      questManager.markMissionCompleted('moon_quest_artemis_base');
-    }
+      // Moon Mission Progressions
+      if (scanId === 'surveyor1' || scanId === 'artifact_surveyor1') {
+        questManager.markMissionCompleted('moon_quest_pioneer');
+      } else if (scanId === 'apollo_lm' || scanId === 'artifact_apollo_lm') {
+        questManager.markMissionCompleted('moon_quest_apollo11');
+      } else if (scanId === 'surveyor3' || scanId === 'artifact_surveyor3') {
+        questManager.markMissionCompleted('moon_quest_surveyor3_retrieval');
+      } else if (
+        scanId === 'lrv_station' ||
+        scanId === 'lrv_camera' ||
+        scanId === 'lrv_antenna' ||
+        scanId === 'lrv_controller'
+      ) {
+        questManager.markMissionCompleted('moon_quest_lrv_buggy');
+      } else if (scanId === 'lcross_ice' || scanId === 'artifact_lcross_ice') {
+        questManager.markMissionCompleted('moon_quest_lcross_ice');
+      } else if (scanId === 'artemis_beacon' || scanId === 'artifact_artemis_beacon') {
+        questManager.markMissionCompleted('moon_quest_artemis_base');
+      }
     } // end canCompleteMission
 
     // Check if this scan links to one of the 4 Flagship JPL Science Workbenches
@@ -1449,56 +1486,56 @@ function initApplication() {
         badgeTitle = isBn ? 'হাই-গেইন ডিশ • ২২ ঘণ্টা ৩৪ মিনিট বিলম্ব' : '3.7M HIGH-GAIN DISH • 22H 34M DELAY';
         scanDispatch = selectedCommander === 'asha'
           ? (isBn
-              ? 'কমান্ডার আশা: "এই ৩.৭ মিটার সাদা ডিশটি পৃথিবীমুখী তাক করা। আলোর গতিতে চলা রেডিও সিগন্যালও এখান থেকে নাসার ডিপ স্পেস নেটওয়ার্কে পৌঁছাতে ২২ ঘণ্টা ৩৪ মিনিট সময় নেয়!"'
-              : 'Commander Asha: "This 3.7m parabolic dish focuses radio waves straight at Earth. Even traveling at light speed (300,000 km/s), it takes 22h 34m for each bit of telemetry to reach NASA\'s 70-meter dishes!"')
+            ? 'কমান্ডার আশা: "এই ৩.৭ মিটার সাদা ডিশটি পৃথিবীমুখী তাক করা। আলোর গতিতে চলা রেডিও সিগন্যালও এখান থেকে নাসার ডিপ স্পেস নেটওয়ার্কে পৌঁছাতে ২২ ঘণ্টা ৩৪ মিনিট সময় নেয়!"'
+            : 'Commander Asha: "This 3.7m parabolic dish focuses radio waves straight at Earth. Even traveling at light speed (300,000 km/s), it takes 22h 34m for each bit of telemetry to reach NASA\'s 70-meter dishes!"')
           : (isBn
-              ? 'কমান্ডার লিও: "২৪.৩ বিলিয়ন কিমি দূর থেকে ভয়েজার ১ প্রতি সেকেন্ডে মাত্র ১৬০ বিট ডেটা পৃথিবীতে পাঠায়! পৃথিবী থেকে কোনো কমান্ড পাঠালে ফিরতি উত্তর পেতে ৪৫ ঘণ্টারও বেশি সময় লাগে!"'
-              : 'Commander Leo: "Voyager 1 beams a whisper-thin 160 bits/sec radio signal across 24.3 billion km. A round-trip communication handshake takes over 45 hours!"');
+            ? 'কমান্ডার লিও: "২৪.৩ বিলিয়ন কিমি দূর থেকে ভয়েজার ১ প্রতি সেকেন্ডে মাত্র ১৬০ বিট ডেটা পৃথিবীতে পাঠায়! পৃথিবী থেকে কোনো কমান্ড পাঠালে ফিরতি উত্তর পেতে ৪৫ ঘণ্টারও বেশি সময় লাগে!"'
+            : 'Commander Leo: "Voyager 1 beams a whisper-thin 160 bits/sec radio signal across 24.3 billion km. A round-trip communication handshake takes over 45 hours!"');
       } else if (scanId === 'voyager_rtg') {
         badgeTitle = isBn ? 'পিউ-২৩৮ নিউক্লিয়ার ব্যাটারি (RTG)' : 'PU-238 NUCLEAR BATTERY (RTG)';
         scanDispatch = selectedCommander === 'asha'
           ? (isBn
-              ? 'কমান্ডার আশা: "গভীর মহাশূন্যে সূর্যের আলো নেই, তাই সোলার প্যানেল কাজ করে না! প্লুটোনিয়াম-২৩৮-এর তেজস্ক্রিয় ক্ষয় তাপ বিদ্যুৎ উৎপাদন করে। প্রতি বছর ৪ ওয়াট ক্ষয় হয়ে এখন মাত্র ২৪৯ ওয়াট বাকি!"'
-              : 'Commander Asha: "Solar panels produce 0 Watts in deep space! Three RTGs convert Plutonium-238 radioactive decay heat into electricity. Power drops 4W each year, down to just 249 Watts today!"')
+            ? 'কমান্ডার আশা: "গভীর মহাশূন্যে সূর্যের আলো নেই, তাই সোলার প্যানেল কাজ করে না! প্লুটোনিয়াম-২৩৮-এর তেজস্ক্রিয় ক্ষয় তাপ বিদ্যুৎ উৎপাদন করে। প্রতি বছর ৪ ওয়াট ক্ষয় হয়ে এখন মাত্র ২৪৯ ওয়াট বাকি!"'
+            : 'Commander Asha: "Solar panels produce 0 Watts in deep space! Three RTGs convert Plutonium-238 radioactive decay heat into electricity. Power drops 4W each year, down to just 249 Watts today!"')
           : (isBn
-              ? 'কমান্ডার লিও: "নিউক্লিয়ার ব্যাটারিই ভয়েজার ১-এর জীবনরেখা! ২৪৯ ওয়াট শক্তি বাঁচাতে আমাদের অপ্রয়োজনীয় হিটার ও ক্যামেরা বন্ধ রাখতে হয় যাতে রেডিও ট্রান্সমিটার চলতে পারে!"'
-              : 'Commander Leo: "Nuclear power keeps Voyager alive! With only 249 Watts left, we have to power down cameras and heaters so the radio transmitter has enough electricity to talk to Earth."');
+            ? 'কমান্ডার লিও: "নিউক্লিয়ার ব্যাটারিই ভয়েজার ১-এর জীবনরেখা! ২৪৯ ওয়াট শক্তি বাঁচাতে আমাদের অপ্রয়োজনীয় হিটার ও ক্যামেরা বন্ধ রাখতে হয় যাতে রেডিও ট্রান্সমিটার চলতে পারে!"'
+            : 'Commander Leo: "Nuclear power keeps Voyager alive! With only 249 Watts left, we have to power down cameras and heaters so the radio transmitter has enough electricity to talk to Earth."');
       } else if (scanId === 'golden_record') {
         badgeTitle = isBn ? '১২-ইঞ্চি গোল্ডেন রেকর্ড' : '12-INCH GOLDEN RECORD';
         scanDispatch = selectedCommander === 'asha'
           ? (isBn
-              ? 'কমান্ডার আশা: "এতে ৫৫টি ভাষার শুভেচ্ছা, পৃথিবীর বিভিন্ন শব্দ ও সুর রয়েছে—যার মধ্যে বাংলা শুভেচ্ছা ও বাঁশির সুর অন্তর্ভুক্ত। কোটি বছর ধরে এটি মহাশূন্যে ভেসে থাকবে!"'
-              : 'Commander Asha: "Humanity\'s golden time capsule! Carrying greetings in 55 languages—including Bengali—sounds of Earth, and music like our bamboo flute, drifting eternally among the stars!"')
+            ? 'কমান্ডার আশা: "এতে ৫৫টি ভাষার শুভেচ্ছা, পৃথিবীর বিভিন্ন শব্দ ও সুর রয়েছে—যার মধ্যে বাংলা শুভেচ্ছা ও বাঁশির সুর অন্তর্ভুক্ত। কোটি বছর ধরে এটি মহাশূন্যে ভেসে থাকবে!"'
+            : 'Commander Asha: "Humanity\'s golden time capsule! Carrying greetings in 55 languages—including Bengali—sounds of Earth, and music like our bamboo flute, drifting eternally among the stars!"')
           : (isBn
-              ? 'কমান্ডার লিও: "১৯৭৭ সালে কার্ল সেগানের দল এই গোল্ডেন রেকর্ডটি তৈরি করেন। কোনো বুদ্ধিমান ভিনগ্রহের প্রাণী এটি খুঁজে পেলে তারা পৃথিবীর মানুষের কণ্ঠ ও সঙ্গীত শুনতে পাবে!"'
-              : 'Commander Leo: "Created in 1977 by Carl Sagan\'s team, the Golden Record holds the sounds and greetings of Earth for any extraterrestrial civilization that might discover it!"');
+            ? 'কমান্ডার লিও: "১৯৭৭ সালে কার্ল সেগানের দল এই গোল্ডেন রেকর্ডটি তৈরি করেন। কোনো বুদ্ধিমান ভিনগ্রহের প্রাণী এটি খুঁজে পেলে তারা পৃথিবীর মানুষের কণ্ঠ ও সঙ্গীত শুনতে পাবে!"'
+            : 'Commander Leo: "Created in 1977 by Carl Sagan\'s team, the Golden Record holds the sounds and greetings of Earth for any extraterrestrial civilization that might discover it!"');
       } else if (scanId === 'voyager_iss') {
         badgeTitle = isBn ? 'আইএসএস ক্যামেরা • পেল ব্লু ডট' : 'ISS CAMERAS • PALE BLUE DOT';
         scanDispatch = selectedCommander === 'asha'
           ? (isBn
-              ? 'কমান্ডার আশা: "১৯৯০ সালে ভয়েজার ১ ৬ বিলিয়ন কিমি দূর থেকে পৃথিবীর \'পেল ব্লু ডট\' ছবি তোলে। এরপর ব্যাটারি বাঁচাতে ক্যামেরা স্থায়ীভাবে বন্ধ করে দেওয়া হয়!"'
-              : 'Commander Asha: "In 1990, Voyager 1 captured the famous \'Pale Blue Dot\' photo of Earth from 6 billion km away, then powered down its cameras forever to save 28 Watts for science instruments!"')
+            ? 'কমান্ডার আশা: "১৯৯০ সালে ভয়েজার ১ ৬ বিলিয়ন কিমি দূর থেকে পৃথিবীর \'পেল ব্লু ডট\' ছবি তোলে। এরপর ব্যাটারি বাঁচাতে ক্যামেরা স্থায়ীভাবে বন্ধ করে দেওয়া হয়!"'
+            : 'Commander Asha: "In 1990, Voyager 1 captured the famous \'Pale Blue Dot\' photo of Earth from 6 billion km away, then powered down its cameras forever to save 28 Watts for science instruments!"')
           : (isBn
-              ? 'কমান্ডার লিও: "একটি নীল আলোকবিন্দু হিসেবে পৃথিবীকে দেখা যায় সেই ঐতিহাসিক ছবিতে। বর্তমানে পিচ-কালো মহাশূন্যে ক্যামেরার দরকার নেই, তাই এর ২৮ ওয়াট বিদ্যুৎ রেডিওতে দেওয়া হয়েছে!"'
-              : 'Commander Leo: "Earth appears as a solitary blue pixel in that historic photo. Since space is pitch black here, the cameras were shut down to save 28 Watts for our radio telemetry!"');
+            ? 'কমান্ডার লিও: "একটি নীল আলোকবিন্দু হিসেবে পৃথিবীকে দেখা যায় সেই ঐতিহাসিক ছবিতে। বর্তমানে পিচ-কালো মহাশূন্যে ক্যামেরার দরকার নেই, তাই এর ২৮ ওয়াট বিদ্যুৎ রেডিওতে দেওয়া হয়েছে!"'
+            : 'Commander Leo: "Earth appears as a solitary blue pixel in that historic photo. Since space is pitch black here, the cameras were shut down to save 28 Watts for our radio telemetry!"');
       } else if (scanId === 'voyager_mag') {
         badgeTitle = isBn ? 'ম্যাগনেটোমিটার বুম (১৩ মিটার)' : '13M MAGNETOMETER BOOM';
         scanDispatch = selectedCommander === 'asha'
           ? (isBn
-              ? 'কমান্ডার আশা: "১৩ মিটার দীর্ঘ এই বুমটি ২০১২ সালে নিশ্চিত করেছিল যে ভয়েজার ১ সৌরজগতের সীমানা (হেলিওপজ) পার হয়ে খোলা ইন্টারস্টেলার স্পেসে পৌঁছেছে!"'
-              : 'Commander Asha: "This 13-meter boom proved in 2012 that Voyager 1 officially crossed the Heliopause (121 AU) and became humanity\'s first spacecraft to enter interstellar space!"')
+            ? 'কমান্ডার আশা: "১৩ মিটার দীর্ঘ এই বুমটি ২০১২ সালে নিশ্চিত করেছিল যে ভয়েজার ১ সৌরজগতের সীমানা (হেলিওপজ) পার হয়ে খোলা ইন্টারস্টেলার স্পেসে পৌঁছেছে!"'
+            : 'Commander Asha: "This 13-meter boom proved in 2012 that Voyager 1 officially crossed the Heliopause (121 AU) and became humanity\'s first spacecraft to enter interstellar space!"')
           : (isBn
-              ? 'কমান্ডার লিও: "এটি সৌর বায়ুর বাইরে নক্ষত্রের মধ্যবর্তী প্লাজমা ও চৌম্বক ক্ষেত্রের ঘনত্ব মেপে পৃথিবীতে রিয়েল-টাইম ডেটা পাঠাচ্ছে!"'
-              : 'Commander Leo: "The Magnetometer measures cosmic magnetic fields beyond the solar wind, streaming interstellar plasma density data back to scientists on Earth!"');
+            ? 'কমান্ডার লিও: "এটি সৌর বায়ুর বাইরে নক্ষত্রের মধ্যবর্তী প্লাজমা ও চৌম্বক ক্ষেত্রের ঘনত্ব মেপে পৃথিবীতে রিয়েল-টাইম ডেটা পাঠাচ্ছে!"'
+            : 'Commander Leo: "The Magnetometer measures cosmic magnetic fields beyond the solar wind, streaming interstellar plasma density data back to scientists on Earth!"');
       } else {
         badgeTitle = isBn ? 'ভয়েজার ১ কমিউনিকেশন সেন্টার' : 'VOYAGER 1 COMM CENTER';
         scanDispatch = selectedCommander === 'asha'
           ? (isBn
-              ? 'কমান্ডার আশা (ঢাকা অ্যান্টেনা): "২৪.৩ বিলিয়ন কিমি দূর থেকে ভয়েজার ১ আমাদের ডেটা পাঠাচ্ছে! চলো সায়েন্স ল্যাবে গিয়ে পিউ-২৩৮ ব্যাটারি ব্যালেন্স করি এবং ২২ ঘণ্টার রেডিও হ্যান্ডশেক সম্পন্ন করি!"'
-              : 'Commander Asha: "Signal locked across 24.3 billion km! Let\'s open the Science Lab to balance the Pu-238 RTG battery and broadcast the Golden Record!"')
+            ? 'কমান্ডার আশা (ঢাকা অ্যান্টেনা): "২৪.৩ বিলিয়ন কিমি দূর থেকে ভয়েজার ১ আমাদের ডেটা পাঠাচ্ছে! চলো সায়েন্স ল্যাবে গিয়ে পিউ-২৩৮ ব্যাটারি ব্যালেন্স করি এবং ২২ ঘণ্টার রেডিও হ্যান্ডশেক সম্পন্ন করি!"'
+            : 'Commander Asha: "Signal locked across 24.3 billion km! Let\'s open the Science Lab to balance the Pu-238 RTG battery and broadcast the Golden Record!"')
           : (isBn
-              ? 'কমান্ডার লিও (ফ্লোরিডা কনসোল): "২৪.৩ বিলিয়ন কিমি দূর থেকে ভয়েজার ১ ডেটা পাঠাচ্ছে! সায়েন্স ল্যাব ওপেন করে নিউক্লিয়ার পাওয়ার বাজেট ঠিক করো ও রেডিও হ্যান্ডশেক সম্পন্ন করো!"'
-              : 'Commander Leo: "24.3 billion km away! Let\'s open the Science Lab to balance Voyager 1\'s decaying Pu-238 RTG power and play the Golden Record!"');
+            ? 'কমান্ডার লিও (ফ্লোরিডা কনসোল): "২৪.৩ বিলিয়ন কিমি দূর থেকে ভয়েজার ১ ডেটা পাঠাচ্ছে! সায়েন্স ল্যাব ওপেন করে নিউক্লিয়ার পাওয়ার বাজেট ঠিক করো ও রেডিও হ্যান্ডশেক সম্পন্ন করো!"'
+            : 'Commander Leo: "24.3 billion km away! Let\'s open the Science Lab to balance Voyager 1\'s decaying Pu-238 RTG power and play the Golden Record!"');
       }
 
       actorDirector.triggerCommsDialogue(
@@ -1542,7 +1579,7 @@ function initApplication() {
     if (modal) modal.classList.add('active');
   };
 
-    // =========================================================================
+  // =========================================================================
   // IMMERSIVE FULLSCREEN MODE & GUIDER BRIEFING SYSTEM
   // =========================================================================
   isFullscreenActive = false;
@@ -1559,8 +1596,8 @@ function initApplication() {
     if (active) {
       if (!document.fullscreenElement && document.documentElement?.requestFullscreen) {
         try {
-          document.documentElement.requestFullscreen().catch(() => {});
-        } catch (e) {}
+          document.documentElement.requestFullscreen().catch(() => { });
+        } catch (e) { }
       }
       martianAudio.playUiSwitch?.();
       if (triggerGuiderModal) {
@@ -1569,8 +1606,8 @@ function initApplication() {
     } else {
       if (document.fullscreenElement && document.exitFullscreen) {
         try {
-          document.exitFullscreen().catch(() => {});
-        } catch (e) {}
+          document.exitFullscreen().catch(() => { });
+        } catch (e) { }
       }
       martianAudio.playUiSwitch?.();
     }
@@ -1727,8 +1764,13 @@ function initApplication() {
 
   function openGameHub() {
     isHubActive = true;
-    window.__isHubActive = true; // blocks delayed speech lines from starting in the hub
-    stopAllTalking();
+    document.body.classList.add('hub-active', 'hub-open');
+
+    // Always ensure in-game rover radar HUD & scan prompts are hidden on the homepage
+    if (radarHud) {
+      radarHud.style.display = 'none';
+    }
+    activeRadarArtifact = null;
 
     // 1. Sync cadet profile from onboarding input if present
     try {
@@ -1802,7 +1844,7 @@ function initApplication() {
 
   function closeGameHub() {
     isHubActive = false;
-    window.__isHubActive = false;
+    document.body.classList.remove('hub-active', 'hub-open');
     if (gameHubScreen) {
       gameHubScreen.classList.remove('active');
       gameHubScreen.style.display = 'none';
@@ -1863,7 +1905,7 @@ function initApplication() {
   // =========================================================================
   // HERO STAGING DECK: CHARACTER SELECTION, GUIDE ROBOT & START MISSION
   // =========================================================================
-  
+
   // 1. Initialize Hero Character SVG Rigs
   actorDirector.initHeroCharacterRigs();
 
@@ -2130,7 +2172,7 @@ function initApplication() {
   try {
     const stored = localStorage.getItem('jdsn_guide_robot');
     if (stored) savedRobotConfig = Object.assign(savedRobotConfig, JSON.parse(stored));
-  } catch (e) {}
+  } catch (e) { }
 
   const robotBackdrop = document.getElementById('robot-customizer-backdrop');
   const robotPreviewPod = document.getElementById('robot-preview-pod');
@@ -2385,7 +2427,7 @@ function initApplication() {
         origin: { y: 0.75 },
         colors: dest === 'moon' ? ['#00e5ff', '#38bdf8', '#ffffff'] : ['#ff5e28', '#ffb700', '#ffffff']
       });
-    } catch (err) {}
+    } catch (err) { }
 
     const playBtn = document.getElementById('btn-arcade-play');
     if (playBtn) playBtn.classList.add('igniting');
@@ -2532,7 +2574,7 @@ function initApplication() {
   const aquaModal = document.getElementById('aqua-guided-modal-backdrop');
   let currentAquaStep = 1;
 
-    function updateAquaStars() {
+  function updateAquaStars() {
     const starConfigs = [
       { elId: 'aqua-stars-lvl-1', missionId: 'moon_quest_apollo11' },
       { elId: 'aqua-stars-lvl-2', missionId: 'mission_blueberries' },
@@ -2741,9 +2783,9 @@ function initApplication() {
   // Top Bar Utilities
   document.getElementById('hub-fullscreen-toggle')?.addEventListener('click', () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.().catch(() => {});
+      document.documentElement.requestFullscreen?.().catch(() => { });
     } else {
-      document.exitFullscreen?.().catch(() => {});
+      document.exitFullscreen?.().catch(() => { });
     }
   });
 
@@ -2970,7 +3012,7 @@ function initApplication() {
   // Backwards compatibility helpers
   window.updateNasaEyesLocation = (dest) => setOrreryFocus(dest);
   window.scheduleNasaEyesHome = (delay) => scheduleOrreryHome(delay);
-  window.setHeroEngineMode = () => {};
+  window.setHeroEngineMode = () => { };
   window.launchExpedition = launchExpedition;
 
   btnPortalLaunchMoon?.addEventListener('click', (e) => {

@@ -56,6 +56,11 @@ window.openGameHub = function () {
     hub.style.setProperty('display', 'grid', 'important');
     hub.classList.add('active');
   }
+  document.body.classList.add('hub-active', 'hub-open');
+  var radarHud = document.getElementById('rover-radar-hud');
+  if (radarHud) {
+    radarHud.style.display = 'none';
+  }
   var inGameBack = document.getElementById('btn-in-game-back-to-hub');
   if (inGameBack) inGameBack.style.display = 'none';
   document.querySelectorAll('.modal-backdrop.active').forEach(function (m) {
@@ -296,11 +301,70 @@ window.initTourPlayer = function () {
     ccBtn.setAttribute('aria-pressed', String(showCaptions));
     render();
   });
-  fsBtn.addEventListener('click', function () {
-    var stage = player.querySelector('.tour-stage');
-    if (document.fullscreenElement) document.exitFullscreen().catch(function () {});
-    else if (stage.requestFullscreen) stage.requestFullscreen().catch(function () {});
-    else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+  var toggleFullscreen = function () {
+    var isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+    if (isFs) {
+      if (document.exitFullscreen) document.exitFullscreen().catch(function () {});
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+      else if (document.msExitFullscreen) document.msExitFullscreen();
+    } else {
+      var req = player.requestFullscreen || player.webkitRequestFullscreen || player.mozRequestFullScreen || player.msRequestFullscreen;
+      if (req) {
+        req.call(player).catch(function () {
+          var stage = player.querySelector('.tour-stage');
+          if (stage && stage.requestFullscreen) stage.requestFullscreen().catch(function () {});
+          else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+        });
+      } else {
+        var stage = player.querySelector('.tour-stage');
+        if (stage && stage.requestFullscreen) stage.requestFullscreen().catch(function () {});
+        else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+      }
+    }
+  };
+
+  fsBtn.addEventListener('click', toggleFullscreen);
+
+  var syncFullscreenState = function () {
+    var isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+    player.classList.toggle('is-fullscreen', isFs);
+    if (isFs) {
+      fsBtn.setAttribute('aria-label', 'Exit full screen');
+      fsBtn.title = 'Exit full screen';
+      fsBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    } else {
+      fsBtn.setAttribute('aria-label', 'Full screen');
+      fsBtn.title = 'Full screen';
+      fsBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>';
+      player.classList.remove('hide-controls');
+    }
+  };
+
+  document.addEventListener('fullscreenchange', syncFullscreenState);
+  document.addEventListener('webkitfullscreenchange', syncFullscreenState);
+  document.addEventListener('mozfullscreenchange', syncFullscreenState);
+  document.addEventListener('MSFullscreenChange', syncFullscreenState);
+
+  // Auto-hide controls when idle in fullscreen
+  var fsControlsTimer = null;
+  var wakeControls = function () {
+    player.classList.remove('hide-controls');
+    clearTimeout(fsControlsTimer);
+    var isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || player.classList.contains('is-fullscreen'));
+    if (isFs && !video.paused && !video.ended) {
+      fsControlsTimer = setTimeout(function () {
+        player.classList.add('hide-controls');
+      }, 2500);
+    }
+  };
+  player.addEventListener('mousemove', wakeControls);
+  player.addEventListener('pointermove', wakeControls);
+  player.addEventListener('click', wakeControls);
+
+  video.addEventListener('dblclick', function (e) {
+    e.preventDefault();
+    toggleFullscreen();
   });
   // Pause whenever the player is hidden (other wizard step, wizard closed)
   if ('IntersectionObserver' in window) {
