@@ -465,13 +465,17 @@ Detailed data notes are kept in `documentation/NASA_DATA_SOURCES.md`.
 
 ## 8. Team
 
-| Member | Role |
-| :-- | :-- |
-| **Shaikot Kundu Akash** | Team Lead — project coordination, architecture direction, lead voice-over |
-| **Md. Wahiduzzaman Nayem** | System Analyst & Video Editor |
-| **Arni Debnath** | Lead Designer — UI/UX, design system, certificate |
-| **Tanjir Ahmed Fardin** | Researcher & Storyteller — NASA literature, narrative, dialogue |
-| **Tareq Jamil Sarkar Samrat** | Frontend & Core Mechanics Developer — 3D engine, rover, quiz |
+![Team Relics — Shaikot Kundu Akash, Md. Wahiduzzaman Nayem, Arni Rani Nath, Tareq Jamil Sarkar Samrat and Tanjir Ahmed Fardin](./images/00_team_relics.jpg)
+
+_Team Relics — NASA International Space Apps Challenge 2026._
+
+| Member | Role | Responsibilities |
+| :-- | :-- | :-- |
+| **Shaikot Kundu Akash** | Team Lead | Overall project coordination, system architecture, lead presenter voice-over, repository oversight |
+| **Md. Wahiduzzaman Nayem** | System Analyst | Video editing, motion graphics, audio sync, classroom shot pacing, data architecture review |
+| **Arni Rani Nath** | Designer | UI/UX design, wireframing, infographics, dark glassmorphism design system, certificate rendering |
+| **Tareq Jamil Sarkar Samrat** | Developer | Three.js 3D physics engine, rover kinematics, Sol 5111 atmospheric shaders, STEM quiz mechanics |
+| **Tanjir Ahmed Fardin** | Researcher | NASA PDS and mission literature review, narrative script writing, educational dialogue design |
 
 ---
 
