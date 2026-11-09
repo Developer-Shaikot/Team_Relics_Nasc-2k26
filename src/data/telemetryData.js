@@ -315,6 +315,18 @@ export const ARCHAEOLOGICAL_ARTIFACTS_MARS = [
     color: 0xff5e28
   },
   {
+    // Level 6 ground site on Mars: drive here and scan to launch the Deep Space (Voyager 1) task
+    id: "dsn_uplink",
+    missionId: "mission_blackbox",
+    planet: "mars",
+    title: "Deep Space Network Uplink Dish (Level 6 Launch Site)",
+    coords: { x: 0.0, y: 0.0, z: 24.0 },
+    description: "A high-gain relay dish pointed beyond the Heliopause. Scanning it opens the 22-hour radio link to Voyager 1, 24.3 billion km away, where the Level 6 Golden Record task waits.",
+    significance: "Mars' gateway to humanity's farthest spacecraft.",
+    icon: "satellite",
+    color: 0xa855f7
+  },
+  {
     id: "blackbox_core",
     missionId: "mission_blackbox",
     planet: "mars",

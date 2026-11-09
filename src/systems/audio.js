@@ -199,6 +199,7 @@ class MartianAudioSystem {
     }
     if (this.isMuted) {
       this.stopFlute();
+      this.stopSpeech(); // voice follows the audio on/off button
     }
     if (this.masterGain && this.ctx) {
       const targetGain = this.isMuted ? 0.0 : 0.6;
@@ -640,10 +641,23 @@ class MartianAudioSystem {
     });
   }
 
+  // Stop any spoken (TTS) voice immediately — used on mute and when leaving a world.
+  stopSpeech() {
+    try {
+      window.speechSynthesis?.cancel();
+    } catch (e) {}
+  }
+
+  // Voice is allowed only when audio is ON and the player is inside a world (not the hub).
+  canSpeak() {
+    return !this.isMuted && !!window.speechSynthesis && !window.__isHubActive;
+  }
+
   // Expressive Spoken Voice Synthesis with Web Speech API
   speakDialogue(text, speaker = 'kitty') {
+    if (window.__isHubActive) return;
     this.playVoiceCadence(speaker === 'leo' ? 'leo' : 'asha');
-    if (this.isMuted || !window.speechSynthesis) return;
+    if (!this.canSpeak()) return;
 
     try {
       window.speechSynthesis.cancel();

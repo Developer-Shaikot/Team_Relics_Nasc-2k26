@@ -8,6 +8,8 @@ import { martianAudio } from './audio.js';
 export const KITTY_ARCHETYPES = [
   {
     id: 'astro_bot',
+    nickname: 'Echo',
+    shape: 'robot',
     name: 'Astro-Bot',
     title: 'Science & Telemetry Specialist',
     color: '#00e5ff',
@@ -19,6 +21,8 @@ export const KITTY_ARCHETYPES = [
   },
   {
     id: 'solar_kitty',
+    nickname: 'Sunny',
+    shape: 'kitty',
     name: 'Solar Kitty',
     title: 'Geology & Mineral Spherule Scanner',
     color: '#ffb700',
@@ -30,6 +34,8 @@ export const KITTY_ARCHETYPES = [
   },
   {
     id: 'cyber_kitty',
+    nickname: 'Nova',
+    shape: 'kitty',
     name: 'Cyber-Kitty',
     title: 'Deep Space Radio & Interstellar Drone',
     color: '#a855f7',
@@ -41,6 +47,8 @@ export const KITTY_ARCHETYPES = [
   },
   {
     id: 'emerald_scout',
+    nickname: 'Orion',
+    shape: 'drone',
     name: 'Emerald Scout',
     title: 'Hazard Radar & Storm Navigator',
     color: '#10b981',
@@ -59,12 +67,19 @@ export class KittyCompanionManager {
     this.archetypes = KITTY_ARCHETYPES;
     this.currentIndex = 0;
 
-    // Load saved or default
-    const saved = localStorage.getItem('jdsn_selected_kitty');
+    // Load saved or default. The guide picked at the start (wizard: echo/nova/orion)
+    // is the source of truth, so the same colored guide always escorts the rover.
+    let saved = null;
+    try {
+      const startBot = localStorage.getItem('nasa_selected_bot');
+      const startMap = { echo: 'astro_bot', nova: 'cyber_kitty', orion: 'emerald_scout' };
+      saved = startMap[startBot] || localStorage.getItem('jdsn_selected_kitty');
+    } catch (e) {}
     if (saved) {
       const idx = this.archetypes.findIndex(k => k.id === saved);
       if (idx !== -1) this.currentIndex = idx;
     }
+    this.hasTarget = false;
 
     this.activeKitty = this.archetypes[this.currentIndex];
 
@@ -100,7 +115,7 @@ export class KittyCompanionManager {
       const botMap = {
         'echo': 0,
         'astro_bot': 0,
-        'nova': 1,
+        'nova': 2,
         'solar_kitty': 1,
         'cyber_kitty': 2,
         'orion': 3,
@@ -118,7 +133,8 @@ export class KittyCompanionManager {
     this.activeKitty = this.archetypes[this.currentIndex] || this.archetypes[0];
     localStorage.setItem('jdsn_selected_kitty', this.activeKitty.id);
 
-    this.update3DAppearance();
+    // Rebuild (not just recolor) so the chosen guide's own shape appears in the mission
+    this.build3DKittyMesh();
     this.renderCarouselUI();
 
     if (this.onCompanionChanged) {
@@ -307,8 +323,7 @@ export class KittyCompanionManager {
     this.group.add(eyeL);
     this.group.add(eyeR);
 
-    // 4. Robotic Kitty Ears
-    const earGeo = new THREE.ConeGeometry(0.09, 0.22, 4);
+    // 4. Shape-specific head gear so each chosen guide looks different in the mission
     this.earMat = new THREE.MeshStandardMaterial({
       color: color,
       metalness: 0.9,
@@ -316,18 +331,53 @@ export class KittyCompanionManager {
       emissive: color,
       emissiveIntensity: 0.3
     });
+    this.rotors = [];
+    const shape = this.activeKitty.shape || 'kitty';
 
-    const earL = new THREE.Mesh(earGeo, this.earMat);
-    earL.position.set(-0.16, 0.36, 0.02);
-    earL.rotation.z = 0.28;
-    earL.rotation.y = -0.2;
-    this.group.add(earL);
+    if (shape === 'kitty') {
+      // Robotic kitty ears
+      const earGeo = new THREE.ConeGeometry(0.09, 0.22, 4);
+      const earL = new THREE.Mesh(earGeo, this.earMat);
+      earL.position.set(-0.16, 0.36, 0.02);
+      earL.rotation.z = 0.28;
+      earL.rotation.y = -0.2;
+      this.group.add(earL);
 
-    const earR = new THREE.Mesh(earGeo, this.earMat);
-    earR.position.set(0.16, 0.36, 0.02);
-    earR.rotation.z = -0.28;
-    earR.rotation.y = 0.2;
-    this.group.add(earR);
+      const earR = new THREE.Mesh(earGeo, this.earMat);
+      earR.position.set(0.16, 0.36, 0.02);
+      earR.rotation.z = -0.28;
+      earR.rotation.y = 0.2;
+      this.group.add(earR);
+    } else if (shape === 'robot') {
+      // Twin radar antennas with glowing tips
+      const rodGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.3, 8);
+      const tipGeo = new THREE.SphereGeometry(0.055, 12, 12);
+      [-0.13, 0.13].forEach((x) => {
+        const rod = new THREE.Mesh(rodGeo, this.earMat);
+        rod.position.set(x, 0.44, 0);
+        this.group.add(rod);
+        const tip = new THREE.Mesh(tipGeo, this.eyeMat);
+        tip.position.set(x, 0.6, 0);
+        this.group.add(tip);
+      });
+    } else if (shape === 'drone') {
+      // Four arms with spinning rotor discs
+      const armGeo = new THREE.BoxGeometry(0.62, 0.035, 0.05);
+      const rotorGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.015, 20);
+      const rotorMat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.55 });
+      [0, Math.PI / 2].forEach((rot) => {
+        const arm = new THREE.Mesh(armGeo, this.earMat);
+        arm.position.y = 0.16;
+        arm.rotation.y = rot + Math.PI / 4;
+        this.group.add(arm);
+      });
+      [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([sx, sz]) => {
+        const rotor = new THREE.Mesh(rotorGeo, rotorMat);
+        rotor.position.set(sx * 0.31, 0.19, sz * 0.31);
+        this.group.add(rotor);
+        this.rotors.push(rotor);
+      });
+    }
 
     // 5. Holographic Navigation Pointer Arrow
     const arrowGeo = new THREE.ConeGeometry(0.12, 0.45, 12);
@@ -339,6 +389,7 @@ export class KittyCompanionManager {
     });
     this.pointerArrow = new THREE.Mesh(arrowGeo, this.arrowMat);
     this.pointerArrow.position.set(0, 0.52, 0.15);
+    this.pointerArrow.visible = !!this.hasTarget;
     this.group.add(this.pointerArrow);
 
     // 6. Plasma Thruster Light & Cone
@@ -380,6 +431,13 @@ export class KittyCompanionManager {
 
   setTargetWaypoint(x, y, z) {
     this.targetWaypoint.set(x, y, z);
+    this.hasTarget = true;
+    if (this.pointerArrow) this.pointerArrow.visible = true;
+  }
+
+  clearTargetWaypoint() {
+    this.hasTarget = false;
+    if (this.pointerArrow) this.pointerArrow.visible = false;
   }
 
   setVisible(visible) {
@@ -387,14 +445,28 @@ export class KittyCompanionManager {
   }
 
   // Floating Speech Bubble with Audible Web Speech API TTS
+  // Stop talking now: cancel voice and hide the speech bubble.
+  stopSpeaking() {
+    martianAudio.stopSpeech?.();
+    clearTimeout(this.speechTimer);
+    document.getElementById('hud-companion-speech')?.classList.remove('visible');
+  }
+
   speak(text, durationMs = 6000) {
+    // Delayed lines (setTimeout) must not talk after the player has left to the hub
+    if (window.__isHubActive) return;
     const bubble = document.getElementById('hud-companion-speech');
     const bubbleText = document.getElementById('hud-companion-speech-text');
     const bubbleSpeaker = document.getElementById('hud-companion-speech-name');
 
     if (bubble && bubbleText) {
       bubbleText.innerText = text;
-      if (bubbleSpeaker) bubbleSpeaker.innerText = `${(this.activeKitty?.name || 'COMPANION').toUpperCase()} (COMPANION)`;
+      if (bubbleSpeaker) {
+        const k = this.activeKitty || {};
+        bubbleSpeaker.innerText = k.nickname
+          ? `${k.nickname.toUpperCase()} (${(k.name || 'GUIDE').toUpperCase()})`
+          : `${(k.name || 'COMPANION').toUpperCase()} (COMPANION)`;
+      }
       bubble.classList.add('visible');
 
       clearTimeout(this.speechTimer);
@@ -404,7 +476,7 @@ export class KittyCompanionManager {
     }
 
     // Audible Web Speech API
-    if (window.speechSynthesis && !martianAudio.isMuted) {
+    if (martianAudio.canSpeak ? martianAudio.canSpeak() : (window.speechSynthesis && !martianAudio.isMuted)) {
       try {
         window.speechSynthesis.cancel(); // Stop prior utterance
         const utterance = new SpeechSynthesisUtterance(text);
@@ -421,14 +493,28 @@ export class KittyCompanionManager {
   update(delta, elapsedTime, roverPos, roverHeading = 0) {
     if (!this.group.visible || !roverPos) return;
 
-    // Desired bot hover position: offset to the side and slightly ahead
-    const sideOffset = 1.6;
-    const aheadDist = 1.2;
     const hoverY = roverPos.y + 2.1 + Math.sin(elapsedTime * 3.8) * 0.16;
+    let targetX;
+    let targetZ;
 
-    const angle = roverHeading + 0.45;
-    const targetX = roverPos.x - Math.sin(angle) * sideOffset - Math.sin(roverHeading) * aheadDist;
-    const targetZ = roverPos.z - Math.cos(angle) * sideOffset - Math.cos(roverHeading) * aheadDist;
+    const toTX = this.targetWaypoint.x - roverPos.x;
+    const toTZ = this.targetWaypoint.z - roverPos.z;
+    const distToTarget = Math.hypot(toTX, toTZ);
+
+    if (this.hasTarget && distToTarget > 0.5) {
+      // Lead the way: fly a little ahead of the rover ON THE PATH to the mission
+      // beacon, so its position and arrow both show which way to drive.
+      const lead = Math.min(2.4, distToTarget * 0.5);
+      targetX = roverPos.x + (toTX / distToTarget) * lead;
+      targetZ = roverPos.z + (toTZ / distToTarget) * lead;
+    } else {
+      // No target: hover beside the rover, slightly ahead
+      const sideOffset = 1.6;
+      const aheadDist = 1.2;
+      const angle = roverHeading + 0.45;
+      targetX = roverPos.x - Math.sin(angle) * sideOffset - Math.sin(roverHeading) * aheadDist;
+      targetZ = roverPos.z - Math.cos(angle) * sideOffset - Math.cos(roverHeading) * aheadDist;
+    }
 
     // Smooth lerp
     this.group.position.x += (targetX - this.group.position.x) * 0.08;
@@ -436,7 +522,7 @@ export class KittyCompanionManager {
     this.group.position.y += (hoverY - this.group.position.y) * 0.1;
 
     // Pointer points towards target relic
-    if (this.pointerArrow && this.targetWaypoint) {
+    if (this.pointerArrow && this.hasTarget) {
       const dir = new THREE.Vector3().subVectors(this.targetWaypoint, this.group.position).normalize();
       const lookTarget = new THREE.Vector3().addVectors(this.group.position, dir);
       this.pointerArrow.lookAt(lookTarget);
@@ -445,6 +531,11 @@ export class KittyCompanionManager {
     // Thruster flicker
     if (this.thruster) {
       this.thruster.scale.y = 0.85 + Math.sin(elapsedTime * 20) * 0.35;
+    }
+
+    // Drone rotor spin
+    if (this.rotors) {
+      this.rotors.forEach((r) => { r.rotation.y += delta * 30; });
     }
   }
 }

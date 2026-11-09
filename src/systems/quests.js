@@ -43,6 +43,11 @@ export class MissionQuestManager {
         JSON.parse(savedCompleted).forEach(id => this.completedMissions.add(id));
       }
     } catch (e) {}
+
+    // Record a badge baseline on first run so the very first new badge gets its pop-up
+    try {
+      if (localStorage.getItem('nasa_seen_badges') === null) this.resetBadgeBaseline();
+    } catch (e) {}
   }
 
   get activeMissionsList() {
@@ -91,8 +96,8 @@ export class MissionQuestManager {
     this.userXP += amount;
     this.userGems += Math.floor(amount / 50);
 
-    // Calculate level based on XP (every 350 XP is 1 level)
-    this.userLevel = Math.max(1, Math.floor(this.userXP / 350) + 1);
+    // Level based on XP: every 500 XP is 1 level (same rule as profile/hub/badges)
+    this.userLevel = Math.max(1, Math.floor(this.userXP / 500) + 1);
 
     try {
       localStorage.setItem('nasa_cadet_xp', this.userXP.toString());
@@ -110,6 +115,7 @@ export class MissionQuestManager {
     // Update Top & Hub UI bars
     this.updateXPDisplays();
     window.profileManager?.syncProgressFromGame();
+    this.checkNewBadges(); // XP may unlock rank badges (and saved quiz badges)
     if (this.onXPChangeCallback) {
       this.onXPChangeCallback(this.userXP, this.userLevel, this.userGems);
     }
@@ -122,10 +128,10 @@ export class MissionQuestManager {
     const gemsVal = document.getElementById('hub-gems-val');
     const dustVal = document.getElementById('hub-dust-val');
 
-    const nextLevelXP = this.userLevel * 350;
-    const prevLevelXP = (this.userLevel - 1) * 350;
+    const nextLevelXP = this.userLevel * 500;
+    const prevLevelXP = (this.userLevel - 1) * 500;
     const progressInLvl = this.userXP - prevLevelXP;
-    const pct = Math.min(100, Math.max(10, Math.round((progressInLvl / 350) * 100)));
+    const pct = Math.min(100, Math.max(10, Math.round((progressInLvl / 500) * 100)));
 
     if (xpFill) xpFill.style.width = `${pct}%`;
     if (xpLabel) xpLabel.innerText = `${this.userXP} / ${nextLevelXP} XP`;
@@ -156,7 +162,7 @@ export class MissionQuestManager {
     this.renderMissionsList();
   }
 
-  markMissionCompleted(missionId, showDiscoveryModal = false) {
+  markMissionCompleted(missionId, showDiscoveryModal = false, { suppressCertificate = false } = {}) {
     if (this.completedMissions.has(missionId)) return;
     this.completedMissions.add(missionId);
 
@@ -204,7 +210,7 @@ export class MissionQuestManager {
          ? this.completedMissions.has('mission_blackbox')
          : allMarsDone);
 
-    if (isCurrentWorldDone) {
+    if (isCurrentWorldDone && !suppressCertificate) {
       setTimeout(() => {
         const winText = this.currentLanguage === 'bn' ? COMPANION_BOT_LINES.all_completed_bn : COMPANION_BOT_LINES.all_completed_en;
         this.showBotDialogue(winText, true);
@@ -720,7 +726,7 @@ export class MissionQuestManager {
       claimCertBtn.addEventListener('click', () => {
         const missionsModal = document.getElementById('missions-modal-backdrop');
         if (missionsModal) missionsModal.classList.remove('active');
-        this.showCertificateModal();
+        this.showCertificateModal(this.currentPlanet === 'moon' ? 'moon' : 'mars');
       });
     }
   }
@@ -736,39 +742,204 @@ export class MissionQuestManager {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // SINGLE SOURCE OF TRUTH FOR ALL BADGES (rank / mission / quiz)
+  // Used by the Trophy Room (Cadet Explorer click), unlock toasts and leaderboard.
+  // ---------------------------------------------------------------------------
+  getQuizResults() {
+    try {
+      return JSON.parse(localStorage.getItem('nasa_quiz_results') || '{}') || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  getAllBadges() {
+    const isBn = this.currentLanguage === 'bn';
+    const quiz = this.getQuizResults();
+    const tiers = [
+      { tier: 'junior', icon: '🟢', en: 'Junior Quiz Star', bn: 'জুনিয়র কুইজ তারকা' },
+      { tier: 'intermediate', icon: '🟡', en: 'Intermediate Quiz Ace', bn: 'ইন্টারমিডিয়েট কুইজ এস' },
+      { tier: 'senior', icon: '🟠', en: 'Senior Quiz Scholar', bn: 'সিনিয়র কুইজ স্কলার' },
+      { tier: 'expert', icon: '🔴', en: 'Expert Quiz Legend', bn: 'এক্সপার্ট কুইজ লিজেন্ড' }
+    ];
+
+    const rank = LEVEL_BADGES_SHOWCASE.map(b => ({
+      id: b.id,
+      type: 'rank',
+      icon: b.icon,
+      color: b.color,
+      name: isBn ? b.name_bn : (b.name_en || b.name),
+      label: isBn ? b.tier_bn : b.tier,
+      cond: isBn ? b.unlockCondition_bn : b.unlockCondition_en,
+      minXP: b.minXP,
+      earned: this.userXP >= b.minXP,
+      progress: `${Math.min(this.userXP, b.minXP)} / ${b.minXP} XP`
+    }));
+
+    const missions = [...KIDS_MISSIONS_MARS, ...KIDS_MISSIONS_MOON].map(m => ({
+      id: `mission:${m.id}`,
+      type: 'mission',
+      icon: m.badge || m.icon || '🏅',
+      color: m.planet === 'moon' ? '#cbd5e1' : '#ff5e28',
+      name: isBn ? (m.badgeName_bn || m.badgeName_en) : m.badgeName_en,
+      label: `${m.planet === 'moon' ? (isBn ? 'চাঁদ' : 'Moon') : (isBn ? 'মঙ্গল' : 'Mars')} • ${isBn ? 'লেভেল' : 'Level'} ${m.level}`,
+      cond: isBn ? m.title_bn : m.title_en,
+      earned: this.completedMissions.has(m.id),
+      progress: this.completedMissions.has(m.id) ? (isBn ? 'সম্পন্ন' : 'Completed') : (isBn ? 'মিশন বাকি' : 'Mission not done')
+    }));
+
+    const quizBadges = tiers.map(t => {
+      const r = quiz[t.tier];
+      const total = r?.total || 4;
+      const need = Math.ceil(total / 2);
+      return {
+        id: `quiz:${t.tier}`,
+        type: 'quiz',
+        icon: t.icon,
+        color: '#a855f7',
+        name: isBn ? t.bn : t.en,
+        label: isBn ? 'কুইজ ব্যাজ' : 'Quiz Badge',
+        cond: isBn ? `${need}+ সঠিক উত্তর দিয়ে কুইজ শেষ করো` : `Finish this quiz with ${need}+ right answers`,
+        earned: !!r && (r.right || 0) >= need,
+        progress: r ? `✓ ${r.right} · ✗ ${r.wrong}` : (isBn ? 'খেলা হয়নি' : 'Not played')
+      };
+    });
+
+    return { rank, missions, quiz: quizBadges };
+  }
+
+  getEarnedBadgeCount() {
+    const all = this.getAllBadges();
+    return [...all.rank, ...all.missions, ...all.quiz].filter(b => b.earned).length;
+  }
+
+  // Show a pop-up for every badge earned since last check. First call only records
+  // the current state (so old badges don't spam toasts on load).
+  checkNewBadges() {
+    const all = this.getAllBadges();
+    const earned = [...all.rank, ...all.missions, ...all.quiz].filter(b => b.earned);
+    let seen = null;
+    try { seen = JSON.parse(localStorage.getItem('nasa_seen_badges') || 'null'); } catch (e) {}
+    const seenSet = new Set(seen || []);
+    const fresh = seen ? earned.filter(b => !seenSet.has(b.id)) : [];
+    try { localStorage.setItem('nasa_seen_badges', JSON.stringify(earned.map(b => b.id))); } catch (e) {}
+    fresh.forEach((b, i) => setTimeout(() => this.showBadgeToast(b), i * 900));
+    this.updateBadgeCountChip(earned.length);
+  }
+
+  // After loading/switching a profile: treat its current badges as already seen (no toast spam)
+  resetBadgeBaseline() {
+    const all = this.getAllBadges();
+    const earned = [...all.rank, ...all.missions, ...all.quiz].filter(b => b.earned);
+    try { localStorage.setItem('nasa_seen_badges', JSON.stringify(earned.map(b => b.id))); } catch (e) {}
+    this.updateBadgeCountChip(earned.length);
+  }
+
+  updateBadgeCountChip(count) {
+    document.querySelectorAll('.js-earned-badge-count').forEach(el => { el.textContent = String(count); });
+  }
+
+  showBadgeToast(badge) {
+    const isBn = this.currentLanguage === 'bn';
+    const toast = document.createElement('button');
+    toast.type = 'button';
+    toast.className = 'badge-unlock-toast';
+    toast.innerHTML = `
+      <span class="but-icon">${badge.icon}</span>
+      <span class="but-text">
+        <small>🏅 ${isBn ? 'ব্যাজ আনলক হয়েছে!' : 'BADGE UNLOCKED!'}</small>
+        <strong>${badge.name}</strong>
+        <em>${isBn ? 'দেখতে ক্লিক করো' : 'Tap to see it in your Trophy Room'}</em>
+      </span>`;
+    toast.addEventListener('click', () => {
+      toast.remove();
+      this.openTrophyRoom();
+    });
+    document.body.appendChild(toast);
+    martianAudio.playScannerBeep?.(true);
+    setTimeout(() => toast.classList.add('leaving'), 4800);
+    setTimeout(() => toast.remove(), 5400);
+  }
+
+  openTrophyRoom() {
+    this.renderBadgesShowcase();
+    document.getElementById('badges-modal-backdrop')?.classList.add('active');
+  }
+
   renderBadgesShowcase() {
     const container = document.getElementById('badges-showcase-container');
     if (!container) return;
 
     const isBn = this.currentLanguage === 'bn';
-    const totalXP = this.userXP;
+    const allBadges = this.getAllBadges();
+    const earnedCount = [...allBadges.rank, ...allBadges.missions, ...allBadges.quiz].filter(b => b.earned).length;
+    const totalCount = allBadges.rank.length + allBadges.missions.length + allBadges.quiz.length;
+    // Earned badges first in each section
+    const byEarned = list => [...list].sort((a, b) => Number(b.earned) - Number(a.earned));
+    const badgeCard = b => `
+      <div class="badge-tier-card ${b.earned ? 'unlocked' : 'locked'}">
+        <div class="badge-icon-wrap" style="box-shadow: 0 0 16px ${b.color}40;">
+          <span class="b-icon">${b.icon}</span>
+          ${b.earned ? '<span class="b-check">✓</span>' : '<span class="b-lock">🔒</span>'}
+        </div>
+        <div class="badge-meta">
+          <span class="badge-tier-label" style="color: ${b.color}">${b.label}</span>
+          <h4 class="badge-name">${b.name}</h4>
+          <p class="badge-cond">${b.cond}</p>
+          <div class="badge-xp-req">
+            <span>${b.progress}</span>
+            <span class="badge-status-tag ${b.earned ? 'earned' : ''}">${b.earned ? (isBn ? 'অর্জিত 🏆' : 'UNLOCKED') : (isBn ? 'লক' : 'LOCKED')}</span>
+          </div>
+        </div>
+      </div>`;
+
+    const marsDone = KIDS_MISSIONS_MARS.filter(m => this.completedMissions.has(m.id)).length;
+    const moonDone = KIDS_MISSIONS_MOON.filter(m => this.completedMissions.has(m.id)).length;
+    const voyagerDone = this.completedMissions.has('mission_blackbox');
+    const certs = [
+      { kind: 'mars', icon: '🔴', name: isBn ? 'মঙ্গল মাস্টার সার্টিফিকেট' : 'Mars Master Certificate', done: marsDone, total: KIDS_MISSIONS_MARS.length },
+      { kind: 'moon', icon: '🌕', name: isBn ? 'চাঁদ মাস্টার সার্টিফিকেট' : 'Moon Master Certificate', done: moonDone, total: KIDS_MISSIONS_MOON.length },
+      { kind: 'deepspace', icon: '📀', name: isBn ? 'ইন্টারস্টেলার সার্টিফিকেট' : 'Interstellar Certificate', done: voyagerDone ? 1 : 0, total: 1 },
+      { kind: 'grand', icon: '🏆', name: isBn ? 'গ্র্যান্ড মাস্টার সার্টিফিকেট' : 'Grand Master Certificate', done: marsDone + moonDone, total: KIDS_MISSIONS_MARS.length + KIDS_MISSIONS_MOON.length }
+    ];
 
     container.innerHTML = `
-      <div class="badges-grid-layout">
-        ${LEVEL_BADGES_SHOWCASE.map(badge => {
-          const isUnlocked = totalXP >= badge.minXP;
+      <div class="trophy-summary">
+        🏅 ${isBn ? 'অর্জিত ব্যাজ' : 'Badges earned'}: <strong>${earnedCount}</strong> / ${totalCount}
+        <span class="trophy-xp">⚡ ${this.userXP} XP</span>
+      </div>
+      <h3 class="cert-shelf-title">🎓 ${isBn ? 'আমার সার্টিফিকেট' : 'My Certificates'}</h3>
+      <div class="cert-shelf">
+        ${certs.map(c => {
+          const unlocked = c.done >= c.total;
           return `
-            <div class="badge-tier-card ${isUnlocked ? 'unlocked' : 'locked'}">
-              <div class="badge-icon-wrap" style="box-shadow: 0 0 16px ${badge.color}40;">
-                <span class="b-icon">${badge.icon}</span>
-                ${isUnlocked ? '<span class="b-check">✓</span>' : '<span class="b-lock">🔒</span>'}
-              </div>
-              <div class="badge-meta">
-                <span class="badge-tier-label" style="color: ${badge.color}">${isBn ? badge.tier_bn : badge.tier}</span>
-                <h4 class="badge-name">${isBn ? badge.name_bn : (badge.name_en || badge.name)}</h4>
-                <p class="badge-cond">${isBn ? badge.unlockCondition_bn : badge.unlockCondition_en}</p>
-                <div class="badge-xp-req">
-                  <span>${isBn ? 'প্রয়োজনীয় XP:' : 'Req XP:'} ${badge.minXP}</span>
-                  <span class="badge-status-tag ${isUnlocked ? 'earned' : ''}">
-                    ${isUnlocked ? (isBn ? 'অর্জিত 🏆' : 'UNLOCKED') : `${Math.round((totalXP / badge.minXP) * 100)}%`}
-                  </span>
-                </div>
-              </div>
+            <div class="cert-shelf-card ${unlocked ? 'unlocked' : 'locked'}">
+              <span class="cert-shelf-icon">${c.icon}</span>
+              <span class="cert-shelf-name">${c.name}</span>
+              <span class="cert-shelf-progress">${c.done} / ${c.total} ${isBn ? 'মিশন' : 'missions'}</span>
+              <button class="cert-shelf-btn" type="button" data-cert-kind="${c.kind}" ${unlocked ? '' : 'disabled'}>
+                ${unlocked ? (isBn ? 'দেখুন' : 'VIEW') : '🔒 ' + (isBn ? 'লক করা' : 'LOCKED')}
+              </button>
             </div>
           `;
         }).join('')}
       </div>
+      <h3 class="cert-shelf-title">⚡ ${isBn ? 'র‍্যাংক ব্যাজ (XP)' : 'Rank Badges (XP)'}</h3>
+      <div class="badges-grid-layout">${allBadges.rank.map(badgeCard).join('')}</div>
+      <h3 class="cert-shelf-title">🧩 ${isBn ? 'কুইজ ব্যাজ' : 'Quiz Badges'}</h3>
+      <div class="badges-grid-layout">${byEarned(allBadges.quiz).map(badgeCard).join('')}</div>
+      <h3 class="cert-shelf-title">🚀 ${isBn ? 'মিশন ব্যাজ' : 'Mission Badges'}</h3>
+      <div class="badges-grid-layout">${byEarned(allBadges.missions).map(badgeCard).join('')}</div>
     `;
+    this.updateBadgeCountChip(earnedCount);
+
+    container.querySelectorAll('.cert-shelf-btn:not([disabled])').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('badges-modal-backdrop')?.classList.remove('active');
+        this.showCertificateModal(btn.dataset.certKind);
+      });
+    });
   }
 
   renderFunFact() {
@@ -807,13 +978,22 @@ export class MissionQuestManager {
     }
   }
 
-  showCertificateModal() {
+  // kind: 'mars' | 'moon' | 'deepspace' | 'grand'. When omitted, it is derived from
+  // the current world and progress (used by the end-of-world celebrations).
+  showCertificateModal(kind) {
     const modal = document.getElementById('certificate-modal-backdrop');
     if (!modal) return;
 
     const isBn = this.currentLanguage === 'bn';
     const allMarsDone = KIDS_MISSIONS_MARS.every(m => this.completedMissions.has(m.id));
     const allMoonDone = KIDS_MISSIONS_MOON.every(m => this.completedMissions.has(m.id));
+
+    if (!kind) {
+      if (this.currentPlanet === 'deepspace') kind = 'deepspace';
+      else if (allMarsDone && allMoonDone) kind = 'grand';
+      else if (this.currentPlanet === 'moon') kind = 'moon';
+      else kind = 'mars';
+    }
 
     const titleEl = modal.querySelector('.cert-title');
     const tagEl = modal.querySelector('.cert-nasa-tag');
@@ -834,7 +1014,7 @@ export class MissionQuestManager {
       sigCmdrEl.innerText = cmdrTitle;
     }
 
-    if (this.currentPlanet === 'deepspace') {
+    if (kind === 'deepspace') {
       if (tagEl) tagEl.innerText = isBn ? 'নাসা স্পেস অ্যাপস • ইন্টারস্টেলার একাডেমি' : 'NASA SPACE APPS • INTERSTELLAR MISSION ACADEMY';
       if (titleEl) titleEl.innerText = isBn ? 'ইন্টারস্টেলার এক্সপেডিশন মাস্টার সার্টিফিকেট' : 'INTERSTELLAR EXPEDITION MASTER CERTIFICATE';
       if (nameEl) nameEl.innerText = `${recipientName} • ${isBn ? 'ইন্টারস্টেলার মাস্টার পায়োনিয়ার' : 'INTERSTELLAR MASTER PIONEER'}`;
@@ -843,7 +1023,7 @@ export class MissionQuestManager {
           ? `${cmdrTitle} মহাবিশ্বের ২৪.৩ বিলিয়ন কিলোমিটার (১৬২ এইউ) দূরে হেলিওপজ অতিক্রমকারী ভয়েজার ১ মহাকাশযানের পিউ-২৩৮ নিউক্লিয়ার ব্যাটারি ব্যালেন্স করে এবং ২২ ঘণ্টা ৩৪ মিনিটের রেডিও লিঙ্ক অতিক্রম করে গোল্ডেন রেকর্ড হ্যান্ডশেক সফলভাবে সম্পন্ন করেছেন!`
           : `certifies that ${cmdrTitle} has successfully mastered the Interstellar Expedition across 24.3 billion kilometers (162 AU)—balancing Voyager 1's decaying Pu-238 RTG nuclear power, establishing the 22h 34m light-speed radio link past the Heliopause, and broadcasting the Golden Record across the cosmos!`;
       }
-    } else if (this.currentPlanet === 'moon' && !allMarsDone) {
+    } else if (kind === 'moon') {
       if (tagEl) tagEl.innerText = isBn ? 'নাসা স্পেস অ্যাপস • চন্দ্রাভিযান একাডেমি' : 'NASA SPACE APPS • LUNAR EXPEDITION ACADEMY';
       if (titleEl) titleEl.innerText = isBn ? 'লুনার এক্সপেডিশন মাস্টার সার্টিফিকেট' : 'LUNAR EXPEDITION MASTER CERTIFICATE';
       if (nameEl) nameEl.innerText = `${recipientName} • ${isBn ? 'মাস্টার লুনার এক্সপ্লোরার' : 'MASTER LUNAR EXPLORER'}`;
@@ -852,14 +1032,14 @@ export class MissionQuestManager {
           ? `${cmdrTitle} শান্ত সাগর ও চন্দ্রপৃষ্ঠের সার্ভেয়ার ১, অ্যাপোলো ১১ শান্ত সাগর ট্রাঙ্কুইলিটি বেস, সার্ভেয়ার ৩ রিট্রিভাল, এলআরভি বাগি রান, এলক্রস মেরু বরফ এবং আর্টেমিস বেস ক্যাম্প—সবকটি লুনার প্রত্নতাত্ত্বিক মিশন সফলভাবে সম্পন্ন করে এই মাস্টার সার্টিফিকেট অর্জন করেছেন।`
           : `certifies that ${cmdrTitle} has successfully mastered all 6 Lunar Archaeology Missions—touching down with Surveyor 1, preserving Tranquility Base with Apollo 11, retrieving historic hardware with Surveyor 3, navigating the LRV Buggy, confirming Cabeus polar ice with LCROSS, and establishing Artemis Base Camp!`;
       }
-    } else if (this.currentPlanet === 'mars' && !allMoonDone) {
+    } else if (kind === 'mars') {
       if (tagEl) tagEl.innerText = isBn ? 'নাসা স্পেস অ্যাপস • মঙ্গল অভিযান একাডেমি' : 'NASA SPACE APPS • MARS EXPEDITION ACADEMY';
       if (titleEl) titleEl.innerText = isBn ? 'মার্টিয়ান এক্সপেডিশন মাস্টার সার্টিফিকেট' : 'MARTIAN EXPEDITION MASTER CERTIFICATE';
       if (nameEl) nameEl.innerText = `${recipientName} • ${isBn ? 'মাস্টার মার্টিয়ান এক্সপ্লোরার' : 'MASTER MARTIAN EXPLORER'}`;
       if (descEl) {
         descEl.innerText = isBn
           ? `${cmdrTitle} পারসিভেরেন্স ভ্যালিতে অপরচুনিটি রোভার অনুসন্ধান, হেমাটাইট ব্লুবেরি এপিএক্সএস স্পেকট্রোস্কোপি, ডায়মন্ড র‍্যাট ড্রিলিং, ইনসাইট সেইসমোলজি মার্সকোয়েক এবং সল ৫১১১ ধূলিঝড়—সবকটি মঙ্গল প্রত্নতাত্ত্বিক মিশন সফলভাবে সম্পন্ন করে এই মাস্টার সার্টিফিকেট অর্জন করেছেন।`
-          : `certifies that ${cmdrTitle} has successfully mastered all 6 Martian Archaeology Missions—locating Opportunity at Perseverance Valley, proving past hydrology with APXS Hematite Blueberries, drilling with the diamond RAT, triangulating Marsquake waves with InSight SEIS, and surviving the fateful Sol 5111 dust storm!`;
+          : `certifies that ${cmdrTitle} has successfully mastered all 6 Martian Archaeology Missions—locating Opportunity at Perseverance Valley, proving past hydrology with APXS Hematite Blueberries, drilling with the diamond RAT, triangulating Marsquake waves with InSight SEIS, surviving the fateful Sol 5111 dust storm, and unlocking Voyager 1's Golden Record in deep space!`;
       }
     } else {
       if (tagEl) tagEl.innerText = isBn ? 'নাসা স্পেস অ্যাপস • জুনিয়র ডিপ স্পেস নেটওয়ার্ক' : 'NASA SPACE APPS • JUNIOR DEEP SPACE NETWORK';

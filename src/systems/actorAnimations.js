@@ -485,6 +485,15 @@ export class ActorAnimationDirector {
     }
   }
 
+  // Stop the Asha/Leo comms dialogue (typewriter, voice cadence) and hide it
+  stopCommsDialogue() {
+    if (this.typewriterTimer) clearInterval(this.typewriterTimer);
+    if (this.lipSyncTimer) clearTimeout(this.lipSyncTimer);
+    this.typewriterTimer = null;
+    this.lipSyncTimer = null;
+    document.querySelectorAll('.actor-talking').forEach((el) => el.classList.remove('actor-talking'));
+  }
+
   // Update all 3D spacecraft and rover actors every frame
   update(delta, elapsedTime, currentPlanet, currentTau) {
     if (currentPlanet === 'mars') {

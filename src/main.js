@@ -112,6 +112,7 @@ function initApplication() {
   // App Lifecycle States
   let isFullscreenActive = false;
   let isHubActive = true;
+  window.__isHubActive = true;
   let isSplashActive = true;
   window.__isSplashActive = true;
 
@@ -370,11 +371,7 @@ function initApplication() {
       astronautCommander.setVisible(false);
     }
 
-    // Update World Switcher Pills & Active World Pill
-    document.querySelectorAll('.world-switch-pill').forEach((btn) => {
-      btn.classList.toggle('active', btn.dataset.world === planet);
-    });
-
+    // Update Active World Pill
     const worldPill = document.getElementById('active-world-pill');
     if (worldPill) {
       worldPill.innerText =
@@ -392,14 +389,6 @@ function initApplication() {
 
   // Initial Subsystem Quick List
   renderSubsystemQuickList('mars');
-
-  // World Switcher Pills in Bottom Dock
-  document.querySelectorAll('.world-switch-pill').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const world = btn.dataset.world;
-      switchCelestialBody(world);
-    });
-  });
 
   // Telemetry & GPS Waypoint Tracker
   const odometerElem = document.getElementById('hud-odometer-badge');
@@ -422,6 +411,12 @@ function initApplication() {
   }
 
   function getActiveMissionArtifact(missionId) {
+    // Mission 6 (Voyager 1): on Mars its ground site is the DSN Uplink Dish (scan → launch
+    // Deep Space); in Deep Space it is Voyager 1 itself; the Moon has no Level-6 site.
+    if (missionId === 'mission_blackbox') {
+      const id = currentPlanet === 'mars' ? 'dsn_uplink' : currentPlanet === 'deepspace' ? 'voyager1' : null;
+      return id ? ALL_ARCHAEOLOGICAL_ARTIFACTS.find((a) => a.id === id) || null : null;
+    }
     return ALL_ARCHAEOLOGICAL_ARTIFACTS.find((a) => a.missionId === missionId);
   }
 
@@ -466,6 +461,20 @@ function initApplication() {
       return;
     }
 
+    if (activeMission && activeMission.id === 'mission_blackbox') {
+      const isDone = questManager.completedMissions.has('mission_blackbox');
+      if (iconElem) iconElem.innerText = activeMission.badge || '📀';
+      if (badgeElem) badgeElem.innerText = `MISSION ${activeMission.level} / ${totalMissions} • DEEP SPACE ${isDone ? '✓' : ''}`;
+      if (nameElem) nameElem.innerText = activeMission.title_en;
+      if (subElem) subElem.innerText = `${completedCount} / ${totalMissions} done • Drive to the purple DSN Uplink Dish (dot 6 on the map) and press [E] — it beams you to Voyager 1 in Deep Space`;
+      if (distValElem && artifact) {
+        const d = Math.hypot(roverController.position.x - artifact.coords.x, roverController.position.z - artifact.coords.z);
+        distValElem.innerText = `${d.toFixed(1)}m`;
+      }
+      scanner.setActiveWaypoint('mission_blackbox');
+      return;
+    }
+
     if (activeMission) {
       scanner.setActiveWaypoint(activeMission.id);
       const isCompleted = questManager.completedMissions.has(activeMission.id);
@@ -474,7 +483,7 @@ function initApplication() {
         badgeElem.innerText = `MISSION ${activeMission.level} / ${totalMissions} ${isCompleted ? '✓' : ''}`;
       if (nameElem) nameElem.innerText = activeMission.title_en;
       if (subElem) {
-        subElem.innerText = `Target: ${activeMission.shortTitle_en} • Drive vehicle toward the glowing beacon or click JPL Science Labs`;
+        subElem.innerText = `${completedCount} / ${totalMissions} done • Drive to the glowing beacon (pulsing dot on the mini-map) and press [E] to scan ${activeMission.shortTitle_en} — scanning completes the level`;
       }
 
       if (distValElem) {
@@ -488,14 +497,69 @@ function initApplication() {
     }
   }
 
+  // Draw EVERY mission of the current world on the mini-map (numbered; ✓ when done;
+  // the active one highlighted). Re-rendered only when world/progress/active changes.
+  const MINIMAP_RANGE_M = 32; // all mission relics sit within ~26m of center
+  let taskBlipsSignature = '';
+  function renderTaskBlips() {
+    const screen = document.getElementById('minimap-radar-screen');
+    if (!screen) return;
+    const active = getActiveMission();
+    const sig = `${currentPlanet}|${active?.id}|${[...questManager.completedMissions].sort().join(',')}`;
+    if (sig === taskBlipsSignature) return;
+    taskBlipsSignature = sig;
+
+    screen.querySelectorAll('.task-minimap-blip').forEach((el) => el.remove());
+    if (currentPlanet === 'deepspace') return;
+
+    questManager.activeMissionsList.forEach((m) => {
+      const a = getActiveMissionArtifact(m.id);
+      const done = questManager.completedMissions.has(m.id);
+
+      if (!a || !a.coords) {
+        // Off-world mission (Mars Level 6 = Voyager 1 in Deep Space): show it as a
+        // portal marker on the map edge so all levels are visible; click to launch it.
+        const portal = document.createElement('div');
+        portal.className = `task-minimap-blip portal${done ? ' done' : ''}${m.id === active?.id ? ' active' : ''}`;
+        portal.textContent = done ? '✓' : String(m.level);
+        portal.title = `Level ${m.level}: ${m.shortTitle_en} — in Deep Space${done ? ' (done)' : ' • click to launch'}`;
+        portal.style.left = '92%';
+        portal.style.top = '12%';
+        portal.addEventListener('click', () => {
+          const earlierDone = questManager.activeMissionsList
+            .filter((x) => x.level < m.level)
+            .every((x) => questManager.completedMissions.has(x.id));
+          if (done || earlierDone) {
+            spawnRoverForMission(m.id);
+          } else {
+            const msg = `🌌 Level ${m.level} is in Deep Space. Finish Levels 1–${m.level - 1} on this map first!`;
+            coinsManager.showFloatingPickupText?.(msg);
+            kittyCompanion?.speak(msg, 5000);
+          }
+        });
+        screen.appendChild(portal);
+        return;
+      }
+
+      const el = document.createElement('div');
+      el.className = `task-minimap-blip${done ? ' done' : ''}${m.id === active?.id ? ' active' : ''}`;
+      el.textContent = done ? '✓' : String(m.level);
+      el.title = `Level ${m.level}: ${m.shortTitle_en}${done ? ' (done)' : ''}`;
+      el.style.left = `${Math.max(5, Math.min(95, 50 + (a.coords.x / MINIMAP_RANGE_M) * 45))}%`;
+      el.style.top = `${Math.max(5, Math.min(95, 50 + (a.coords.z / MINIMAP_RANGE_M) * 45))}%`;
+      screen.appendChild(el);
+    });
+  }
+
   // Update Transparent Radar Mini-Map
   function updateMinimap(stats) {
+    renderTaskBlips();
     const blip = document.getElementById('rover-minimap-blip');
     const coordsText = document.getElementById('minimap-coords-text');
     const waypointBlip = document.getElementById('waypoint-minimap-blip');
 
     if (blip) {
-      const radarSizeMeters = 60;
+      const radarSizeMeters = MINIMAP_RANGE_M;
       const pctX = 50 + (stats.x / radarSizeMeters) * 45;
       const pctZ = 50 + (stats.z / radarSizeMeters) * 45;
       blip.style.left = `${Math.max(5, Math.min(95, pctX))}%`;
@@ -514,11 +578,13 @@ function initApplication() {
     if (waypointBlip) {
       const activeMission = getActiveMission();
       const artifact = getActiveMissionArtifact(activeMission?.id);
-      const targetX = artifact ? artifact.coords.x : 10;
-      const targetZ = artifact ? artifact.coords.z : 10;
+      // No surface target (e.g. Mission 6 in Deep Space) — hide the beacon instead of pointing at a fake spot.
+      waypointBlip.style.display = artifact ? '' : 'none';
+      const targetX = artifact ? artifact.coords.x : 0;
+      const targetZ = artifact ? artifact.coords.z : 0;
 
-      const wpPctX = 50 + (targetX / 60) * 45;
-      const wpPctZ = 50 + (targetZ / 60) * 45;
+      const wpPctX = 50 + (targetX / MINIMAP_RANGE_M) * 45;
+      const wpPctZ = 50 + (targetZ / MINIMAP_RANGE_M) * 45;
       waypointBlip.style.left = `${Math.max(5, Math.min(95, wpPctX))}%`;
       waypointBlip.style.top = `${Math.max(5, Math.min(95, wpPctZ))}%`;
     }
@@ -551,6 +617,18 @@ function initApplication() {
 
     const activeMission = getActiveMission();
     const artifact = getActiveMissionArtifact(activeMission?.id);
+
+    // Keep the chosen guide pointing at the CURRENT mission (updates after each level,
+    // and when entering a world from the hub). No surface target → hide the arrow.
+    const allWorldDone = questManager.activeMissionsList.every((m) => questManager.completedMissions.has(m.id));
+    const guideHasTarget = artifact && artifact.coords && !allWorldDone;
+    if (guideHasTarget) {
+      const gy = activeGetTerrainHeight ? activeGetTerrainHeight(artifact.coords.x, artifact.coords.z) : 0;
+      kittyCompanion?.setTargetWaypoint(artifact.coords.x, gy + 1.0, artifact.coords.z);
+    } else {
+      kittyCompanion?.clearTargetWaypoint?.();
+    }
+
     if (artifact && artifact.coords) {
       const dx = roverController.position.x - artifact.coords.x;
       const dz = roverController.position.z - artifact.coords.z;
@@ -688,6 +766,23 @@ function initApplication() {
       return isBn ? entry.bn : entry.en;
     }
     return isBn ? (artifact?.description || 'প্রত্নতাত্ত্বিক নিদর্শন ঐতিহাসিক নথিপত্র পর্যালোচনা সম্পন্ন।') : (artifact?.description || 'Historical NASA archaeological survey record logged.');
+  }
+
+  const MISSION_COMPLETE_RANGE_M = 6.0;
+
+  function isRoverAtMissionSite(missionId) {
+    if (!missionId) return false;
+    // Level 6 (Voyager) is completed ONLY by the RTG + Golden Record mini-game,
+    // never by just clicking a spacecraft part.
+    if (missionId === 'mission_blackbox') return false;
+    if (currentPlanet === 'deepspace') return false;
+    const missionInWorld = questManager.activeMissionsList.some((m) => m.id === missionId);
+    if (!missionInWorld) return false;
+    const pos = roverController.position;
+    return ALL_ARCHAEOLOGICAL_ARTIFACTS.some((a) =>
+      a.missionId === missionId && a.coords &&
+      Math.hypot(pos.x - a.coords.x, pos.z - a.coords.z) <= MISSION_COMPLETE_RANGE_M
+    );
   }
 
   function resolveMissionIdFromScan(scanId) {
@@ -850,6 +945,24 @@ function initApplication() {
 
     if (targetPlanet === 'deepspace') {
       setCameraMode('orbit');
+      activeRadarArtifact = null;
+      if (radarHud) radarHud.style.display = 'none';
+
+      // Tell the player exactly what Level 6 is, then open the task itself.
+      const isDone6 = questManager.completedMissions.has('mission_blackbox');
+      const subEl = document.getElementById('waypoint-sub');
+      if (subEl && !isDone6) {
+        subEl.innerText = '👉 LEVEL 6 TASK: Balance the RTG power below 249W → press TRANSMIT HANDSHAKE → wait for Voyager\'s reply (press [E] to reopen)';
+      }
+      document.getElementById('waypoint-tracker-hud')?.style.setProperty('display', 'flex');
+      kittyCompanion?.speak(isDone6
+        ? 'Level 6 is already done! Press E to replay the Voyager Golden Record lab.'
+        : 'Level 6! There is no ground here to scan. Instead, save Voyager 1: switch off instruments until power is below 249 watts, then transmit the handshake!', 7000);
+      if (!isDone6) {
+        setTimeout(() => {
+          if (currentPlanet === 'deepspace' && !isHubActive) miniGameManager.open('voyager1');
+        }, 1600);
+      }
       return;
     }
 
@@ -864,14 +977,15 @@ function initApplication() {
       targetZ = targetPlanet === 'moon' ? -3.0 : 0.0;
     }
 
-    // Spawn clean 32 meters away towards map center so rover faces directly at target beacon
-    const spawnDist = 32.0;
-    let dirToCenter = Math.atan2(-targetZ, -targetX);
+    // Spawn close to the target on its OUTER side (away from map center), so the
+    // active mission is the nearest beacon and other missions' relics aren't in the way.
+    const spawnDist = 10.0;
+    let dirOutward = Math.atan2(targetZ, targetX);
     if (Math.hypot(targetX, targetZ) < 5.0) {
-      dirToCenter = Math.PI * 0.75;
+      dirOutward = Math.PI * 1.5; // target at center: spawn toward -Z, clear of other relics
     }
-    const spawnX = targetX + Math.cos(dirToCenter) * spawnDist;
-    const spawnZ = targetZ + Math.sin(dirToCenter) * spawnDist;
+    const spawnX = targetX + Math.cos(dirOutward) * spawnDist;
+    const spawnZ = targetZ + Math.sin(dirOutward) * spawnDist;
     const spawnY = activeGetTerrainHeight ? activeGetTerrainHeight(spawnX, spawnZ) : 0;
 
     // Heading towards target relic so driving forward moves straight to the beacon
@@ -955,7 +1069,9 @@ function initApplication() {
     hideRelicBillboard();
     scanner.triggerManualScan(artifact.id);
     coinsManager.addCoins(150);
-    advanceMissionWithRocketProgression(currentMissionId);
+    if (isRoverAtMissionSite(currentMissionId)) {
+      advanceMissionWithRocketProgression(currentMissionId);
+    }
   });
 
   document.getElementById('billboard-close-btn')?.addEventListener('click', () => {
@@ -1002,11 +1118,12 @@ function initApplication() {
   }
 
   window.addEventListener('keydown', (e) => {
-    if (['KeyE', 'e', 'E'].includes(e.code)) {
-      if (activeRadarArtifact) {
-        scanner.triggerManualScan(activeRadarArtifact.id);
-      } else if (currentPlanet === 'deepspace') {
+    if (['KeyE', 'e', 'E'].includes(e.code) && !e.target.matches?.('input, textarea')) {
+      // Deep Space first: a stale Mars/Moon radar target must not steal the E key here
+      if (currentPlanet === 'deepspace') {
         miniGameManager.open('voyager1');
+      } else if (activeRadarArtifact) {
+        scanner.triggerManualScan(activeRadarArtifact.id);
       }
     }
 
@@ -1077,9 +1194,10 @@ function initApplication() {
         tauValDisplay.innerText = `${tau.toFixed(1)} ${statusStr}`;
       }
 
-      if (tau >= 10.0) {
-        questManager.markMissionCompleted('mission_storm');
-      }
+      // NOTE: Do not auto-complete 'mission_storm' from Tau level here. The storm
+      // timeline/slider routinely pushes Tau past 10, which silently finished the
+      // mission and (if it was the last one) popped the certificate mid-storm.
+      // The mission is completed by inspecting the Sol 5111 weather station scan.
 
       const simulatedPower = Math.max(18, Math.min(900, Math.round(900 * Math.exp(-tau / 0.82))));
       const hudPower = document.getElementById('hud-power');
@@ -1198,7 +1316,53 @@ function initApplication() {
   // Scanner Callback & Quest + Mini-Game Progression Hooks
   scanner.onScanCallback = ({ type, data }) => {
     const scanId = data.id || '';
+
+    // Level 6 launch site on Mars: scanning the DSN dish up close beams you to Voyager 1
+    if (scanId === 'dsn_uplink') {
+      const dish = ALL_ARCHAEOLOGICAL_ARTIFACTS.find((a) => a.id === 'dsn_uplink');
+      const near = dish && Math.hypot(roverController.position.x - dish.coords.x, roverController.position.z - dish.coords.z) <= MISSION_COMPLETE_RANGE_M;
+      const earlierDone = KIDS_MISSIONS_MARS.filter((m) => m.level < 6).every((m) => questManager.completedMissions.has(m.id));
+      let msg;
+      if (!near) {
+        msg = '📡 Drive up to the purple DSN Uplink Dish (dot 6 on the map), then press [E] to scan it.';
+      } else if (!earlierDone && !questManager.completedMissions.has('mission_blackbox')) {
+        msg = '📡 Uplink locked! Finish Levels 1–5 first, then come back to beam to Voyager 1.';
+      } else {
+        msg = '📡 Uplink established! Beaming you to Voyager 1, 24.3 billion km away…';
+        setTimeout(() => spawnRoverForMission('mission_blackbox'), 1200);
+      }
+      coinsManager.showFloatingPickupText?.(msg);
+      kittyCompanion?.speak(msg, 5000);
+      return;
+    }
+
     const scannedMissionId = resolveMissionIdFromScan(scanId);
+
+    // A scan only COMPLETES a mission when the rover is actually at that mission's relic.
+    // Scans from the side list, from far-away 3D clicks, or of the rover's own parts just
+    // show info. (Previously they completed missions → early certificate on Moon/Mars.)
+    const canCompleteMission = isRoverAtMissionSite(scannedMissionId);
+    if (scannedMissionId && !canCompleteMission && !questManager.completedMissions.has(scannedMissionId)) {
+      const m = [...KIDS_MISSIONS_MARS, ...KIDS_MISSIONS_MOON].find((x) => x.id === scannedMissionId);
+      const inDeepSpace = scannedMissionId === 'mission_blackbox' && currentPlanet === 'deepspace';
+      if (inDeepSpace) {
+        // In Deep Space, scanning Voyager opens the actual Level 6 task
+        setTimeout(() => miniGameManager.open('voyager1'), 600);
+      }
+      const msg = scannedMissionId === 'mission_blackbox'
+        ? (inDeepSpace
+            ? '📀 Level 6 task: balance Voyager\'s RTG power under 249W, then press Transmit Handshake!'
+            : '📀 Mission 6 is completed in Deep Space — launch it from the Roadmap!')
+        : `📍 Drive to ${m ? `Level ${m.level}: ${m.shortTitle_en}` : 'the mission beacon'} on the map and scan it there to complete this level.`;
+      coinsManager.showFloatingPickupText?.(msg);
+      kittyCompanion?.speak(msg, 5000);
+    }
+
+    if (canCompleteMission) {
+    if (scannedMissionId && !activeBillboardArtifact) {
+      // Marks complete WITH the discovery popup, so kids clearly see the level finished
+      advanceMissionWithRocketProgression(scannedMissionId);
+    }
 
     // Mars Mission Progressions
     if (scanId === 'oppy_rover' || scanId === 'pancam' || scanId === 'mini_tes' || scanId === 'solar_array') {
@@ -1246,10 +1410,7 @@ function initApplication() {
     } else if (scanId === 'artemis_beacon' || scanId === 'artifact_artemis_beacon') {
       questManager.markMissionCompleted('moon_quest_artemis_base');
     }
-
-    if (scannedMissionId && !activeBillboardArtifact) {
-      advanceMissionWithRocketProgression(scannedMissionId);
-    }
+    } // end canCompleteMission
 
     // Check if this scan links to one of the 4 Flagship JPL Science Workbenches
     pendingScanLabKey = resolveLabKeyForScan(scanId);
@@ -1556,8 +1717,18 @@ function initApplication() {
   let heroInteractions = null;
   let hero3DOrrery = null;
 
+  // Leaving a world: silence every voice/dialogue still running or scheduled.
+  function stopAllTalking() {
+    martianAudio.stopSpeech?.();
+    martianAudio.stopFlute?.(); // Golden Record melody from the Voyager level
+    kittyCompanion?.stopSpeaking?.();
+    actorDirector?.stopCommsDialogue?.();
+  }
+
   function openGameHub() {
     isHubActive = true;
+    window.__isHubActive = true; // blocks delayed speech lines from starting in the hub
+    stopAllTalking();
 
     // 1. Sync cadet profile from onboarding input if present
     try {
@@ -1631,6 +1802,7 @@ function initApplication() {
 
   function closeGameHub() {
     isHubActive = false;
+    window.__isHubActive = false;
     if (gameHubScreen) {
       gameHubScreen.classList.remove('active');
       gameHubScreen.style.display = 'none';
@@ -2168,7 +2340,7 @@ function initApplication() {
 
   document.getElementById('disc-quiz-btn')?.addEventListener('click', () => {
     document.getElementById('mission-discovery-modal-backdrop')?.classList.remove('active');
-    quizManager.render();
+    quizManager.openFresh();
     document.getElementById('quiz-modal-backdrop')?.classList.add('active');
     martianAudio.playUiSwitch?.();
   });
@@ -2292,7 +2464,7 @@ function initApplication() {
       const targetRelic = targetPlanet === 'moon' ? (isBn ? 'সার্ভেয়ার ১' : 'Surveyor 1') : (isBn ? 'অপরচুনিটি রোভার' : 'Opportunity Rover');
       kittyCompanion?.speak(isBn
         ? `কমান্ডার, ${worldName}-এ স্বাগতম! W, A, S, D দিয়ে সামনের আলোকময় বিকনের (${targetRelic}) দিকে ড্রাইভ করো!`
-        : `Welcome to ${worldName}, Commander! Use W, A, S, D to drive towards the glowing beacon (${targetRelic}) ahead!`);
+        : `Hi Commander, I'm ${kittyCompanion?.activeKitty?.nickname || 'your guide'}! Welcome to ${worldName}. Use W, A, S, D and follow my arrow to the glowing beacon (${targetRelic})!`);
     }, 450);
   }
 
@@ -2462,14 +2634,9 @@ function initApplication() {
   window.dismissAquaGuidedModal = () => openGameHub();
 
   window.setGameCompanion = (botId) => {
-    if (!kittyCompanion) return;
-    if (botId === 'echo') {
-      kittyCompanion.selectCompanion(0);
-    } else if (botId === 'nova') {
-      kittyCompanion.selectCompanion(2);
-    } else if (botId === 'orion') {
-      kittyCompanion.selectCompanion(3);
-    }
+    if (!kittyCompanion || !botId) return;
+    // Single source of truth for echo/nova/orion → guide mapping lives in KittyCompanionManager.setIndex
+    kittyCompanion.selectCompanion(botId);
   };
 
   window.setGlobalGameLanguage = (lang) => {
@@ -2651,7 +2818,7 @@ function initApplication() {
   });
   document.getElementById('drawer-nav-quiz')?.addEventListener('click', () => {
     closeDrawerSidebar();
-    quizManager.render();
+    quizManager.openFresh();
     document.getElementById('quiz-modal-backdrop')?.classList.add('active');
   });
   document.getElementById('drawer-nav-badges')?.addEventListener('click', () => {
@@ -3038,7 +3205,7 @@ function initApplication() {
   });
 
   document.getElementById('hub-quiz-btn')?.addEventListener('click', () => {
-    quizManager.render();
+    quizManager.openFresh();
     document.getElementById('quiz-modal-backdrop')?.classList.add('active');
   });
 
@@ -3060,18 +3227,6 @@ function initApplication() {
     document.getElementById('missions-modal-backdrop')?.classList.add('active');
   });
 
-  document.getElementById('hub-tab-archaeology')?.addEventListener('click', () => {
-    closeGameHub();
-    setFullscreenMode(true, false);
-    setMode('archaeologist');
-  });
-
-  document.getElementById('hub-tab-drive')?.addEventListener('click', () => {
-    closeGameHub();
-    setFullscreenMode(true, false);
-    setMode('drive');
-  });
-
   document.getElementById('hub-tab-pitch')?.addEventListener('click', () => {
     closeGameHub();
     setFullscreenMode(true, false);
@@ -3079,7 +3234,7 @@ function initApplication() {
   });
 
   document.getElementById('hub-tab-quiz')?.addEventListener('click', () => {
-    quizManager.render();
+    quizManager.openFresh();
     document.getElementById('quiz-modal-backdrop')?.classList.add('active');
   });
 
@@ -3192,7 +3347,7 @@ function initApplication() {
     e.preventDefault();
     e.stopPropagation();
     martianAudio.playUiSwitch?.();
-    quizManager.render();
+    quizManager.openFresh();
     document.getElementById('quiz-modal-backdrop')?.classList.add('active');
   });
   document.getElementById('quiz-close-btn')?.addEventListener('click', () => {

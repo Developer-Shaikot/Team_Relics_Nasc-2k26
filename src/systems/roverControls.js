@@ -155,7 +155,9 @@ export class RoverController {
 
     // Fire Telemetry Update Callback
     if (this.onTelemetryUpdate) {
-      const headingDeg = Math.round(((this.heading * 180 / Math.PI) % 360 + 360) % 360);
+      // Map bearing (clockwise from north / -Z). Forward is (-sin h, -cos h), so a
+      // positive heading turns toward -X (west) — negate to get a clockwise bearing.
+      const headingDeg = Math.round(((-this.heading * 180 / Math.PI) % 360 + 360) % 360);
       const headingDirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
       const dirIndex = Math.round(headingDeg / 45) % 8;
       const compassDir = headingDirs[dirIndex];

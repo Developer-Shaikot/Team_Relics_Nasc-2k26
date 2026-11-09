@@ -179,6 +179,7 @@ export class CadetProfileManager {
       this.questManager.userGems = p.userGems || 10;
       this.questManager.userLevel = Math.max(1, Math.floor((p.userXP || 0) / 500) + 1);
       this.questManager.renderMissionsList?.();
+      this.questManager.resetBadgeBaseline?.();
     }
 
     // 2. Sync Coins Manager

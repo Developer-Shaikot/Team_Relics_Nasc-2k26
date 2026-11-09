@@ -254,31 +254,7 @@ export function createOpportunityRover() {
   armGroup.add(turretGroup);
   rover.add(armGroup);
 
-  // 6b. Floating Companion Drone Actor (AERO-1) hovering beside Rover
-  const droneGroup = new THREE.Group();
-  droneGroup.name = "aero1_companion_drone";
-  droneGroup.position.set(-0.95, 1.35, 0.35);
-
-  const droneBody = new THREE.Mesh(
-    new THREE.SphereGeometry(0.13, 16, 16),
-    new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.25, metalness: 0.75 })
-  );
-  droneGroup.add(droneBody);
-
-  const droneEye = new THREE.Mesh(
-    new THREE.SphereGeometry(0.055, 12, 12),
-    new THREE.MeshBasicMaterial({ color: 0x00e5ff })
-  );
-  droneEye.position.set(0, 0.01, 0.11);
-  droneGroup.add(droneEye);
-
-  const droneHalo = new THREE.Mesh(
-    new THREE.RingGeometry(0.17, 0.21, 24),
-    new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.65, side: THREE.DoubleSide })
-  );
-  droneHalo.rotation.x = Math.PI / 2;
-  droneGroup.add(droneHalo);
-  rover.add(droneGroup);
+  // (Companion drone removed: the chosen guide bot is the only companion.)
 
   // 7. Master Solid-State Memory Core (2085 Archaeological Artifact)
   const coreGroup = new THREE.Group();
@@ -359,12 +335,6 @@ export function createOpportunityRover() {
   }
 
   function update(delta, elapsedTime = 0, currentTau = 1.2) {
-    // 1. AERO-1 Companion Drone hover & expressive bobbing
-    droneGroup.position.y = 1.35 + Math.sin(elapsedTime * 2.8) * 0.09;
-    droneGroup.position.x = -0.95 + Math.cos(elapsedTime * 1.4) * 0.06;
-    droneGroup.rotation.y = Math.sin(elapsedTime * 1.2) * 0.35;
-    droneHalo.scale.setScalar(1.0 + Math.sin(elapsedTime * 5.0) * 0.08);
-
     // 2. Pancam Mast (PMA) Pixar-style head expression & Sol 5111 low-battery droop
     const stormDroop = currentTau >= 8.0 ? Math.min(0.42, (currentTau - 8.0) * 0.15) : 0;
     if (apxsScanning) {

@@ -14,6 +14,72 @@ export class QuizLeaderboardManager {
 
     // Load custom player name if saved
     this.playerName = "Cadet You (Player)";
+
+    this.answers = [];        // true/false per answered question in the current run
+    this.lastResult = null;   // shown as a banner on the leaderboard after finishing
+  }
+
+  // Per-tier quiz results saved for the leaderboard: { tier: { right, wrong, total, points, best } }
+  loadQuizResults() {
+    try {
+      return JSON.parse(localStorage.getItem('nasa_quiz_results') || '{}') || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  saveQuizResults(results) {
+    try {
+      localStorage.setItem('nasa_quiz_results', JSON.stringify(results));
+    } catch (e) {}
+  }
+
+  // Opening the quiz modal always starts a fresh run on the Quiz tab
+  openFresh() {
+    this.activeTab = 'quiz';
+    this.lastResult = null;
+    this.resetRun();
+    this.render();
+  }
+
+  resetRun() {
+    this.currentQuestionIdx = 0;
+    this.currentScore = 0;
+    this.answers = [];
+  }
+
+  // Called when the quiz is finished: score by right/wrong answers and post to the leaderboard
+  finishQuiz() {
+    const total = this.currentQuestionList.length;
+    const right = this.answers.filter(Boolean).length;
+    const wrong = total - right;
+    const points = right * 50 + (wrong === 0 ? 100 : 0); // +50 per right answer, +100 perfect bonus
+
+    const results = this.loadQuizResults();
+    const prev = results[this.currentTier] || { best: 0 };
+    const xpAwarded = Math.max(0, points - (prev.best || 0)); // only improvements add XP (no farming)
+    results[this.currentTier] = {
+      right,
+      wrong,
+      total,
+      points,
+      best: Math.max(points, prev.best || 0),
+      at: Date.now()
+    };
+    this.saveQuizResults(results);
+
+    if (this.questManager) {
+      if (xpAwarded > 0) this.questManager.addXP(xpAwarded); // also checks for new badges
+      else this.questManager.checkNewBadges?.();             // quiz badge can unlock without new XP
+      this.questManager.renderBadgesShowcase?.();
+      if (right > 0) this.questManager.triggerBigConfetti();
+    }
+    martianAudio.playTelemetryTransmission?.();
+
+    this.lastResult = { tier: this.currentTier, right, wrong, total, points, xpAwarded, best: results[this.currentTier].best };
+    this.resetRun();
+    this.activeTab = 'leaderboard';
+    this.render();
   }
 
   setLanguage(lang) {
@@ -23,8 +89,7 @@ export class QuizLeaderboardManager {
 
   setTier(tier) {
     this.currentTier = tier;
-    this.currentQuestionIdx = 0;
-    this.currentScore = 0;
+    this.resetRun();
     this.render();
   }
 
@@ -60,7 +125,10 @@ export class QuizLeaderboardManager {
     }
 
     const questions = this.currentQuestionList;
+    if (this.currentQuestionIdx >= questions.length) this.resetRun(); // never render past the end
     const qData = questions[this.currentQuestionIdx];
+    const rightSoFar = this.answers.filter(Boolean).length;
+    const wrongSoFar = this.answers.length - rightSoFar;
 
     const interLocked = !this.isTierUnlocked('intermediate');
     const seniorLocked = !this.isTierUnlocked('senior');
@@ -95,8 +163,15 @@ export class QuizLeaderboardManager {
           ${isBn ? `প্রশ্ন ${this.currentQuestionIdx + 1} / ${questions.length}` : `Question ${this.currentQuestionIdx + 1} of ${questions.length}`}
         </span>
         <span class="quiz-live-xp-gain">
-          ⚡ ${isBn ? 'বর্তমান স্কোর:' : 'Score:'} ${this.currentScore} / ${questions.length} (+${this.currentScore * 50} XP)
+          <span class="quiz-right-count">✓ ${rightSoFar} ${isBn ? 'সঠিক' : 'right'}</span>
+          <span class="quiz-wrong-count">✗ ${wrongSoFar} ${isBn ? 'ভুল' : 'wrong'}</span>
         </span>
+      </div>
+      <div class="quiz-progress-dots">
+        ${questions.map((_, i) => {
+          const state = i < this.answers.length ? (this.answers[i] ? 'right' : 'wrong') : (i === this.currentQuestionIdx ? 'current' : '');
+          return `<span class="quiz-dot ${state}"></span>`;
+        }).join('')}
       </div>
 
       <!-- Question Text -->
@@ -123,7 +198,7 @@ export class QuizLeaderboardManager {
       <div class="quiz-modal-footer">
         <button class="quiz-next-action-btn" id="quiz-next-btn" style="display: none;">
           ${this.currentQuestionIdx === questions.length - 1
-            ? (isBn ? 'ফলাফল ও সার্টিফিকেট দেখুন 🏆' : 'COMPLETE QUIZ & VIEW RESULT 🏆')
+            ? (isBn ? 'কুইজ শেষ করো ও লিডারবোর্ড দেখো 🏆' : 'FINISH QUIZ & SEE LEADERBOARD 🏆')
             : (isBn ? 'পরবর্তী প্রশ্ন ➔' : 'NEXT QUESTION ➔')}
         </button>
       </div>
@@ -135,7 +210,8 @@ export class QuizLeaderboardManager {
   renderLeaderboard(container) {
     const isBn = this.currentLanguage === 'bn';
     const playerXP = this.questManager ? this.questManager.userXP : 0;
-    const playerBadges = this.questManager ? this.questManager.completedMissions.size : 0;
+    // Same badge count as the Trophy Room (rank + mission + quiz badges)
+    const playerBadges = this.questManager?.getEarnedBadgeCount?.() ?? 0;
     const customCallSign = localStorage.getItem('nasa_player_callsign') || 'Cadet Shaikot';
     const activeCommander = localStorage.getItem('jdsn_selected_commander') || 'asha';
 
@@ -187,6 +263,32 @@ export class QuizLeaderboardManager {
     const top2 = updatedBoard[1];
     const top3 = updatedBoard[2];
 
+    // Player's quiz record across all tiers (right/wrong from each tier's latest run)
+    const quizResults = this.loadQuizResults();
+    const quizTotals = Object.values(quizResults).reduce((acc, r) => {
+      acc.right += r.right || 0;
+      acc.wrong += r.wrong || 0;
+      acc.points += r.best || 0;
+      return acc;
+    }, { right: 0, wrong: 0, points: 0 });
+    const hasQuiz = Object.keys(quizResults).length > 0;
+    const playerQuizTag = hasQuiz
+      ? `<span class="lb-quiz-tag">🧩 ${isBn ? 'কুইজ' : 'Quiz'}: <b class="ok">✓${quizTotals.right}</b> <b class="bad">✗${quizTotals.wrong}</b> • ${quizTotals.points} ${isBn ? 'পয়েন্ট' : 'pts'}</span>`
+      : `<span class="lb-quiz-tag">🧩 ${isBn ? 'এখনো কুইজ খেলা হয়নি' : 'No quiz played yet'}</span>`;
+
+    const tierNames = { junior: 'Junior', intermediate: 'Intermediate', senior: 'Senior', expert: 'Expert' };
+    const lr = this.lastResult;
+    const resultBanner = lr ? `
+      <div class="quiz-result-banner">
+        <div class="qrb-main">
+          <span class="qrb-title">🧩 ${tierNames[lr.tier] || lr.tier} ${isBn ? 'কুইজের ফলাফল' : 'Quiz Result'}</span>
+          <span class="qrb-score"><b class="ok">✓ ${lr.right} ${isBn ? 'সঠিক' : 'right'}</b> · <b class="bad">✗ ${lr.wrong} ${isBn ? 'ভুল' : 'wrong'}</b> · ${lr.points} ${isBn ? 'পয়েন্ট' : 'pts'}${lr.wrong === 0 ? ' 🌟 PERFECT +100' : ''}</span>
+        </div>
+        <span class="qrb-xp">${lr.xpAwarded > 0
+          ? `+${lr.xpAwarded} XP ${isBn ? 'লিডারবোর্ডে যোগ হয়েছে!' : 'added to your leaderboard score!'}`
+          : (isBn ? `সেরা স্কোর ${lr.best} — আরও ভালো করলে XP পাবে` : `Best is ${lr.best} pts — beat it to earn more XP`)}</span>
+      </div>` : '';
+
     container.innerHTML = `
       <div class="leaderboard-view-container">
         <div class="leaderboard-header-row">
@@ -201,6 +303,8 @@ export class QuizLeaderboardManager {
             </button>
           </div>
         </div>
+
+        ${resultBanner}
 
         <!-- COMMANDER POINTS SHOWDOWN & DUAL LEADERBOARD -->
         <div class="cmd-showdown-card">
@@ -333,6 +437,7 @@ export class QuizLeaderboardManager {
                     <div class="cadet-name-wrap">
                       <strong>${item.name}</strong>
                       <small>${item.region}</small>
+                      ${isPlayer ? playerQuizTag : ''}
                     </div>
                   </div>
                   <span class="col-title">${item.title}</span>
@@ -348,8 +453,17 @@ export class QuizLeaderboardManager {
 
     document.getElementById('btn-back-to-quiz')?.addEventListener('click', () => {
       this.activeTab = 'quiz';
+      this.lastResult = null;
+      this.resetRun();
       this.render();
     });
+
+    // After a quiz, bring the player's own row into view inside the table
+    if (this.lastResult) {
+      requestAnimationFrame(() => {
+        container.querySelector('.lb-row.player-row')?.scrollIntoView({ block: 'nearest' });
+      });
+    }
 
     // Real-time table search
     const searchInput = document.getElementById('lb-search-input');
@@ -406,16 +520,22 @@ export class QuizLeaderboardManager {
             else if (bi === selected) b.classList.add('wrong');
           });
 
+          // Record the answer; points are given once, when the quiz is finished
+          this.answers[this.currentQuestionIdx] = isCorrect;
           if (isCorrect) {
             this.currentScore++;
-            if (this.questManager) {
-              this.questManager.addXP(50);
-              this.questManager.triggerConfetti();
-            }
+            this.questManager?.triggerConfetti();
             martianAudio.playScannerBeep(true);
           } else {
             martianAudio.playScannerBeep(false);
           }
+          const rc = document.querySelector('.quiz-right-count');
+          const wc = document.querySelector('.quiz-wrong-count');
+          const r = this.answers.filter(Boolean).length;
+          if (rc) rc.textContent = `✓ ${r} ${isBn ? 'সঠিক' : 'right'}`;
+          if (wc) wc.textContent = `✗ ${this.answers.length - r} ${isBn ? 'ভুল' : 'wrong'}`;
+          document.querySelectorAll('.quiz-progress-dots .quiz-dot')[this.currentQuestionIdx]
+            ?.classList.replace('current', isCorrect ? 'right' : 'wrong');
 
           if (feedbackBox && feedbackText) {
             feedbackBox.style.display = 'block';
@@ -436,13 +556,9 @@ export class QuizLeaderboardManager {
         if (this.currentQuestionIdx < questions.length) {
           this.render();
         } else {
-          // Completed current tier
-          if (this.questManager) {
-            this.questManager.addXP(100);
-            this.questManager.triggerBigConfetti();
-            document.getElementById('quiz-modal-backdrop')?.classList.remove('active');
-            this.questManager.showCertificateModal();
-          }
+          // Completed tier → score right/wrong answers and show the result on the leaderboard.
+          // (A quiz earns XP only; certificates come from finishing all missions of a world.)
+          this.finishQuiz();
         }
       });
     }

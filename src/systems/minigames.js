@@ -6,6 +6,7 @@
 // 4. Deep Space (Voyager 1): "The Dying Candle & The Golden Record" — RTG Power Budgeting, 22h Light-Delay & Golden Record Player
 
 import { martianAudio } from './audio.js';
+import { KIDS_MISSIONS_MARS } from '../data/kidsContent.js';
 
 export const GOLDEN_RECORD_GREETINGS = [
   {
@@ -829,7 +830,7 @@ export class ScienceMiniGameManager {
 
     document.getElementById('btn-voyager-claim-cert')?.addEventListener('click', () => {
       this.close();
-      this.questManager?.showCertificateModal();
+      this.questManager?.showCertificateModal('deepspace');
     });
   }
 
@@ -1080,7 +1081,8 @@ export class ScienceMiniGameManager {
       if (this.voyagerState.lightTravelProgress >= 1 && !this.voyagerState.goldenRecordUnlocked) {
         this.voyagerState.transmitting = false;
         this.voyagerState.goldenRecordUnlocked = true;
-        this.questManager?.markMissionCompleted('mission_blackbox');
+        // Certificate is shown once below (not also from markMissionCompleted)
+        this.questManager?.markMissionCompleted('mission_blackbox', false, { suppressCertificate: true });
         this.actorDirector?.voyagerActor?.setGoldenRecordSpin(true);
         martianAudio.playGoldenRecordFlute();
         const grBox = document.getElementById('voyager-golden-record-ui');
@@ -1108,7 +1110,11 @@ export class ScienceMiniGameManager {
 
         setTimeout(() => {
           this.close();
-          this.questManager?.showCertificateModal();
+          // Level 6 finishes the Mars campaign: if Levels 1–5 are done too, award the
+          // Mars Master certificate; otherwise the Interstellar one for Voyager alone.
+          const qm = this.questManager;
+          const allMarsDone = qm && KIDS_MISSIONS_MARS.every(m => qm.completedMissions.has(m.id));
+          qm?.showCertificateModal(allMarsDone ? 'mars' : 'deepspace');
         }, 2200);
       }
     }

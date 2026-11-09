@@ -217,7 +217,47 @@ export function createMartianTerrain() {
   stormStationActor.group.position.set(16, stormY, -20);
   group.add(stormStationActor.group);
 
+  // 8. Level 6: Deep Space Network Uplink Dish (at X: 0, Z: 24) — scan to launch Voyager 1 task
+  const dsnDish = createDsnUplinkModel();
+  dsnDish.position.set(0, getTerrainHeight(0, 24), 24);
+  group.add(dsnDish);
+
   return { group, getTerrainHeight, insightActor, stormStationActor };
+}
+
+function createDsnUplinkModel() {
+  const dish = new THREE.Group();
+  dish.name = "artifact_dsn_uplink";
+  dish.userData = { subsystemId: "dsn_uplink", artifactId: "dsn_uplink", missionId: "mission_blackbox" };
+  const tag = { isArtifact: true, id: "dsn_uplink" };
+
+  const metal = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.7, roughness: 0.35 });
+  const glow = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
+
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.1, 0.4, 16), metal);
+  base.position.y = 0.2;
+  const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 2.0, 12), metal);
+  pillar.position.y = 1.4;
+
+  // Parabolic dish (open hemisphere) tilted toward the sky
+  const bowl = new THREE.Mesh(
+    new THREE.SphereGeometry(1.4, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2.6),
+    new THREE.MeshStandardMaterial({ color: 0xf1f5f9, metalness: 0.5, roughness: 0.3, side: THREE.DoubleSide })
+  );
+  bowl.rotation.x = Math.PI + 0.6;
+  bowl.position.y = 2.7;
+
+  const feed = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.1, 6), metal);
+  feed.position.set(0, 3.1, -0.35);
+  feed.rotation.x = -0.6;
+  const feedTip = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), glow);
+  feedTip.position.set(0, 3.55, -0.68);
+
+  [base, pillar, bowl, feed, feedTip].forEach((m) => {
+    m.userData = tag;
+    dish.add(m);
+  });
+  return dish;
 }
 
 // Mars InSight Lander 3D Articulated Actor: Twin Fan Solar Wings, IDA Robotic Arm, Golden SEIS Dome & 3D P/S Seismic Waves
