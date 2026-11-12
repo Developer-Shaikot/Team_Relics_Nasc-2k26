@@ -153,8 +153,11 @@ export class RoverController {
     // Check Proximity to Archaeological Artifacts
     this.checkArtifactProximity();
 
-    // Fire Telemetry Update Callback
-    if (this.onTelemetryUpdate) {
+    // Fire Telemetry Update Callback: it rewrites HUD text and the radar map, so 20 times a
+    // second is plenty (every frame forced a page re-layout 60 times a second).
+    this.telemetryTimer = (this.telemetryTimer || 0) + delta;
+    if (this.onTelemetryUpdate && this.telemetryTimer >= 0.05) {
+      this.telemetryTimer = 0;
       // Map bearing (clockwise from north / -Z). Forward is (-sin h, -cos h), so a
       // positive heading turns toward -X (west) — negate to get a clockwise bearing.
       const headingDeg = Math.round(((-this.heading * 180 / Math.PI) % 360 + 360) % 360);

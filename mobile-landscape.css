@@ -9,6 +9,59 @@
       on screen without page scrolling.
    ========================================================================== */
 
+/* ---------- Safe areas (camera cutout, rounded corners, system bars) ----------
+   The page draws edge-to-edge (viewport-fit=cover). Browsers report the unsafe edges
+   through env(); the Android app (Capacitor) also injects --safe-area-inset-*.
+   Use whichever is larger so buttons never sit under the camera hole. */
+:root {
+  --sa-left: max(env(safe-area-inset-left, 0px), var(--safe-area-inset-left, 0px));
+  --sa-right: max(env(safe-area-inset-right, 0px), var(--safe-area-inset-right, 0px));
+  --sa-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  --sa-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+}
+
+/* Full-screen pages and popups keep their content inside the safe area;
+   their backgrounds still fill the whole screen (no empty strip). */
+html.touch-ui .modal-backdrop,
+html.touch-ui .aqua-guided-modal-backdrop,
+html.touch-ui .cadet-profile-modal-backdrop {
+  padding-left: max(6px, var(--sa-left)) !important;
+  padding-right: max(6px, var(--sa-right)) !important;
+}
+html.touch-ui .game-hub-screen {
+  padding-left: max(8px, var(--sa-left)) !important;
+  padding-right: max(8px, var(--sa-right)) !important;
+}
+html.touch-ui .hub-drawer-sidebar {
+  padding-left: var(--sa-left) !important;
+}
+html.touch-ui .flight-avionics-left {
+  margin-left: var(--sa-left);
+}
+html.touch-ui .flight-avionics-right {
+  margin-right: var(--sa-right);
+}
+
+/* ---------- Phones: no glass blur ----------
+   `perf-lite` is set by src/systems/performance.js on phones/tablets. Every blurred
+   panel over the 3D canvas makes the GPU re-blur the moving scene each frame, which
+   is the biggest frame-rate cost on phone GPUs. Panels keep their dark tint. */
+html.perf-lite *,
+html.perf-lite *::before,
+html.perf-lite *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html.perf-lite .modal-backdrop {
+  background: rgba(4, 8, 18, 0.93) !important;
+}
+
+/* ---------- Android app: already fullscreen, so no fullscreen toggles ---------- */
+html.native-app #hub-fullscreen-toggle,
+html.native-app #btn-exit-fullscreen-floating {
+  display: none !important;
+}
+
 /* ---------- Shared: no page panning / bounce on touch screens ---------- */
 html.touch-ui,
 html.touch-ui body {
@@ -119,8 +172,8 @@ html.touch-ui body {
 html.touch-ui.touch-game-active #touch-drive-pad {
   display: block;
   position: fixed;
-  left: calc(14px + env(safe-area-inset-left, 0px));
-  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  left: calc(14px + var(--sa-left));
+  bottom: calc(14px + var(--sa-bottom));
   z-index: 9998;
   touch-action: none;
   user-select: none;
@@ -192,8 +245,8 @@ html.touch-ui.touch-game-active #touch-action-btn {
   background: rgba(60, 36, 4, 0.72);
   box-shadow: 0 4px 0 #b45309, 0 6px 16px rgba(0, 0, 0, 0.5);
   /* Sits left of the radar map in the bottom-right corner */
-  right: calc(268px + env(safe-area-inset-right, 0px));
-  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  right: calc(268px + var(--sa-right));
+  bottom: calc(18px + var(--sa-bottom));
 }
 
 html.touch-ui.touch-game-active #touch-action-btn.pressed {
@@ -230,14 +283,14 @@ html.touch-ui .drive-touch-controls {
   .tdp-dpad { --tdp: 44px; gap: 3px; }
   .tdp-btn { font-size: 17px; border-radius: 12px; }
   html.touch-ui.touch-game-active #touch-drive-pad {
-    left: calc(10px + env(safe-area-inset-left, 0px));
-    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    left: calc(10px + var(--sa-left));
+    bottom: calc(8px + var(--sa-bottom));
   }
   html.touch-ui.touch-game-active #touch-action-btn {
     width: 64px;
     height: 64px;
-    right: calc(184px + env(safe-area-inset-right, 0px));
-    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    right: calc(184px + var(--sa-right));
+    bottom: calc(12px + var(--sa-bottom));
   }
 
   /* ---------- Onboarding wizard: slim header so the step gets the height ---------- */
@@ -602,22 +655,22 @@ html.touch-ui .drive-touch-controls {
 
   /* ---------- In-game HUD ---------- */
   #btn-in-game-back-to-hub {
-    top: calc(8px + env(safe-area-inset-top, 0px)) !important;
-    left: calc(8px + env(safe-area-inset-left, 0px)) !important;
+    top: calc(8px + var(--sa-top)) !important;
+    left: calc(8px + var(--sa-left)) !important;
     padding: 6px 12px !important;
     font-size: 11px !important;
     min-height: 34px !important;
     height: 34px !important;
   }
   #game-tips-btn {
-    top: calc(8px + env(safe-area-inset-top, 0px)) !important;
-    left: calc(124px + env(safe-area-inset-left, 0px)) !important;
+    top: calc(8px + var(--sa-top)) !important;
+    left: calc(124px + var(--sa-left)) !important;
     width: 34px !important;
     height: 34px !important;
   }
   #btn-exit-fullscreen-floating {
-    top: calc(8px + env(safe-area-inset-top, 0px)) !important;
-    right: calc(8px + env(safe-area-inset-right, 0px)) !important;
+    top: calc(8px + var(--sa-top)) !important;
+    right: calc(8px + var(--sa-right)) !important;
     height: 34px !important;
     padding: 0 10px !important;
     font-size: 10px !important;
@@ -626,7 +679,7 @@ html.touch-ui .drive-touch-controls {
     white-space: nowrap;
   }
   #waypoint-tracker-hud {
-    top: calc(8px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(8px + var(--sa-top)) !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     width: auto !important;
@@ -656,7 +709,7 @@ html.touch-ui .drive-touch-controls {
     text-overflow: clip !important;
   }
   #rover-radar-hud {
-    top: calc(48px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(48px + var(--sa-top)) !important;
     max-width: calc(100vw - 340px) !important;
     padding: 4px 10px !important;
   }
@@ -692,8 +745,8 @@ html.touch-ui .drive-touch-controls {
     display: flex !important;
     width: 168px !important;
     max-width: 168px !important;
-    bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
-    right: calc(8px + env(safe-area-inset-right, 0px)) !important;
+    bottom: calc(8px + var(--sa-bottom)) !important;
+    right: calc(8px + var(--sa-right)) !important;
   }
   body.fullscreen-mode-active #hud-minimap-container {
     zoom: 0.73;
@@ -793,6 +846,150 @@ html.touch-ui .drive-touch-controls {
   }
 }
 
+/* ==========================================================================
+   4. SHORT LANDSCAPE: SCROLL THE WHOLE POPUP / MENU, NOT A SQUEEZED MIDDLE
+   On a 320–540 px tall screen a fixed header + fixed footer left the middle
+   content only ~25–180 px (the side menu's items got 24 px). Here every popup
+   card and the side menu scroll as ONE column: the header scrolls away so the
+   content gets the full screen, and the ✕ button stays pinned at the top.
+   `:not(#_)` adds id-level weight so these win over per-modal id rules.
+   ========================================================================== */
+@media (orientation: landscape) and (max-height: 540px) {
+
+  /* ---------- Every .modal-card popup ---------- */
+  .modal-backdrop:not(#_) .modal-card {
+    height: auto !important;
+    max-height: calc(100dvh - 12px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 229, 255, 0.55) transparent;
+  }
+  .modal-backdrop:not(#_) .modal-card > * {
+    flex-shrink: 0 !important;
+  }
+  .modal-backdrop:not(#_) .modal-card .modal-body,
+  .modal-backdrop:not(#_) .modal-card .modal-body.scrollable-body {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-right: 0 !important;
+  }
+
+  /* Lists that scroll on their own inside a popup must fit inside the popup */
+  .modal-backdrop:not(#_) .modal-card .timeline-date-list {
+    max-height: calc(100dvh - 80px) !important;
+  }
+
+  /* ✕ stays reachable while the card scrolls */
+  .modal-backdrop:not(#_) .modal-card > .modal-close-btn {
+    position: sticky !important;
+    top: 0 !important;
+    right: auto !important;
+    order: -10;
+    align-self: flex-end;
+    margin: 0 0 -36px auto !important;
+    z-index: 30 !important;
+    background: rgba(8, 14, 32, 0.92) !important;
+  }
+  .modal-backdrop:not(#_) .modal-card > .modal-hdr-back-btn {
+    order: -9;
+  }
+
+  /* Footers: compact, in the normal flow at the end of the content */
+  .modal-backdrop:not(#_) .modal-card .modal-footer,
+  .modal-backdrop:not(#_) .modal-card .modal-footer-dual {
+    position: static !important;
+    padding-top: 6px !important;
+  }
+  .modal-backdrop:not(#_) .modal-card .modal-footer .modal-action-btn,
+  .modal-backdrop:not(#_) .modal-card .modal-footer-dual .modal-action-btn {
+    min-height: 38px !important;
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+  }
+
+  /* Celebration / certificate / kitty cards: smaller hero art so buttons come into view sooner */
+  .victory-celebration-card .modal-header,
+  .celebration-card .modal-header {
+    gap: 2px !important;
+  }
+  .victory-celebration-card [class*="star"] {
+    max-height: 46px;
+  }
+
+  /* ---------- Hub side menu ---------- */
+  .hub-drawer-sidebar:not(#_) {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    width: min(340px, 52vw) !important;
+  }
+  .hub-drawer-sidebar:not(#_) > * {
+    flex-shrink: 0 !important;
+  }
+  .hub-drawer-sidebar:not(#_) .drawer-nav-list {
+    flex: 0 0 auto !important;
+    overflow: visible !important;
+    max-height: none !important;
+  }
+  .hub-drawer-sidebar:not(#_) .drawer-header {
+    padding: 8px 12px !important;
+  }
+  .hub-drawer-sidebar:not(#_) .drawer-nav-item {
+    min-height: 44px;
+  }
+
+  /* ---------- Fullscreen toggles ----------
+     Phones always use the immersive game layout (the desktop panel layout put the HUD
+     over the nav bar), so "Exit Fullscreen" has nothing to do here. */
+  html.touch-ui #btn-exit-fullscreen-floating {
+    display: none !important;
+  }
+
+  /* ---------- Voyager 1 (Deep Space) steps card ---------- */
+  body.fullscreen-mode-active.world-deepspace .left-telemetry-panel {
+    width: 230px !important;
+    max-width: 230px !important;
+  }
+  .left-telemetry-panel .deepspace-steps-card {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 8px 10px !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    max-height: calc(100dvh - 70px);
+    overflow-y: auto;
+  }
+  .deepspace-steps-card .ds-steps-title {
+    font-size: 11px !important;
+  }
+  .deepspace-steps-card .ds-steps-note,
+  .deepspace-steps-card .ds-steps-tip {
+    display: none !important;
+  }
+  .deepspace-steps-card .ds-steps-list {
+    margin: 6px 0 8px !important;
+    padding-left: 16px !important;
+  }
+  .deepspace-steps-card .ds-steps-list li {
+    margin-bottom: 3px !important;
+  }
+  .deepspace-steps-card .ds-steps-btn {
+    min-height: 40px;
+    font-size: 12px !important;
+  }
+  /* The round E button sits to the left of the wider Voyager card */
+  html.touch-ui.touch-game-active.touch-game-deepspace #touch-action-btn {
+    right: calc(248px + var(--sa-right)) !important;
+  }
+}
+
 /* Very short phones (iPhone SE landscape 568×320, 640×360) */
 @media (orientation: landscape) and (max-height: 380px) {
   .hub-commander-compact-bar {
@@ -809,7 +1006,7 @@ html.touch-ui .drive-touch-controls {
   html.touch-ui.touch-game-active #touch-action-btn {
     width: 58px;
     height: 58px;
-    right: calc(170px + env(safe-area-inset-right, 0px));
+    right: calc(170px + var(--sa-right));
   }
   .flight-avionics-left,
   .flight-avionics-right {
@@ -823,6 +1020,10 @@ html.touch-ui .drive-touch-controls {
     zoom: 0.62;
   }
   .modal-type-badge {
+    display: none !important;
+  }
+  /* Deep Space: the steps card needs the right column; its title already names the target */
+  body.world-deepspace .flight-avionics-right {
     display: none !important;
   }
   .cadet-profile-title-area p {

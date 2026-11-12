@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { PERF, scaledCount } from '../systems/performance.js';
 
 // Lunar Space Environment: Pitch-black sky, Sparkling Starfield, Glowing Earthrise, Harsh Sun
 export function createLunarAtmosphere(scene) {
@@ -9,8 +10,8 @@ export function createLunarAtmosphere(scene) {
   const sunLight = new THREE.DirectionalLight(0xffffff, 2.4);
   sunLight.position.set(30, 45, 25);
   sunLight.castShadow = true;
-  sunLight.shadow.mapSize.width = 2048;
-  sunLight.shadow.mapSize.height = 2048;
+  sunLight.shadow.mapSize.width = PERF.shadowMapSize;
+  sunLight.shadow.mapSize.height = PERF.shadowMapSize;
   sunLight.shadow.camera.near = 0.5;
   sunLight.shadow.camera.far = 120;
   sunLight.shadow.camera.left = -25;
@@ -34,7 +35,7 @@ export function createLunarAtmosphere(scene) {
   group.add(skyDome);
 
   // 4. Dense Starfield (3,000 sparkling stars in high vacuum)
-  const starCount = 3000;
+  const starCount = scaledCount(3000);
   const starGeo = new THREE.BufferGeometry();
   const starPositions = new Float32Array(starCount * 3);
   const starColors = new Float32Array(starCount * 3);

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { PERF, scaledCount } from '../systems/performance.js';
 
 // Martian Atmospheric Optics & Beer-Lambert Scattering Shader Simulator
 // Implements Sol 5111 Planet-Encircling Dust Event (PEDE) Atmospheric Extinction
@@ -11,8 +12,8 @@ export function createMartianAtmosphere(scene) {
   const sunLight = new THREE.DirectionalLight(0xffeedd, 1.8);
   sunLight.position.set(25, 35, 20);
   sunLight.castShadow = true;
-  sunLight.shadow.mapSize.width = 2048;
-  sunLight.shadow.mapSize.height = 2048;
+  sunLight.shadow.mapSize.width = PERF.shadowMapSize;
+  sunLight.shadow.mapSize.height = PERF.shadowMapSize;
   sunLight.shadow.camera.near = 0.5;
   sunLight.shadow.camera.far = 100;
   sunLight.shadow.camera.left = -25;
@@ -65,7 +66,7 @@ export function createMartianAtmosphere(scene) {
   group.add(sunSprite);
 
   // 6. Volumetric Dust Storm Particle System
-  const dustParticleCount = 1800;
+  const dustParticleCount = scaledCount(1800);
   const dustGeo = new THREE.BufferGeometry();
   const dustPositions = new Float32Array(dustParticleCount * 3);
   const dustVelocities = new Float32Array(dustParticleCount * 3);

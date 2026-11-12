@@ -205,6 +205,14 @@ export class ScienceMiniGameManager {
     document.querySelectorAll('.mg-tab-pill').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.mg === this.activeMissionKey);
     });
+    // On narrow screens the tab row scrolls sideways: bring the active tab into view
+    const activeTab = document.querySelector('.mg-tab-pill.active');
+    const tabRow = activeTab?.parentElement;
+    if (tabRow && tabRow.scrollWidth > tabRow.clientWidth) {
+      const a = activeTab.getBoundingClientRect();
+      const r = tabRow.getBoundingClientRect();
+      tabRow.scrollLeft += (a.left - r.left) - (r.width - a.width) / 2;
+    }
 
     if (this.activeMissionKey === 'apollo11') {
       if (badgeEl) badgeEl.innerText = "MISSION 1 • TRANQUILITY BASE, MOON (1969)";

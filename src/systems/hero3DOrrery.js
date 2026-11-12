@@ -12,6 +12,9 @@
 import * as THREE from 'three';
 import confetti from 'canvas-confetti';
 import { martianAudio } from './audio.js';
+import { PERF, AdaptiveResolution, scaledCount } from './performance.js';
+
+const TEXTURE_SCALE = PERF.isMobile ? 0.5 : 1;
 
 export class Hero3DOrrery {
   constructor(containerId, coinsManager, onSelectDestination) {
@@ -108,12 +111,12 @@ export class Hero3DOrrery {
     this.camera.position.copy(this.targetCameraPos);
 
     this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      antialias: PERF.antialias,
       alpha: true,
       powerPreference: 'high-performance'
     });
     this.renderer.setSize(this.width, this.height);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    this.adaptiveResolution = new AdaptiveResolution(this.renderer);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.25;
 
@@ -149,9 +152,12 @@ export class Hero3DOrrery {
 
   generateMarsTexture() {
     const canvas = document.createElement('canvas');
-    canvas.width = 2048;
-    canvas.height = 1024;
+    // Phones: paint at half size (faster start-up, less GPU memory); drawing code keeps 2048×1024 units
+    const s = TEXTURE_SCALE;
+    canvas.width = 2048 * s;
+    canvas.height = 1024 * s;
     const ctx = canvas.getContext('2d');
+    ctx.scale(s, s);
 
     // Base Martian Rust Gradient with rich terrain gradation
     const grad = ctx.createLinearGradient(0, 0, 0, 1024);
@@ -287,9 +293,11 @@ export class Hero3DOrrery {
 
   generateMoonTexture() {
     const canvas = document.createElement('canvas');
-    canvas.width = 2048;
-    canvas.height = 1024;
+    const s = TEXTURE_SCALE;
+    canvas.width = 2048 * s;
+    canvas.height = 1024 * s;
     const ctx = canvas.getContext('2d');
+    ctx.scale(s, s);
 
     // Lunar Highland Anorthosite Regolith Base
     ctx.fillStyle = '#9aa5b5';
@@ -671,7 +679,7 @@ export class Hero3DOrrery {
 
   createStarfieldCloud() {
     const starGeo = new THREE.BufferGeometry();
-    const count = 2200;
+    const count = scaledCount(2200);
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
 
@@ -758,6 +766,7 @@ export class Hero3DOrrery {
         this.camera.aspect = this.width / this.height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(this.width, this.height);
+        this.adaptiveResolution?.refreshCeiling();
       }
     }
   }
@@ -952,10 +961,15 @@ export class Hero3DOrrery {
   // =========================================================================
 
   animate() {
-    const loop = () => {
-      if (this.isActive) {
+    let last = performance.now();
+    const loop = (now) => {
+      const delta = (now - last) / 1000;
+      last = now;
+      // Skip while the hub is hidden or a popup covers it (the last frame stays on screen)
+      if (this.isActive && !document.hidden && !document.querySelector('.modal-backdrop.active')) {
         this.update();
         this.renderer.render(this.scene, this.camera);
+        this.adaptiveResolution.tick(delta);
       }
       this.animId = requestAnimationFrame(loop);
     };

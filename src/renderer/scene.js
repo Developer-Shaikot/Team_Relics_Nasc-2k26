@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { PERF, AdaptiveResolution, scaledCount } from '../systems/performance.js';
 
 /**
  * High-Precision Spaceflight WebGL Scene & Cinematic Camera Engine
@@ -24,17 +25,18 @@ export function setupScene(container) {
   camera.position.set(0, 2.2, 5.5);
 
   // 3. WebGL Renderer
+  // Quality follows the device tier (see systems/performance.js); resolution adapts at runtime
   const renderer = new THREE.WebGLRenderer({
-    antialias: true,
+    antialias: PERF.antialias,
     powerPreference: "high-performance",
     alpha: false
   });
   renderer.setSize(container.clientWidth, container.clientHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.enabled = PERF.shadows;
+  renderer.shadowMap.type = PERF.softShadows ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
+  const adaptiveResolution = new AdaptiveResolution(renderer);
 
   container.appendChild(renderer.domElement);
 
@@ -75,7 +77,7 @@ export function setupScene(container) {
   let activeTransition = null;
 
   // 5. Cosmic Stardust Particle Cloud
-  const particleCount = 750;
+  const particleCount = scaledCount(750);
   const particleGeometry = new THREE.BufferGeometry();
   const particlePositions = new Float32Array(particleCount * 3);
   const particleSizes = new Float32Array(particleCount);
@@ -216,7 +218,7 @@ export function setupScene(container) {
     camera.aspect = container.clientWidth / container.clientHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    adaptiveResolution.refreshCeiling();
   }
   window.addEventListener('resize', onResize);
 
@@ -351,6 +353,7 @@ export function setupScene(container) {
     scene,
     camera,
     renderer,
+    adaptiveResolution,
     spherical,
     targetState,
     fpp,

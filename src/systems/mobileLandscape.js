@@ -137,6 +137,9 @@ export function installMobileLandscape() {
   const { pad, action } = buildTouchPad();
   const releases = [...pad.querySelectorAll('.tdp-btn'), action].map(bindHold);
 
+  // Running inside the Android app (Capacitor): it is always fullscreen, so CSS hides fullscreen toggles
+  root.classList.toggle('native-app', !!window.Capacitor?.isNativePlatform?.());
+
   const syncTouch = () => root.classList.toggle('touch-ui', !!isTouchDevice());
   syncTouch();
   window.matchMedia?.('(pointer: coarse)').addEventListener?.('change', syncTouch);

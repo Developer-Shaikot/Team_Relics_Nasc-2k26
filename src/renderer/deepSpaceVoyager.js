@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { scaledCount } from '../systems/performance.js';
 
 // Deep Space Interstellar Environment (24.3 Billion km / 162 AU) & Articulated Voyager 1 3D Actor
 export function createDeepSpaceVoyager() {
@@ -6,7 +7,7 @@ export function createDeepSpaceVoyager() {
   environmentGroup.name = "deep_space_environment_group";
 
   // 1. Interstellar Starfield & Heliopause Plasma Particles
-  const starCount = 2400;
+  const starCount = scaledCount(2400);
   const starGeo = new THREE.BufferGeometry();
   const starPositions = new Float32Array(starCount * 3);
   const starColors = new Float32Array(starCount * 3);

@@ -19,6 +19,9 @@ const BOT_EMOJI = { echo: '🤖', nova: '🐱', orion: '🛸' };
 // nothing visible + `center: true` shows the bubble centred. `once` = shown only the
 // first time across all tours (used for the shared modal Back/✕ explanation).
 // ---------------------------------------------------------------------------
+// `when` = optional condition; the step is skipped while it returns false.
+const notDeepSpace = () => !document.body.classList.contains('world-deepspace');
+
 const MODAL_CLOSE_STEPS = [
   {
     target: '.modal-backdrop.active .modal-hdr-back-btn',
@@ -80,7 +83,14 @@ const TOURS = {
 
   game: [
     {
+      // Deep Space (Voyager 1): nothing to drive, the steps card explains the level
+      target: '#deepspace-steps-card',
+      en: ['Your Level 6 job 📀', 'No driving out here! Follow these 3 steps: open the Science Lab, save power, then send the handshake.'],
+      bn: ['লেভেল ৬-এর কাজ 📀', 'এখানে গাড়ি চালানো নেই! এই ৩টা ধাপ মেনে চলো: সায়েন্স ল্যাব খোলো, পাওয়ার বাঁচাও, তারপর হ্যান্ডশেক পাঠাও।']
+    },
+    {
       target: ['#touch-drive-pad', '#drive-touch-controls'],
+      when: notDeepSpace,
       center: true,
       en: ['Drive your explorer 🚀', 'Use W A S D or the arrow keys to move. On a phone, use the arrow pad.'],
       bn: ['এক্সপ্লোরার চালাও 🚀', 'W A S D বা অ্যারো কি দিয়ে চলো। ফোনে অ্যারো প্যাড ব্যবহার করো।']
@@ -97,6 +107,7 @@ const TOURS = {
     },
     {
       target: '#rover-radar-hud',
+      when: notDeepSpace,
       center: true,
       en: ['Scan relics 🔍', 'When you get close to a relic, press E to scan and discover it.'],
       bn: ['রেলিক স্ক্যান করো 🔍', 'কোনো রেলিকের কাছে গেলে E চাপো, স্ক্যান করে আবিষ্কার করো।']
@@ -298,7 +309,7 @@ export class CoachmarkGuide {
 
     const { st } = this.profileState();
     const steps = this.stepsFor(page).filter((s) => force || !s.once || !st.once[s.once]);
-    const live = steps.filter((s) => s.center || firstShown(s.target));
+    const live = steps.filter((s) => (!s.when || s.when()) && (s.center || firstShown(s.target)));
     if (!live.length) {
       // Nothing to show here right now; don't keep re-checking this page
       if (!force) this.saveProfileState((s) => { s.seen[page] = true; });

@@ -1595,7 +1595,16 @@ function initApplication() {
   // =========================================================================
   isFullscreenActive = false;
 
+  // Phones (and the Android app) always play in the immersive layout: the desktop
+  // panel layout doesn't fit a landscape phone (the HUD covered the nav bar).
+  const isNativeApp = !!window.Capacitor?.isNativePlatform?.();
+  const forceImmersiveLayout = () =>
+    isNativeApp ||
+    (document.documentElement.classList.contains('touch-ui') &&
+      !!window.matchMedia?.('(orientation: landscape) and (max-height: 540px)').matches);
+
   function setFullscreenMode(active, triggerGuiderModal = false) {
+    if (!active && forceImmersiveLayout()) active = true;
     isFullscreenActive = active;
     document.body.classList.toggle('fullscreen-mode-active', active);
 
@@ -1605,7 +1614,8 @@ function initApplication() {
     if (btnLabel) btnLabel.innerText = active ? 'Exit Full' : 'Fullscreen';
 
     if (active) {
-      if (!document.fullscreenElement && document.documentElement?.requestFullscreen) {
+      // The Android app is already fullscreen (immersive); only browsers need the request
+      if (!isNativeApp && !document.fullscreenElement && document.documentElement?.requestFullscreen) {
         try {
           document.documentElement.requestFullscreen().catch(() => { });
         } catch (e) { }
@@ -1684,7 +1694,7 @@ function initApplication() {
 
   // Detect when user exits browser fullscreen via ESC
   document.addEventListener('fullscreenchange', () => {
-    isFullscreenActive = !!document.fullscreenElement;
+    isFullscreenActive = !!document.fullscreenElement || forceImmersiveLayout();
     document.body.classList.toggle('fullscreen-mode-active', isFullscreenActive);
     const icon = document.getElementById('sidebar-toggle-icon');
     const btnLabel = document.getElementById('lbl-sidebar-btn');
@@ -3788,8 +3798,22 @@ function initApplication() {
     });
   }
 
-  function updateSpaceflightHUD() {
+  // HUD text only needs ~8 updates a second, and only when it changed: rewriting
+  // innerText/innerHTML every frame forced a page re-layout 60 times a second.
+  let hudTextTimer = 0;
+  const hudLast = new WeakMap();
+  const setText = (el, value, html = false) => {
+    if (!el || hudLast.get(el) === value) return;
+    hudLast.set(el, value);
+    if (html) el.innerHTML = value;
+    else el.innerText = value;
+  };
+
+  function updateSpaceflightHUD(delta = 0) {
     if (!flightHudOverlay || !flightHudActive) return;
+    hudTextTimer += delta;
+    const refreshText = hudTextTimer >= 0.12;
+    if (refreshText) hudTextTimer = 0;
 
     const attitude = sceneManager.getCameraAttitude();
     const heading = attitude.headingDeg;
@@ -3801,7 +3825,7 @@ function initApplication() {
       compassTape.style.transform = `translateX(-${offsetPercent}%)`;
     }
 
-    if (compassReadout) {
+    if (compassReadout && refreshText) {
       let card = 'N';
       if (heading >= 337.5 || heading < 22.5) card = 'N';
       else if (heading < 67.5) card = 'NE';
@@ -3811,7 +3835,7 @@ function initApplication() {
       else if (heading < 247.5) card = 'SW';
       else if (heading < 292.5) card = 'W';
       else if (heading < 337.5) card = 'NW';
-      compassReadout.innerText = `HDG: ${Math.round(heading).toString().padStart(3, '0')}° ${card}`;
+      setText(compassReadout, `HDG: ${Math.round(heading).toString().padStart(3, '0')}° ${card}`);
     }
 
     // 2. Artificial Horizon Pitch & Roll
@@ -3822,43 +3846,42 @@ function initApplication() {
       pitchLadder.style.transform = `translateY(${pitchOffset}px) rotate(${rollDeg.toFixed(1)}deg)`;
     }
 
+    // Everything below is text: refresh at ~8 Hz, and only what changed
+    if (!refreshText) return;
+
     // 3. Speed, G-Force & Altitude
     const speed = currentPlanet === 'deepspace' ? 17000 : Math.abs(roverController?.velocity || 0);
     const speedDisplay = currentPlanet === 'deepspace' ? '17.0 km/s' : `${speed.toFixed(1)} m/s`;
-    if (flightSpeedVal) flightSpeedVal.innerHTML = `${speedDisplay}`;
+    setText(flightSpeedVal, speedDisplay);
     if (flightSpeedBar) {
       const pct = currentPlanet === 'deepspace' ? 100 : Math.min(100, (speed / (roverController?.maxSpeed || 2.4)) * 100);
-      flightSpeedBar.style.width = `${pct}%`;
+      const width = `${pct.toFixed(0)}%`;
+      if (flightSpeedBar.style.width !== width) flightSpeedBar.style.width = width;
     }
 
-    if (flightGVal) {
-      flightGVal.innerHTML = currentPlanet === 'moon' ? '0.16 <small>G</small>' : currentPlanet === 'deepspace' ? '0.00 <small>G</small>' : '0.38 <small>G</small>';
-    }
+    setText(flightGVal, currentPlanet === 'moon' ? '0.16 <small>G</small>' : currentPlanet === 'deepspace' ? '0.00 <small>G</small>' : '0.38 <small>G</small>', true);
 
-    if (flightAltVal) {
-      const alt = currentPlanet === 'deepspace' ? '163 AU' : `${attitude.altitudeM} m`;
-      flightAltVal.innerHTML = `${alt}`;
-    }
+    setText(flightAltVal, currentPlanet === 'deepspace' ? '163 AU' : `${attitude.altitudeM} m`);
 
     // 4. Target Relic & Distance (always follows the ACTIVE mission, never hard-coded per planet)
     if (flightTargetVal && flightTargetDist) {
       if (currentPlanet === 'deepspace') {
-        flightTargetVal.innerText = 'VOYAGER 1 & GOLDEN RECORD';
-        flightTargetDist.innerText = 'HELIOPAUSE • 24.3 BILLION KM';
+        setText(flightTargetVal, 'VOYAGER 1 & GOLDEN RECORD');
+        setText(flightTargetDist, 'HELIOPAUSE • 24.3 BILLION KM');
       } else {
         const activeMissionForHud = getActiveMission();
         const activeArtifactForHud = activeMissionForHud ? getActiveMissionArtifact(activeMissionForHud.id) : null;
         const siteName = currentPlanet === 'moon' ? 'TRANQUILITY BASE' : 'PERSEVERANCE VALLEY';
         if (activeArtifactForHud) {
-          flightTargetVal.innerText = String(activeArtifactForHud.title || '').toUpperCase();
+          setText(flightTargetVal, String(activeArtifactForHud.title || '').toUpperCase());
           const missionTag = activeMissionForHud.stationYear ? ` • ${activeMissionForHud.stationYear}` : '';
-          flightTargetDist.innerText = `${siteName}${missionTag}`;
+          setText(flightTargetDist, `${siteName}${missionTag}`);
         } else if (currentPlanet === 'moon') {
-          flightTargetVal.innerText = 'LUNAR RELIC';
-          flightTargetDist.innerText = 'TRANQUILITY BASE • HISTORIC SITE';
+          setText(flightTargetVal, 'LUNAR RELIC');
+          setText(flightTargetDist, 'TRANQUILITY BASE • HISTORIC SITE');
         } else {
-          flightTargetVal.innerText = 'MARTIAN RELIC';
-          flightTargetDist.innerText = 'PERSEVERANCE VALLEY • CRATER RIM';
+          setText(flightTargetVal, 'MARTIAN RELIC');
+          setText(flightTargetDist, 'PERSEVERANCE VALLEY • CRATER RIM');
         }
       }
     }
@@ -3888,6 +3911,13 @@ function initApplication() {
     // The onboarding wizard (with its story film) covers the scene: skip the 3D work so the film
     // downloads and plays without stalls (the last rendered frame stays on screen behind it).
     if (renderedFrames > 10 && (window.__storyFilmPlaying || onboardingModal?.classList.contains('active'))) return;
+    // Same when nothing of the 3D field can be seen: the opaque Game Hub / splash screen is on
+    // top (the hub draws its own planets), a full-screen popup covers it, or the app is in the
+    // background. Rendering it anyway made phones run two 3D scenes at once.
+    if (
+      renderedFrames > 10 &&
+      (document.hidden || isHubActive || isSplashActive || document.querySelector('.modal-backdrop.active'))
+    ) return;
     renderedFrames++;
 
     // 1. Smooth Camera Damping & Cosmic Stardust Particles
@@ -3924,9 +3954,11 @@ function initApplication() {
     }
 
     // 2. Real-Time Spaceflight Avionics & Cockpit HUD Update
-    updateSpaceflightHUD();
+    updateSpaceflightHUD(delta);
 
     renderer.render(scene, camera);
+    // Lower/raise render resolution to keep the frame rate smooth on this device
+    sceneManager.adaptiveResolution.tick(delta);
   }
 
   animate();
