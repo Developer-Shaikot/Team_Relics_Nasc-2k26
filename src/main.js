@@ -1289,12 +1289,12 @@ function initApplication() {
       }
       if (actTag)
         actTag.innerText = `ACT ${pitchState.act.start < 21
-            ? 'I'
-            : pitchState.act.start < 56
-              ? 'II'
-              : pitchState.act.start < 89
-                ? 'III'
-                : 'IV'
+          ? 'I'
+          : pitchState.act.start < 56
+            ? 'II'
+            : pitchState.act.start < 89
+              ? 'III'
+              : 'IV'
           }`;
       if (actTitle) actTitle.innerText = pitchState.act.title;
       if (timer) {
