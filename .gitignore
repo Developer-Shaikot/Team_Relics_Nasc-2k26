@@ -1,3 +1,13 @@
+# Android app lives ONLY on the `android-app` branch (see BRANCHES.md).
+# When you switch from android-app to QA/main, git leaves local Android files behind
+# (signing settings, Gradle builds, APK/AAB). Never commit them here.
+# The android-app branch re-includes android/ with `!android/` at the end of its .gitignore.
+android/
+release/
+*.jks
+*.keystore
+keystore.properties
+
 # Logs
 logs
 *.log

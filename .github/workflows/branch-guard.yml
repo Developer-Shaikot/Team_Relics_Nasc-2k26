@@ -1,0 +1,46 @@
+name: Branch Guard
+
+# Keeps the branch flow clean (see BRANCHES.md):
+#   QA ──► main           main only receives QA
+#   QA ──► android-app    the Android app files exist ONLY on android-app
+on:
+  push:
+    branches: [QA, main]
+  pull_request:
+    branches: [QA, main]
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    name: 🛡️ Branch flow check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔀 Pull requests into main must come from QA
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        run: |
+          if [ "${{ github.head_ref }}" != "QA" ]; then
+            echo "::error::Pull requests into main must come from QA (this one is from '${{ github.head_ref }}')."
+            exit 1
+          fi
+          echo "OK: PR into main comes from QA."
+
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🚫 No Android app files on QA / main
+        run: |
+          found=0
+          for p in android capacitor.config.json scripts/build-android.mjs; do
+            if [ -e "$p" ]; then
+              echo "::error::'$p' belongs on the android-app branch only. Did android-app get merged into this branch?"
+              found=1
+            fi
+          done
+          if grep -q '"@capacitor/' package.json; then
+            echo "::error::package.json contains @capacitor packages; they belong on android-app only."
+            found=1
+          fi
+          if [ "$found" -ne 0 ]; then exit 1; fi
+          echo "OK: no Android app files here."
