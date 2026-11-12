@@ -46,3 +46,7 @@ keystore.properties
 
 # Built Android APK/AAB files (npm run android:release)
 release/
+
+# android-app branch ONLY: track the Android project (QA/main ignore android/ at the top).
+# Secrets inside it stay ignored by the keystore rules above and android/.gitignore.
+!android/
