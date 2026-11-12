@@ -384,6 +384,11 @@ function initApplication() {
             : '🔴 Mars: Perseverance Valley & InSight';
     }
 
+    // Deep Space has no surface: hide the radar map, show the Level 6 steps card instead
+    document.body.classList.toggle('world-deepspace', planet === 'deepspace');
+    const dsStepsCard = document.getElementById('deepspace-steps-card');
+    if (dsStepsCard) dsStepsCard.hidden = planet !== 'deepspace';
+
     renderSubsystemQuickList(planet);
     updateWaypointHUD();
     if (planet === 'mars') updateAtmosphericOptics(currentTau);
@@ -431,6 +436,10 @@ function initApplication() {
 
     if (currentPlanet === 'deepspace') {
       const isDone = questManager.completedMissions.has('mission_blackbox');
+      const dsList = document.getElementById('ds-steps-list');
+      const dsBtn = document.getElementById('ds-steps-btn');
+      dsList?.querySelectorAll('li').forEach((li) => li.classList.toggle('done', isDone));
+      if (dsBtn) dsBtn.innerText = isDone ? '🔁 Replay Science Lab [E]' : '🔬 Open Science Lab [E]';
       if (isDone) {
         if (iconElem) iconElem.innerText = '🏅';
         if (badgeElem) badgeElem.innerText = 'COMMUNICATION LINK VERIFIED ✓';
@@ -439,9 +448,9 @@ function initApplication() {
         if (distValElem) distValElem.innerText = '100% LINK';
       } else {
         if (iconElem) iconElem.innerText = '📡';
-        if (badgeElem) badgeElem.innerText = 'DEEP SPACE COMM CENTER • 24.3 BILLION KM';
-        if (nameElem) nameElem.innerText = 'Voyager 1: How Interstellar Telemetry Reaches Earth';
-        if (subElem) subElem.innerText = 'Orient Antenna [W/S/A/D] • Press [E] or Click to Open Science Workbench & Golden Record!';
+        if (badgeElem) badgeElem.innerText = 'LEVEL 6 • DEEP SPACE • 24.3 BILLION KM';
+        if (nameElem) nameElem.innerText = 'Save Voyager 1 & Call Earth';
+        if (subElem) subElem.innerText = 'Press [E] to open the Science Lab → switch off instruments until power is below 249 W → press TRANSMIT HANDSHAKE';
         if (distValElem) distValElem.innerText = '22h 34m delay';
       }
       return;
@@ -3252,6 +3261,10 @@ function initApplication() {
   document.getElementById('hub-card-insight')?.addEventListener('click', () => {
     switchCelestialBody('mars');
     miniGameManager.open('insight');
+  });
+
+  document.getElementById('ds-steps-btn')?.addEventListener('click', () => {
+    if (currentPlanet === 'deepspace') miniGameManager.open('voyager1');
   });
 
   document.getElementById('hub-card-voyager')?.addEventListener('click', () => {

@@ -8697,6 +8697,99 @@ body.fullscreen-mode-active #hud-minimap-container {
   -webkit-backdrop-filter: blur(16px) !important;
 }
 
+/* Deep Space (Voyager 1): there is no surface, so no radar map — show the mission steps card instead */
+html body.world-deepspace #hud-minimap-container {
+  display: none !important;
+}
+
+.deepspace-steps-card[hidden] {
+  display: none !important;
+}
+
+.deepspace-steps-card {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  background: rgba(6, 12, 26, 0.88);
+  border: 1.5px solid rgba(255, 200, 60, 0.5);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6), 0 0 14px rgba(255, 200, 60, 0.18);
+  color: #e6f3ff;
+  font-size: 12px;
+  line-height: 1.45;
+  pointer-events: auto;
+}
+
+.ds-steps-title {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #ffc83c;
+  font-size: 12px;
+}
+
+.ds-steps-note {
+  margin: 6px 0 8px;
+  color: #b8cde0;
+}
+
+.ds-steps-list {
+  margin: 0 0 8px;
+  padding-left: 18px;
+}
+
+.ds-steps-list li {
+  margin-bottom: 4px;
+}
+
+.ds-steps-list li.done {
+  color: #6be39a;
+  text-decoration: line-through;
+  opacity: 0.85;
+}
+
+.ds-steps-tip {
+  margin: 0 0 10px;
+  font-size: 11px;
+  color: #8fb3cc;
+}
+
+.deepspace-steps-card kbd {
+  display: inline-block;
+  min-width: 16px;
+  padding: 0 4px;
+  margin: 0 1px;
+  border: 1px solid rgba(0, 229, 255, 0.55);
+  border-radius: 4px;
+  background: rgba(0, 229, 255, 0.12);
+  color: #00e5ff;
+  font-family: inherit;
+  font-size: 11px;
+  text-align: center;
+}
+
+.ds-steps-btn {
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #ffc83c, #ff9f1c);
+  color: #1a1200;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ds-steps-btn:hover {
+  filter: brightness(1.1);
+}
+
+body.fullscreen-mode-active .left-telemetry-panel .deepspace-steps-card {
+  margin: 0;
+  width: 260px;
+  margin-left: -30px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
 /* Floating Mission Waypoint Objective Tracker centered at the top */
 body.fullscreen-mode-active .waypoint-tracker-hud {
   position: fixed !important;
