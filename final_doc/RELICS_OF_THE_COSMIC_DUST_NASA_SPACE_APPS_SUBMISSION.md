@@ -29,6 +29,9 @@
    - 2.6 [Designing for children — "the child stays in control"](#26-designing-for-children--the-child-stays-in-control)
    - 2.7 [The HOW — architecture and implementation](#27-the-how--architecture-and-implementation)
    - 2.8 [Impact, community and future work](#28-impact-community-and-future-work)
+   - 2.9 [Playing on a phone — the mobile experience](#29-playing-on-a-phone--the-mobile-experience)
+   - 2.10 [Take-home poster for children](#210-take-home-poster-for-children)
+   - 2.11 [How we worked — an Agile process](#211-how-we-worked--an-agile-process)
 3. [Responses to the Challenge Considerations](#3-responses-to-the-challenge-considerations)
 4. [Tools and Technologies](#4-tools-and-technologies)
 5. [Use of Artificial Intelligence](#5-use-of-artificial-intelligence)
@@ -94,147 +97,69 @@ Our central idea, **Planetary Archaeology 2085**, reframes the debate. In 2085 t
 
 ### 2.3 A guided tour of the game
 
-#### Step 1 — Start screen and onboarding
+The two figures below show the whole journey in 27 numbered screenshots from the current build. Figure 2 covers the menus, hub and progress screens; Figure 3 covers the 3D WebGL worlds and science labs. The steps that follow refer to the tile numbers.
 
-A new visitor always starts on the Start Game screen. After pressing start, a five-step expedition briefing welcomes the cadet, explains the story, plays a short tour video, introduces the companion bots and previews the levels. The briefing can be switched to Bengali at any step, and closing it (✕ or Esc) always returns the child to the Game Hub.
+![Figure 2 — Getting started: onboarding, hub and progress](./images/22_tour_getting_started.jpg)
 
-![Figure 2 — Start Game screen](./images/01_splash.jpg)
+_Figure 2 — Getting started (tiles 1–12): the Start Game screen and five-step onboarding (1–6), the Mission Control Hub with its first-visit tip, hover effect, menu drawer and cadet profiles (7–10), and the roadmap and quiz (11–12)._
 
-_Figure 2 — The Start Game screen shown to every new visitor and after logout: "Blast off on a real NASA space adventure!"_
+![Figure 3 — Inside the 3D worlds: WebGL missions and science labs](./images/23_tour_3d_worlds.jpg)
 
-![Figure 3 — Onboarding step 1, Welcome](./images/02_onboarding_welcome.jpg)
+_Figure 3 — Inside the 3D worlds (tiles 13–27): the drive → scan → discover loop on the Moon (13–17) and on Mars (18–22), then Voyager 1 in deep space and the four hands-on science labs (23–27)._
 
-_Figure 3 — Onboarding step 1: a robot guide says hello. The child types a name (or presses **Surprise me** for a fun one) and taps their age. Ages are grouped into **Junior Explorer (6–10)** and **Space Cadet (11–16)**, and the age is saved to the cadet's profile._
+#### Step 1 — Start screen and onboarding (tiles 1–6)
 
-![Figure 4 — Onboarding step 2, the story](./images/03_onboarding_story.jpg)
+A new visitor always starts on the **Start Game** screen: "Blast off on a real NASA space adventure!" (1). A five-step expedition briefing follows:
 
-_Figure 4 — Onboarding step 2: the premise — robotic pioneers left behind, and the player's mission to find them._
+- **Welcome** (2): a robot guide says hello. The child types a name (or presses **Surprise me**) and taps their age, grouped into **Junior Explorer (6–10)** and **Space Cadet (11–16)**; the age is saved to the cadet's profile.
+- **The story** (3): robotic pioneers were left behind, and the player's mission is to find them.
+- **Tour video** (4): a one-minute tour recorded from the real game, with English/Bengali captions and chapter buttons (Game Hub, Drive on Mars, Scan a Relic, The Moon, Deep Space, Science Labs, Quiz & Badges).
+- **Meet the bots** (5): choose a companion, each with a different strength (+50% LiDAR range, +40% speed and coin magnet, or +35% storm stability).
+- **Levels** (6): a preview of the levels to unlock, each of which can be started directly.
 
-![Figure 5 — Onboarding step 3, game tour video](./images/04_onboarding_video_tour.jpg)
+The briefing can be switched to Bengali at any step, and closing it (✕ or Esc) always returns the child to the Game Hub.
 
-_Figure 5 — Onboarding step 3: a one-minute tour recorded from the real game. Captions follow the English/Bengali switch, and chapter buttons (Game Hub, Drive on Mars, Scan a Relic, The Moon, Deep Space, Science Labs, Quiz & Badges) let the child jump to any part._
+#### Step 2 — The Mission Control Hub (tiles 7–10)
 
-![Figure 6 — Onboarding step 4, meet the bots](./images/05_onboarding_bots.jpg)
+The hub is designed to be understood by a child in seconds: **three big destination cards**, a one-line commander switcher, three large buttons (**Play Game**, **Level**, **Menu**) and a bottom bar of quick tabs (**Home, Story, Science Labs, 3D Space, Drive Rover, Levels, Demo Reel, Space Quiz**).
 
-_Figure 6 — Onboarding step 4: choose a companion. Each bot has a different strength (+50% LiDAR range, +40% speed and coin magnet, or +35% storm stability)._
+- **First-visit tips** (7): the rest of the screen dims, one real button is highlighted and the robot guide explains it. The highlighted button still works, each tip can be skipped, **Don't show tips again** turns them off everywhere, and the 💡 **Tips** button brings them back.
+- **Hover effect** (8): pointing at "Planet Mars" flies the 3D background to Mars, so the child sees where they are about to go.
+- **Menu drawer** (9): call sign, commander, companion, and quick links to the Prologue, Moon, Mars, Calendar, Archive, Labs, Quiz, Badges, Roadmap and more.
+- **Cadet Registry** (10): several children can share a device; each profile keeps its own Dust, Gems, XP, mission progress and tip settings, and **Log Out** returns to a fresh Start screen.
 
-![Figure 7 — Onboarding step 5, levels preview](./images/06_onboarding_levels.jpg)
+#### Step 3 — Explore the Moon (tiles 13–17)
 
-_Figure 7 — Onboarding step 5: a preview of the levels the cadet will unlock, each of which can be started directly._
+Pressing **Enter Base** places the child directly in a lunar rover at the start of Moon Mission 1, "First Soft Landing" (13). A glowing beacon marks the first relic, Surveyor 1; the top bar shows the mission and the distance, the radar map tracks the target, and the companion bot gives a one-sentence hint. **Back to Hub** and the 💡 button sit together in the top-left corner on every game screen.
 
-#### Step 2 — The Mission Control Hub
+The child drives with **W / A / S / D** or the arrow keys, or the on-screen arrow pad on touch devices (14). Within about 4.5 m of the relic the game *offers* a scan, and nothing happens until the child presses **E** or taps **Scan** (15). The relic log then explains what the machine is, what it discovered and why it matters, in plain language (16). XP and Cosmic Dust are awarded and the beacon moves on to Mission 2, the Apollo 11 "Eagle" descent stage (17).
 
-The hub is designed to be understood by a child in seconds: **three big destination cards**, a one-line commander switcher, three large buttons (**Play Game**, **Level**, **Menu**) and a bottom bar of quick tabs (**Home, Story, Science Labs, 3D Space, Drive Rover, Levels, Demo Reel, Space Quiz**). Hovering a destination makes the 3D background fly to that world.
+#### Step 4 — Explore Mars (tiles 18–22)
 
-The first time a child reaches the hub, short tips point at the main buttons one at a time. Each tip can be skipped, and **Don't show tips again** turns them off everywhere; the 💡 **Tips** button brings them back at any time.
+On Mars the rover starts 10 m from the **Opportunity (MER-B)** rover in Perseverance Valley (18). The same drive → scan → discover loop applies (19–20), now with the real story of a rover built for 90 days that worked for more than fourteen years. Relics linked to a science lab offer **Open JPL Science Workbench** in their log; **Close Log** returns to driving (21). The first time a child enters a world, tips explain the driving keys, the goal tracker, the radar map (22), scanning with E, Back to Hub and the 💡 button; tips for buttons that are not on screen are skipped automatically.
 
-![Figure 8 — Page tips on the hub](./images/08_hub_tip.jpg)
+#### Step 5 — Roadmap and levels (tile 11)
 
-_Figure 8 — A first-visit tip: the rest of the screen dims, the Play Game button is highlighted, and the robot guide explains what it does. The highlighted button still works, so tapping it is the same as "got it"._
+Each world has a six-level, winding roadmap (11). Completed levels glow, the next level is highlighted, and the final stop is the Master Certificate. The Mars route runs Eagle Crater Base → Find Oppy → Blueberries of Life (APXS) → Diamond RAT Grinder → InSight Heart of Mars → The Sol 5111 Storm → Voyager 1 Golden Record → Master Certificate; a second tab shows the Moon roadmap.
 
-![Figure 9 — Hovering Mars flies the hub background to Mars](./images/09_hub_hover_mars.jpg)
+#### Step 6 — Deep Space with Voyager 1 (tile 23)
 
-_Figure 9 — Hover effect: pointing at "Planet Mars" focuses the 3D background on Mars, so the child sees where they are about to go._
+In deep space there is no ground, so the game becomes an inspection scene (23). The child rotates Voyager 1 with **W / A / S / D** and inspects its parts (high-gain dish, RTG power source, Golden Record) while the HUD reminds them that a radio message takes **22 hours 34 minutes** to arrive from 24.3 billion km away. The Science Lab opens only when the child chooses it (press **E** or click).
 
-![Figure 10 — Menu drawer](./images/10_hub_menu_drawer.jpg)
+#### Step 7 — Four hands-on science labs (tiles 24–27)
 
-_Figure 10 — The Menu drawer: call sign, commander, companion, quick links to the Prologue, Moon, Mars, Calendar, Archive, Labs, Quiz, Badges, Roadmap and more._
+Each lab turns one real piece of science into a small puzzle, with a commander giving context:
 
-![Figure 11 — Cadet registry](./images/11_cadet_registry.jpg)
+| Tile | Lab | The puzzle |
+| :-- | :-- | :-- |
+| 24 | **Apollo 11 Δv Rocket Lab** | Why did the astronauts leave the heavy descent stage on the Moon? |
+| 25 | **Oppy APXS Spectrum Lab** | Align X-ray peaks to identify the iron in the "blueberries" that proved Mars once had liquid water. |
+| 26 | **InSight Marsquake Lab** | Match P-waves and S-waves to listen to the heart of Mars. |
+| 27 | **Voyager 1 & Golden Record** | Balance a decaying plutonium power budget, then transmit a handshake across the 22-hour light delay. |
 
-_Figure 11 — The Cadet Registry. Several children can share a device; each profile has its own Dust, Gems, XP, mission progress and tip settings, and **Log Out** returns to a fresh Start screen._
+#### Step 8 — Quiz and certificate (tile 12)
 
-#### Step 3 — Explore the Moon
-
-Pressing **Enter Base** places the child directly in a lunar rover on the surface. A glowing beacon marks the first relic, the HUD shows the mission and the distance, the radar map in the bottom-right corner tracks the target, and the companion bot gives a one-sentence hint. **Back to Hub** and the 💡 tips button sit together in the top-left corner on every game screen.
-
-![Figure 12 — Moon surface, rover ready to drive](./images/12_moon_surface.jpg)
-
-_Figure 12 — The lunar rover at the start of Moon Mission 1, "First Soft Landing". The top bar shows the mission and the distance to the target (10 m); the right panel names the target relic, Surveyor 1._
-
-![Figure 13 — Driving across the Moon](./images/12b_moon_driving.jpg)
-
-_Figure 13 — The child drives with **W / A / S / D** or the arrow keys (on-screen controls on touch devices). The radar map shows the rover as an arrow and the relic as a glowing dot._
-
-![Figure 14 — Moon, relic in scan range](./images/12c_moon_scan_prompt.jpg)
-
-_Figure 14 — Within about 4.5 m of the relic the game offers a scan. Nothing happens until the child presses **E** or taps **Scan**._
-
-![Figure 15 — Moon relic log](./images/12d_moon_scan_info.jpg)
-
-_Figure 15 — The relic log: what the machine is, what it discovered, and why it matters, in plain language._
-
-![Figure 16 — Next Moon mission](./images/12e_moon_discovery.jpg)
-
-_Figure 16 — After the scan the relic is logged, XP and Cosmic Dust are awarded, and the beacon moves to the next mission — here Mission 2, the Apollo 11 "Eagle" descent stage._
-
-#### Step 4 — Explore Mars
-
-On Mars the rover starts 10 m from the first relic, the **Opportunity (MER-B)** rover, in Perseverance Valley. The same drive → scan → discover loop applies, now with the real story of a rover built for 90 days that worked for more than fourteen years.
-
-![Figure 17 — Mars surface](./images/13_mars_surface.jpg)
-
-_Figure 17 — Mars Mission 1: "The First Step on Mars". The companion bot explains the controls._
-
-![Figure 18 — Driving across Mars](./images/13b_mars_driving.jpg)
-
-_Figure 18 — Driving across the Martian terrain toward Opportunity._
-
-![Figure 19 — Mars, relic in scan range](./images/13c_mars_scan_prompt.jpg)
-
-_Figure 19 — Reaching Opportunity. The scan prompt appears only when the child is close enough._
-
-![Figure 20 — Mars relic log](./images/13d_mars_scan_info.jpg)
-
-_Figure 20 — The Opportunity relic log. Relics linked to a science lab offer **Open JPL Science Workbench**; **Close Log** returns to driving._
-
-![Figure 21 — In-game tip pointing at the radar map](./images/14_game_tip.jpg)
-
-_Figure 21 — The first time a child enters a world, tips explain the driving keys, the goal tracker, the radar map, scanning with E, Back to Hub and the 💡 button. Tips for buttons that are not on screen are skipped automatically._
-
-#### Step 5 — Roadmap and levels
-
-Each world has a six-level, winding roadmap. Completed levels glow; the next level is highlighted; the final stop is the Master Certificate.
-
-![Figure 22 — Mission roadmap](./images/15_mission_roadmap.jpg)
-
-_Figure 22 — The Mars Exploration Roadmap: Eagle Crater Base → Find Oppy → Blueberries of Life (APXS) → Diamond RAT Grinder → InSight Heart of Mars → The Sol 5111 Storm → Voyager 1 Golden Record → Master Certificate. A second tab shows the Moon roadmap._
-
-#### Step 6 — Deep Space with Voyager 1
-
-In deep space there is no ground, so the game becomes an inspection scene. The child rotates Voyager 1 with **W / A / S / D** and inspects its parts — high-gain dish, RTG power source, Golden Record — while the HUD reminds them that a radio message takes **22 hours 34 minutes** to arrive.
-
-![Figure 23 — Voyager 1 in deep space](./images/16_voyager_deep_space.jpg)
-
-_Figure 23 — Voyager 1 at 24.3 billion km. The Science Lab opens only when the child chooses it (press **E** or click)._
-
-#### Step 7 — Four hands-on science labs
-
-Each lab turns one real piece of science into a small puzzle with a commander giving context.
-
-![Figure 24 — Lab 1, Apollo 11 rocket staging](./images/17a_lab_apollo11.jpg)
-
-_Figure 24 — Lab 1: **Apollo 11 Δv Rocket Lab**. Why did the astronauts leave the heavy descent stage on the Moon?_
-
-![Figure 25 — Lab 2, Opportunity APXS](./images/17b_lab_opportunity.jpg)
-
-_Figure 25 — Lab 2: **Oppy APXS Spectrum Lab**. Align X-ray peaks to identify the iron in the "blueberries" that proved Mars once had liquid water._
-
-![Figure 26 — Lab 3, InSight seismology](./images/17c_lab_insight.jpg)
-
-_Figure 26 — Lab 3: **InSight Marsquake Lab**. Match P-waves and S-waves to listen to the heart of Mars._
-
-![Figure 27 — Lab 4, Voyager 1 telemetry and Golden Record](./images/17d_lab_voyager1.jpg)
-
-_Figure 27 — Lab 4: **Voyager 1 & Golden Record**. Balance a decaying plutonium power budget, then transmit a handshake across the 22-hour light delay._
-
-#### Step 8 — Quiz and certificate
-
-After exploring, the child can test their knowledge in the Space Cadet Quiz and compare ranks on the leaderboard. Finishing every mission on a world unlocks the printable Master Certificate.
-
-![Figure 28 — Space Cadet Quiz](./images/18_quiz.jpg)
-
-_Figure 28 — The quiz and leaderboard, which reinforce what the child discovered during play._
+After exploring, the child can test their knowledge in the Space Cadet Quiz and compare ranks on the leaderboard (12). Finishing every mission on a world unlocks the printable Master Certificate.
 
 ### 2.4 The hardware we tell stories about
 
@@ -359,6 +284,54 @@ During testing we found that children dislike being interrupted, but also get lo
 | Teacher dashboard (class progress export) | Classroom adoption. |
 | More languages | Reach more learners. |
 | Narrated audio mode and a narrated tour video | Further accessibility for early readers. |
+
+### 2.9 Playing on a phone — the mobile experience
+
+Many children in our audience will first meet the game on a parent's phone rather than a laptop, so the phone is a first-class platform, not an afterthought. The same web build runs on phones and tablets with no install. An Android app built with Capacitor wraps that same build.
+
+![Figure 4 — The mobile experience in seven steps](./images/19_mobile_experience.jpg)
+
+_Figure 4 — The mobile experience in seven steps, captured from the real game on a phone in landscape (844 × 390): (1) a "turn your device sideways" card in portrait, (2) Start Game, (3) the Game Hub with a first-visit tip, (4) driving with the on-screen arrow pad and SCAN button, (5) reaching a relic, (6) the relic log and badge, and (7) Voyager 1, where the action button becomes LAB._
+
+| Mobile feature | How it works |
+| :-- | :-- |
+| **Landscape play** | Touch devices are detected automatically. In portrait a rotate card asks the child to turn the phone; in fullscreen the screen is locked to landscape on Android. |
+| **Touch controls** | An on-screen arrow pad and a large SCAN / LAB button send the same W/A/S/D/E inputs as the keyboard, so every mission works without a keyboard. |
+| **Short-screen layouts** | The hub, HUD, pop-ups, relic logs and science labs are re-laid out for a phone's short screen, with touch targets of at least 44 px. |
+| **Tips for touch** | First-visit tips mention the arrow pad on phones, so a child is never told to "press W" with no keyboard. |
+| **Performance** | A lighter rendering mode is switched on automatically on phones to keep the 3D scenes smooth. |
+| **Android app** | The same build is packaged as an Android APK/AAB with Capacitor, always fullscreen. |
+
+### 2.10 Take-home poster for children
+
+To bring the game to children who never see the submission page, we designed an A4 poster to print and hand out at schools, clubs and science events. Its QR code opens **[nasa-2k26.vercel.app](https://nasa-2k26.vercel.app)** directly, so a short visit can turn into an adventure at home. The print-ready file is [`poster/Relics_Kids_Poster_A4.pdf`](./poster/Relics_Kids_Poster_A4.pdf).
+
+![Figure 5 — The A4 take-home poster](./images/21_kids_poster.jpg)
+
+_Figure 5 — The A4 take-home poster: the three worlds, six things to do, and a large QR code with three simple steps for a child and a grown-up. The white background keeps it cheap to print on any school printer._
+
+### 2.11 How we worked — an Agile process
+
+We built the project in **five short sprints between 27 September and 12 November 2026**. Each sprint started from a prioritised backlog of user stories (for example, *"As a 7-year-old I can drive the rover without a keyboard"*) and ended with a playable build that we reviewed together. What we learned in each review, especially from watching children play, went straight into the next sprint's plan.
+
+![Figure 6 — Our Agile process: sprint loop, branch flow and the five sprints](./images/20_agile_process.jpg)
+
+_Figure 6 — Our Agile process. Each sprint went through Plan → Build → Test on QA → Review. Work moved from feature branches to a shared **QA** branch for integration and play-testing, and only then to **main** (auto-deployed to Vercel) and **android-app** (the Android build)._
+
+| Sprint | Dates (2026) | Sprint goal | Main outcomes |
+| :-- | :-- | :-- | :-- |
+| **1** | 27 Sep – 3 Oct | Mars MVP | Rover controls, scanner, HUD, the Opportunity story, CI/CD to Vercel |
+| **2** | 4 – 28 Oct | Research and data | NASA PDS and mission sources, pitch and story script, lunar relic data |
+| **3** | 29 Oct – 4 Nov | Three worlds | The Moon and Voyager 1, four science labs, 3D orrery, companion bots, onboarding wizard |
+| **4** | 5 – 9 Nov | Kid-friendly UX | First-visit tips, game tour video and story film, submission documents |
+| **5** | 9 – 12 Nov | Mobile and release | Touch arrow pad and landscape mode, mobile-friendly pop-ups, Android app, QA → main release flow |
+
+**Our working agreements**
+
+- **Definition of done:** a feature works in English and Bengali, on desktop and on a phone, and always offers a way back to the Game Hub.
+- **Nothing reaches children untested:** every change is merged into QA and play-tested there before it is promoted to main.
+- **Continuous delivery:** every merge to main is live on the public site within minutes, so reviewers and children always see the latest build.
+- **Small, visible increments:** the commit history mirrors the sprints, from the first Mars prototype to the mobile release.
 
 ---
 
