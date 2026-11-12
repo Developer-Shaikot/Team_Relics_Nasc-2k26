@@ -28,3 +28,11 @@ dist-ssr/
 .env
 .env.*
 !.env.example
+
+# Android signing secrets (never commit)
+*.jks
+*.keystore
+keystore.properties
+
+# Built Android APK/AAB files (npm run android:release)
+release/

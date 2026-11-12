@@ -7,13 +7,20 @@
     "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "preview": "vite preview --port 3000",
-    "generate:docs": "node scripts/generate-docx.js && node scripts/generate-final-blueprint-docx.js && node scripts/generate-pdf.js"
+    "android:sync": "vite build && cap sync android",
+    "generate:docs": "node scripts/generate-docx.js && node scripts/generate-final-blueprint-docx.js && node scripts/generate-pdf.js",
+    "android:release": "node scripts/build-android.mjs release",
+    "android:debug": "node scripts/build-android.mjs debug"
   },
   "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
     "canvas-confetti": "^1.9.4",
     "three": "^0.170.0"
   },
   "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.6.0",
     "docx": "^9.7.2",
     "marked": "^18.0.14",
     "mp4-muxer": "^5.2.2",
