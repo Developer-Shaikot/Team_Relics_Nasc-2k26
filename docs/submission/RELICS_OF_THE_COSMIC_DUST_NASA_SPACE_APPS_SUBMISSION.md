@@ -423,7 +423,7 @@ _Team Relics — NASA International Space Apps Challenge 2026._
 | :-- | :-- | :-- |
 | **Shaikot Kundu Akash** | Team Lead | Overall project coordination, system architecture, lead presenter voice-over, repository oversight |
 | **Md. Wahiduzzaman Nayem** | System Analyst | Video editing, motion graphics, audio sync, classroom shot pacing, data architecture review |
-| **Arni Rani Nath** | Designer | UI/UX design, wireframing, infographics, dark glassmorphism design system, certificate rendering |
+| **Arni Rani Nath** | Designer & Voice-over Artist | UI/UX design, wireframing, infographics, dark glassmorphism design system, certificate rendering, voice-over |
 | **Tareq Jamil Sarkar Samrat** | Developer | Three.js 3D physics engine, rover kinematics, Sol 5111 atmospheric shaders, STEM quiz mechanics |
 | **Tanjir Ahmed Fardin** | Researcher | NASA PDS and mission literature review, narrative script writing, educational dialogue design |
 
