@@ -20,7 +20,7 @@ export const KIDS_MISSIONS_MARS = [
     hint_en: "Click on any part of Opportunity rover to initiate your first diagnostic scan.",
     hint_bn: "রোভারের যেকোনো অংশে ক্লিক করে প্রথম ডায়াগনস্টিক স্ক্যান শুরু করো।",
     rewardXP: 100,
-    discoveryImg: "./thumb_archaeology.jpg",
+    discoveryImg: "./images/thumb_archaeology.jpg",
     discoveryFact_en: "Opportunity explored Mars for 5,111 sols (over 14 years), driving 45.16 km!",
     discoveryFact_bn: "অপরচুনিটি টানা ৫,১১১ সল কাজ করে ৪৫.১৬ কিলোমিটার পথ পাড়ি দেওয়ার ইতিহাস গড়েছে!"
   },
@@ -43,7 +43,7 @@ export const KIDS_MISSIONS_MARS = [
     hint_en: "Scan the Hematite Blueberries or launch the APXS Spectroscopy Mini-Game Workbench!",
     hint_bn: "Scan the Hematite Blueberries or launch the APXS Spectroscopy Mini-Game Workbench!",
     rewardXP: 200,
-    discoveryImg: "./thumb_archaeology.jpg",
+    discoveryImg: "./images/thumb_archaeology.jpg",
     discoveryFact_en: "'My solar panels are covered in darkness, but I left proof for you—rivers once flowed on Mars!' — Opportunity (MER-B)",
     discoveryFact_bn: "'My solar panels are covered in darkness, but I left proof for you—rivers once flowed on Mars!' — Opportunity (MER-B)"
   },
@@ -66,7 +66,7 @@ export const KIDS_MISSIONS_MARS = [
     hint_en: "Find the rock with the silver-grey circle grind mark on the left side of the rover.",
     hint_bn: "Find the rock with the silver-grey circle grind mark on the left side of the rover.",
     rewardXP: 200,
-    discoveryImg: "./thumb_archaeology.jpg",
+    discoveryImg: "./images/thumb_archaeology.jpg",
     discoveryFact_en: "RAT was the first diamond-tipped mechanical grinder operated on another planet.",
     facts_bn: "RAT was the first diamond-tipped mechanical grinder operated on another planet."
   },
@@ -89,7 +89,7 @@ export const KIDS_MISSIONS_MARS = [
     hint_en: "Scan the InSight Lander SEIS Dome or open the Planetary Seismology Mini-Game!",
     hint_bn: "Scan the InSight Lander SEIS Dome or open the Planetary Seismology Mini-Game!",
     rewardXP: 250,
-    discoveryImg: "./thumb_storm.jpg",
+    discoveryImg: "./images/thumb_storm.jpg",
     discoveryFact_en: "InSight recorded 1,319 marsquakes with its golden SEIS dome, proving Mars has a molten liquid iron-alloy core!",
     discoveryFact_bn: "InSight recorded 1,319 marsquakes with its golden SEIS dome, proving Mars has a molten liquid iron-alloy core!"
   },
@@ -112,7 +112,7 @@ export const KIDS_MISSIONS_MARS = [
     hint_en: "Drive toward the glowing beacon and weather station tower on the high rim overlook.",
     hint_bn: "সামনের হাই রিম ওভারলুকে অবস্থিত আলোকময় বিকন ও ওয়েদার স্টেশন টাওয়ারের দিকে ড্রাইভ করো।",
     rewardXP: 300,
-    discoveryImg: "./thumb_storm.jpg",
+    discoveryImg: "./images/thumb_storm.jpg",
     discoveryFact_en: "At Tau 10.8, 99.998% of sunlight was blocked, dropping power from 900 Wh to only 22 Wh.",
     discoveryFact_bn: "At Tau 10.8, 99.998% of sunlight was blocked, dropping power from 900 Wh to only 22 Wh."
   },
@@ -135,7 +135,7 @@ export const KIDS_MISSIONS_MARS = [
     hint_en: "Switch to Deep Space (Voyager 1) or click the Memory Core to launch the RTG & Golden Record Mini-Game!",
     hint_bn: "Switch to Deep Space (Voyager 1) or click the Memory Core to launch the RTG & Golden Record Mini-Game!",
     rewardXP: 500,
-    discoveryImg: "./hero_astronaut_mars.jpg",
+    discoveryImg: "./images/hero_astronaut_mars.jpg",
     discoveryFact_en: "Voyager 1 carries greetings in 55 languages—including Bengali ('Namaskar! Vishwe shanti hok')—and melodies into eternity!",
     discoveryFact_bn: "Voyager 1 carries greetings in 55 languages—including Bengali ('Namaskar! Vishwe shanti hok')—and melodies into eternity!"
   }
@@ -161,7 +161,7 @@ export const KIDS_MISSIONS_MOON = [
     hint_en: "Click on the historic Surveyor tripod lander model.",
     hint_bn: "ঐতিহাসিক সার্ভেয়ার ট্রাইপড ল্যান্ডারে ক্লিক করো।",
     rewardXP: 100,
-    discoveryImg: "./thumb_archaeology.jpg",
+    discoveryImg: "./images/thumb_archaeology.jpg",
     discoveryFact_en: "Surveyor 1 proved the Moon's surface would not swallow a heavy spacecraft!",
     discoveryFact_bn: "সার্ভেয়ার ১ প্রমাণ করে চাঁদের মাটি শক্ত এবং মানুষের অবতরণের জন্য নিরাপদ।"
   },
@@ -184,7 +184,7 @@ export const KIDS_MISSIONS_MOON = [
     hint_en: "Scan the golden Apollo 11 Lunar Module or open the Delta-V Rocket Equation Mini-Game!",
     hint_bn: "Scan the golden Apollo 11 Lunar Module or open the Delta-V Rocket Equation Mini-Game!",
     rewardXP: 200,
-    discoveryImg: "./hero_astronaut_mars.jpg",
+    discoveryImg: "./images/hero_astronaut_mars.jpg",
     discoveryFact_en: "By leaving the 2,150 kg golden Descent Stage behind as a launchpad, Eagle's Ascent Stage achieved the 1,870 m/s Delta-V needed to reach lunar orbit!",
     discoveryFact_bn: "By leaving the 2,150 kg golden Descent Stage behind as a launchpad, Eagle's Ascent Stage achieved the 1,870 m/s Delta-V needed to reach lunar orbit!"
   },
@@ -207,7 +207,7 @@ export const KIDS_MISSIONS_MOON = [
     hint_en: "Find the Surveyor 3 probe sitting inside the lunar crater.",
     hint_bn: "ক্রেটারের ঢালে থাকা সার্ভেয়ার ৩ প্রোবে ক্লিক করো।",
     rewardXP: 200,
-    discoveryImg: "./thumb_archaeology.jpg",
+    discoveryImg: "./images/thumb_archaeology.jpg",
     discoveryFact_en: "Apollo 12 astronauts Pete Conrad and Alan Bean cut off the TV camera and brought it back to Earth!",
     discoveryFact_bn: "মানুষের হাতে অন্য কোনো গ্রহের মহাকাশযানের যন্ত্রাংশ পৃথিবীতে ফিরিয়ে আনার একমাত্র ঘটনা।"
   },
@@ -230,7 +230,7 @@ export const KIDS_MISSIONS_MOON = [
     hint_en: "Switch to 'Drive Rover' on the Moon environment and drive the LRV.",
     hint_bn: "মুন পরিবেশে রোভার ড্রাইভ মোডে গাড়ি চালাও।",
     rewardXP: 250,
-    discoveryImg: "./thumb_roadmap.jpg",
+    discoveryImg: "./images/thumb_roadmap.jpg",
     discoveryFact_en: "The Lunar Rover had wire-mesh titanium chevron tires and drove up to 27.8 km on Apollo 15!",
     discoveryFact_bn: "লুনার রোভারের চাকা স্প্রিং ও টাইটানিয়াম তারের জালি দিয়ে তৈরি ছিল।"
   },
@@ -253,7 +253,7 @@ export const KIDS_MISSIONS_MOON = [
     hint_en: "Scan the ice-laden polar crater deposits near the South Pole.",
     hint_bn: "দক্ষিণ মেরুর বরফসমৃদ্ধ ক্রেটারে ক্লিক করো।",
     rewardXP: 300,
-    discoveryImg: "./thumb_storm.jpg",
+    discoveryImg: "./images/thumb_storm.jpg",
     discoveryFact_en: "LCROSS proved millions of metric tons of water ice exist in lunar cold traps!",
     discoveryFact_bn: "এলক্রস নিশ্চিত করেছে চাঁদের মেরুতে কোটি কোটি টন বিশুদ্ধ পানির বরফ সংরক্ষিত রয়েছে।"
   },
@@ -276,7 +276,7 @@ export const KIDS_MISSIONS_MOON = [
     hint_en: "Activate the Artemis South Pole Beacon to unlock the Grand Master Certificate.",
     hint_bn: "আর্টেমিস সাউথ পোল বিকন সক্রিয় করে মাস্টার সার্টিফিকেট অর্জন করো।",
     rewardXP: 500,
-    discoveryImg: "./hero_astronaut_mars.jpg",
+    discoveryImg: "./images/hero_astronaut_mars.jpg",
     discoveryFact_en: "Artemis is building humanity's first permanent base camp on the Moon as a stepping stone to Mars!",
     discoveryFact_bn: "আর্টেমিস প্রোগ্রাম চাঁদে মানুষের স্থায়ী ক্যাম্প বানাচ্ছে, যা পরবর্তীতে মঙ্গলে যাওয়ার ভিত্তি হবে!"
   }

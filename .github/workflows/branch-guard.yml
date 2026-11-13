@@ -1,6 +1,6 @@
 name: Branch Guard
 
-# Keeps the branch flow clean (see BRANCHES.md):
+# Keeps the branch flow clean (see docs/BRANCHES.md):
 #   QA ──► main           main only receives QA
 #   QA ──► android-app    the Android app files exist ONLY on android-app
 on:

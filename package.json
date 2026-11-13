@@ -7,7 +7,10 @@
     "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "preview": "vite preview --port 3000",
-    "generate:docs": "node scripts/generate-docx.js && node scripts/generate-final-blueprint-docx.js && node scripts/generate-pdf.js"
+    "package:cpanel": "vite build && mkdir -p release && rm -f release/relics-cpanel.zip && cd dist && zip -qr ../release/relics-cpanel.zip . -x '.DS_Store'",
+    "docs:final": "node scripts/docs/build-final-docs.mjs docs/submission/RELICS_OF_THE_COSMIC_DUST_NASA_SPACE_APPS_SUBMISSION.md && node scripts/docs/build-final-docs.mjs docs/submission/VIDEO_240_SEC_PITCH_SCRIPT.md && node scripts/docs/build-final-docs.mjs docs/submission/VIDEO_30_SEC_DEMO_SCRIPT.md",
+    "generate:docs": "node scripts/docs/generate-docx.js && node scripts/docs/generate-final-blueprint-docx.js && node scripts/docs/generate-pdf.js",
+    "film:render": "node scripts/media/render-story-film.mjs"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",

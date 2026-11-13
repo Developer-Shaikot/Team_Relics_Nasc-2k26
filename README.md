@@ -9,7 +9,7 @@
 [![Three.js](https://img.shields.io/badge/Three.js-WebGL%203D-000000?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
 [![Web Audio API](https://img.shields.io/badge/Web%20Audio-Synthesized%20Soundscape-FA7343?style=for-the-badge)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Language](https://img.shields.io/badge/Language-Bilingual%20(EN%20%7C%20BN)-00C853?style=for-the-badge)](https://github.com/Developer-Shaikot/Nasa-2k26)
+[![Language](https://img.shields.io/badge/Language-English-00C853?style=for-the-badge)](https://github.com/Developer-Shaikot/Nasa-2k26)
 
 | | |
 | :-- | :-- |
@@ -18,10 +18,10 @@
 | **Difficulty** | Beginner / Youth (also suitable for Intermediate learners) |
 | **Subjects** | Astrophysics · Planets & Moons · Space Exploration |
 | **Format** | Interactive web-based 3D educational game (HTML, CSS, JavaScript, WebGL) |
-| **Audience** | School-age space enthusiasts, ages 6–16, plus teachers and parents |
-| **Languages** | English and Bengali (বাংলা), switchable at any time |
+| **Audience** | Built mainly for school students, but open to anyone curious about space, plus teachers and parents |
+| **Language** | English, written in simple words for children |
 | **Screenshots** | All figures in this README are captured from the current build of the game (November 2026) |
-| **Submission documents** | [Markdown](./final_doc/RELICS_OF_THE_COSMIC_DUST_NASA_SPACE_APPS_SUBMISSION.md) · [DOCX](./final_doc/RELICS_OF_THE_COSMIC_DUST_NASA_SPACE_APPS_SUBMISSION.docx) · [PDF](./final_doc/RELICS_OF_THE_COSMIC_DUST_NASA_SPACE_APPS_SUBMISSION.pdf) |
+| **Submission documents** | [Markdown](./docs/submission/RELICS_OF_THE_COSMIC_DUST_NASA_SPACE_APPS_SUBMISSION.md) · [DOCX](./docs/submission/RELICS_OF_THE_COSMIC_DUST_NASA_SPACE_APPS_SUBMISSION.docx) · [PDF](./docs/submission/RELICS_OF_THE_COSMIC_DUST_NASA_SPACE_APPS_SUBMISSION.pdf) |
 
 ---
 
@@ -47,9 +47,10 @@
 7. [Use of Artificial Intelligence](#7-use-of-artificial-intelligence)
 8. [NASA Data, Resources and Space Agency References](#8-nasa-data-resources-and-space-agency-references)
 9. [Team](#9-team)
-10. [Game Controls](#10-game-controls)
-11. [License](#11-license)
-12. [References](#12-references)
+10. [How to Run the Project](#10-how-to-run-the-project)
+11. [Game Controls](#11-game-controls)
+12. [License](#12-license)
+13. [References](#13-references)
 
 ---
 
@@ -74,7 +75,7 @@ The message the game is built to leave behind is one sentence:
 
 **The Mars story at its heart.** The project began as *Relics of the Red Dust: The Last Transmission*. In 2085, players step into the boots of an astronaut archaeologist uncovering the resting place of NASA's **Mars Exploration Rover Opportunity (MER-B)** inside Perseverance Valley at Endeavour Crater. Drawing on **NASA Planetary Data System (PDS)** telemetry, they reconstruct Opportunity's 14-year mission (Sols 1–5111), investigate the 2018 global dust storm, run diagnostic scans on its science payload and drive across realistic Martian terrain. That story has since grown to include the Moon and Voyager 1 in deep space.
 
-![Figure 1 — Game Hub: three gateways (Moon, Mars, Voyager 1) over a live 3D solar-system orrery](./final_doc/images/07_game_hub.jpg)
+![Figure 1 — Game Hub: three gateways (Moon, Mars, Voyager 1) over a live 3D solar-system orrery](./docs/submission/images/07_game_hub.jpg)
 
 _Figure 1 — The Mission Control Hub. Three large gateways lead to The Moon, Planet Mars and Voyager 1. The background is a live, draggable 3D orrery._
 
@@ -91,7 +92,7 @@ The challenge asks for a story that "introduces school-age space enthusiasts to 
 | **Dense sources** | Mission archives are long technical pages and tables. | Every fact is delivered through an action: drive, scan, tilt, balance, align. |
 | **Active missions get all the attention** | Retired hardware is invisible or called "junk". | Retired hardware is the *protagonist*; the player is the archaeologist who rediscovers it. |
 | **Passive formats** | Videos and slides are watched, then forgotten. | A one-minute tour shows what is possible, then the child controls the camera, the rover and every discovery moment. |
-| **Language and device barriers** | Most space content is English-only and needs a strong computer. | Full English/Bengali switch; runs in a normal browser with no install. |
+| **Reading and device barriers** | Most space content is long, full of expert words and needs a strong computer. | Short, simple English with a one-sentence takeaway per discovery; runs in a normal browser with no install. |
 
 Our central idea, **Planetary Archaeology 2085**, reframes the debate. In 2085 the landing sites are heritage monuments. The player is not cleaning up litter — they are *reading history from the objects themselves*.
 
@@ -112,11 +113,11 @@ Our central idea, **Planetary Archaeology 2085**, reframes the debate. In 2085 t
 
 The two figures below show the whole journey in 27 numbered screenshots from the current build. Figure 2 covers the menus, hub and progress screens; Figure 3 covers the 3D WebGL worlds and science labs. The steps that follow refer to the tile numbers.
 
-![Figure 2 — Getting started: onboarding, hub and progress](./final_doc/images/22_tour_getting_started.jpg)
+![Figure 2 — Getting started: onboarding, hub and progress](./docs/submission/images/22_tour_getting_started.jpg)
 
 _Figure 2 — Getting started (tiles 1–12): the Start Game screen and five-step onboarding (1–6), the Mission Control Hub with its first-visit tip, hover effect, menu drawer and cadet profiles (7–10), and the roadmap and quiz (11–12)._
 
-![Figure 3 — Inside the 3D worlds: WebGL missions and science labs](./final_doc/images/23_tour_3d_worlds.jpg)
+![Figure 3 — Inside the 3D worlds: WebGL missions and science labs](./docs/submission/images/23_tour_3d_worlds.jpg)
 
 _Figure 3 — Inside the 3D worlds (tiles 13–27): the drive → scan → discover loop on the Moon (13–17) and on Mars (18–22), then Voyager 1 in deep space and the four hands-on science labs (23–27)._
 
@@ -126,11 +127,11 @@ A new visitor always starts on the **Start Game** screen: "Blast off on a real N
 
 - **Welcome** (2): a robot guide says hello. The child types a name (or presses **Surprise me**) and taps their age, grouped into **Junior Explorer (6–10)** and **Space Cadet (11–16)**; the age is saved to the cadet's profile.
 - **The story** (3): robotic pioneers were left behind, and the player's mission is to find them.
-- **Tour video** (4): a one-minute tour recorded from the real game, with English/Bengali captions and chapter buttons (Game Hub, Drive on Mars, Scan a Relic, The Moon, Deep Space, Science Labs, Quiz & Badges).
+- **Tour video** (4): a one-minute tour recorded from the real game, with English captions and chapter buttons (Game Hub, Drive on Mars, Scan a Relic, The Moon, Deep Space, Science Labs, Quiz & Badges).
 - **Meet the bots** (5): choose a companion, each with a different strength (+50% LiDAR range, +40% speed and coin magnet, or +35% storm stability).
 - **Levels** (6): a preview of the levels to unlock, each of which can be started directly.
 
-The briefing can be switched to Bengali at any step, and closing it (✕ or Esc) always returns the child to the Game Hub.
+Closing the briefing (✕ or Esc) always returns the child to the Game Hub.
 
 #### Step 2 — The Mission Control Hub (tiles 7–10)
 
@@ -243,7 +244,7 @@ During testing we found that children dislike being interrupted, but also get lo
 ```
 ┌──────────────────────── Browser (no install) ────────────────────────┐
 │  index.html  ->  assembled at build time from src/partials/**        │
-│  style.css      (hub, HUD, modals, onboarding wizard, tips)          │
+│  src/styles/    (hub, HUD, modals, wizard, tips, mobile landscape)   │
 │                                                                      │
 │  src/main.js  (game director)                                        │
 │   ├─ renderer/        Three.js scenes: Mars, Moon, deep-space actors │
@@ -272,7 +273,7 @@ During testing we found that children dislike being interrupted, but also get lo
 | **Onboarding** | Five-step wizard with kid-friendly cards (name with "Surprise me", colour-coded age groups) and a captioned tour video with chapters, scrubbing and full-screen. |
 | **Progress and profiles** | Each cadet's name, age, bot, Dust, Gems, XP and completed missions are stored in `localStorage` under their own profile; logout clears the active session without deleting profiles. |
 | **Audio** | Procedural Web Audio (UI clicks, scanner beeps, thruster puffs, transmission tones) — no audio downloads required. |
-| **Localisation** | English and Bengali strings switch instantly across the wizard, tips, video captions, HUD, missions and labs. |
+| **Plain-language content** | Short, child-friendly English across the wizard, tips, video captions, HUD, missions and labs. |
 | **Hub background** | A live, draggable Three.js orrery of the Moon, Mars and Voyager 1 that flies to the world a child points at. |
 | **Build and performance** | Vite; a small build plugin assembles `index.html` from HTML partials; single-page; runs at interactive frame rates in a normal laptop browser. |
 
@@ -280,9 +281,9 @@ During testing we found that children dislike being interrupted, but also get lo
 
 **Who benefits**
 
-- **Students (6–16)** meet real NASA history through play instead of text.
+- **School students, and anyone curious about space,** meet real NASA history through play instead of text.
 - **Teachers and parents** get a classroom-ready, no-install tool with built-in quiz and certificate.
-- **Bengali-speaking learners** get first-class support rather than an afterthought.
+- **Learners with ordinary computers or phones** can play in any browser with nothing to install.
 - **Siblings and classmates** can share one device with separate profiles.
 
 **A global perspective.** The two mission commanders — **Asha** at a rooftop antenna ground station in Dhaka and **Leo** at a flight-telemetry console near Cape Canaveral — show that space exploration belongs to children everywhere.
@@ -295,7 +296,7 @@ During testing we found that children dislike being interrupted, but also get lo
 | Chinese, Indian and European relics | Wider international view of discarded hardware. |
 | Age-adaptive hints and difficulty based on the age chosen in onboarding | A better fit for both 6-year-olds and 16-year-olds. |
 | Teacher dashboard (class progress export) | Classroom adoption. |
-| More languages | Reach more learners. |
+| More languages, starting with Bengali | Reach more learners in their own language. |
 | Narrated audio mode and a narrated tour video | Further accessibility for early readers. |
 
 
@@ -303,7 +304,7 @@ During testing we found that children dislike being interrupted, but also get lo
 
 Many children in our audience will first meet the game on a parent's phone rather than a laptop, so the phone is a first-class platform, not an afterthought. The same web build runs on phones and tablets with no install. An Android app built with Capacitor wraps that same build.
 
-![Figure 4 — The mobile experience in seven steps](./final_doc/images/19_mobile_experience.jpg)
+![Figure 4 — The mobile experience in seven steps](./docs/submission/images/19_mobile_experience.jpg)
 
 _Figure 4 — The mobile experience in seven steps, captured from the real game on a phone in landscape (844 × 390): (1) a "turn your device sideways" card in portrait, (2) Start Game, (3) the Game Hub with a first-visit tip, (4) driving with the on-screen arrow pad and SCAN button, (5) reaching a relic, (6) the relic log and badge, and (7) Voyager 1, where the action button becomes LAB._
 
@@ -318,9 +319,9 @@ _Figure 4 — The mobile experience in seven steps, captured from the real game 
 
 ### 2.10 Take-home poster for children
 
-To bring the game to children who never see the submission page, we designed an A4 poster to print and hand out at schools, clubs and science events. Its QR code opens **[nasa-2k26.vercel.app](https://nasa-2k26.vercel.app)** directly, so a short visit can turn into an adventure at home. The print-ready file is [`poster/Relics_Kids_Poster_A4.pdf`](./final_doc/poster/Relics_Kids_Poster_A4.pdf).
+To bring the game to children who never see the submission page, we designed an A4 poster to print and hand out at schools, clubs and science events. Its QR code opens **[nasa-2k26.vercel.app](https://nasa-2k26.vercel.app)** directly, so a short visit can turn into an adventure at home. The print-ready file is [`poster/Relics_Kids_Poster_A4.pdf`](./docs/submission/poster/Relics_Kids_Poster_A4.pdf).
 
-![Figure 5 — The A4 take-home poster](./final_doc/images/21_kids_poster.jpg)
+![Figure 5 — The A4 take-home poster](./docs/submission/images/21_kids_poster.jpg)
 
 _Figure 5 — The A4 take-home poster: the three worlds, six things to do, and a large QR code with three simple steps for a child and a grown-up. The white background keeps it cheap to print on any school printer._
 
@@ -328,7 +329,7 @@ _Figure 5 — The A4 take-home poster: the three worlds, six things to do, and a
 
 We built the project in **five short sprints between 27 September and 12 November 2026**. Each sprint started from a prioritised backlog of user stories (for example, *"As a 7-year-old I can drive the rover without a keyboard"*) and ended with a playable build that we reviewed together. What we learned in each review, especially from watching children play, went straight into the next sprint's plan.
 
-![Figure 6 — Our Agile process: sprint loop, branch flow and the five sprints](./final_doc/images/20_agile_process.jpg)
+![Figure 6 — Our Agile process: sprint loop, branch flow and the five sprints](./docs/submission/images/20_agile_process.jpg)
 
 _Figure 6 — Our Agile process. Each sprint went through Plan → Build → Test on QA → Review. Work moved from feature branches to a shared **QA** branch for integration and play-testing, and only then to **main** (auto-deployed to Vercel) and **android-app** (the Android build)._
 
@@ -342,7 +343,7 @@ _Figure 6 — Our Agile process. Each sprint went through Plan → Build → Tes
 
 **Our working agreements**
 
-- **Definition of done:** a feature works in English and Bengali, on desktop and on a phone, and always offers a way back to the Game Hub.
+- **Definition of done:** a feature works on desktop and on a phone, and always offers a way back to the Game Hub.
 - **Nothing reaches children untested:** every change is merged into QA and play-tested there before it is promoted to main.
 - **Continuous delivery:** every merge to main is live on the public site within minutes, so reviewers and children always see the latest build.
 - **Small, visible increments:** the commit history mirrors the sprints, from the first Mars prototype to the mobile release.
@@ -379,7 +380,7 @@ _Figure 6 — Our Agile process. Each sprint went through Plan → Build → Tes
 ### 🎓 Gamified STEM learning and accessibility
 - **Space Cadet Quiz** with leaderboard, covering geology, physics and mission facts.
 - **Synthesised soundscape**: procedural wind, servo and UI audio through the Web Audio API, with no audio downloads.
-- **Full bilingual support**: instant switching between **English** and **বাংলা (Bengali)**.
+- **Plain-language English**: short sentences and a one-sentence takeaway for every discovery.
 
 ---
 
@@ -387,7 +388,7 @@ _Figure 6 — Our Agile process. Each sprint went through Plan → Build → Tes
 
 ### What age group is your story designed for?
 
-**School-age children, 6 to 16.** The language is simple, each discovery has a one-sentence takeaway, and the controls are the familiar W/A/S/D. Younger players can enjoy the driving, rewards, companion bots and first-visit tips; older students can go deeper in the science labs and the harder quiz tiers (Junior, Intermediate, Senior, Expert). Each cadet's age is recorded in their profile during onboarding. Teachers and parents are a secondary audience.
+**Built mainly for school students, but there is no age limit: anyone curious about space can play.** The language is simple, each discovery has a one-sentence takeaway, and the controls are the familiar W/A/S/D. Younger players can enjoy the driving, rewards, companion bots and first-visit tips; older students can go deeper in the science labs and the harder quiz tiers (Junior, Intermediate, Senior, Expert). Each cadet's age is recorded in their profile during onboarding. Teachers, parents and adult space fans are welcome too.
 
 ### How accessible is the format you chose to use?
 
@@ -395,7 +396,7 @@ _Figure 6 — Our Agile process. Each sprint went through Plan → Build → Tes
 | :-- | :-- |
 | Software installation | None — it runs in a web browser. |
 | Powerful hardware | Procedural graphics keep downloads small and run on ordinary laptops. |
-| Language | Complete English and Bengali switch, including tips and video captions. |
+| Language | Simple English with short sentences, including tips and video captions. |
 | Reading level | Short sentences, rounded readable fonts and large tap targets (at least 44 px). |
 | Input device | Keyboard (W/A/S/D, E) and on-screen touch controls; tips and the video player work with the keyboard. |
 | Hearing | Every spoken or audio cue also appears as on-screen text; the tour video has captions. |
@@ -411,7 +412,7 @@ _Figure 6 — Our Agile process. Each sprint went through Plan → Build → Tes
 
 1. **The machines' perspective** — they are explorers with stories, not litter.
 2. **The future archaeologist** — in 2085 these sites are heritage monuments.
-3. **A global youth perspective** — commanders in Dhaka and Florida, content in English and Bengali.
+3. **A global youth perspective** — commanders in Dhaka and Florida, built by a student team from Bangladesh.
 4. **The scientist's perspective** — every discovery is tied to a real measurement or physical idea.
 
 ---
@@ -427,7 +428,7 @@ _Figure 6 — Our Agile process. Each sprint went through Plan → Build → Tes
 | Libraries | canvas-confetti (celebrations), marked (document generation), docx (Word export) |
 | Design | Dark space interface with kid-friendly rounded type (Lilita One, Fredoka), SVG icons, responsive layout |
 | Video | Real gameplay recorded with headless Chrome and encoded with FFmpeg (H.264 MP4) |
-| Documentation | Markdown, DOCX and PDF generated from one source by `scripts/build-final-docs.mjs` |
+| Documentation | Markdown, DOCX and PDF generated from one source by `scripts/docs/build-final-docs.mjs` |
 | Testing | Headless Chrome (Puppeteer) driving the real game flow on desktop and phone widths |
 
 **Technology stack**
@@ -447,31 +448,44 @@ _Figure 6 — Our Agile process. Each sprint went through Plan → Build → Tes
 ```
 Nasa-2k26/
 ├── index.html                  # Entry page, assembled from src/partials at build time
-├── style.css                   # Hub, HUD, modals, onboarding wizard and tips
+├── package.json                # Dependencies and npm scripts
 ├── vite.config.js              # Vite configuration
-├── vite-plugins/
-│   └── html-partials.js        # Assembles index.html from HTML partials
-├── vercel.json                 # Hosting configuration
+├── vercel.json                 # Hosting configuration (Vercel)
+├── README.md · LICENSE
 │
-├── src/
+├── src/                        # Game source code
 │   ├── main.js                 # Game director: screens, modes and events
 │   ├── data/
-│   │   ├── missionsDatabase.js # Relics, missions and facts (EN + BN)
+│   │   ├── missionsDatabase.js # Relics, missions and facts
 │   │   ├── kidsContent.js      # Kid-friendly story text
 │   │   ├── storyArticles.js    # Mission news and story articles
 │   │   └── telemetryData.js    # MER-B Sol 1–5111 telemetry
 │   ├── renderer/               # Three.js scenes: Mars, Moon, Voyager 1, rovers, atmosphere
 │   ├── systems/                # Rover controls, scanner, quests, labs, profiles, tips,
-│   │                           # orrery, audio, companions, quiz, Sol 5111, pitch mode
-│   └── partials/               # HTML for screens, hub, onboarding, modals and HUD
+│   │                           # orrery, audio, companions, quiz, mobile landscape, pitch mode
+│   ├── partials/               # HTML for screens, hub, onboarding, modals and HUD
+│   └── styles/
+│       ├── style.css           # Hub, HUD, modals, onboarding wizard and tips
+│       └── mobile-landscape.css  # Phone/tablet landscape layout, touch controls
 │
-├── public/
+├── public/                     # Static files copied as-is into the build
+│   ├── .htaccess               # Apache / cPanel settings (HTTPS, caching, headers)
+│   ├── images/                 # Story and mission artwork
 │   └── videos/                 # Game tour and story videos with posters
 │
-├── final_doc/                  # Submission documents and video scripts (MD, DOCX, PDF)
-│   └── images/                 # Screenshots and the team photo used in the documents
-├── documentation/              # Software engineering documentation
-└── scripts/                    # Document builders and screenshot / video capture
+├── docs/
+│   ├── submission/             # Submission document and video scripts (MD, DOCX, PDF)
+│   │   ├── images/             # Screenshots and the team photo used in the documents
+│   │   └── poster/             # A4 take-home poster (HTML + PDF)
+│   ├── project/                # Software engineering documentation (SRS, architecture, data)
+│   └── BRANCHES.md             # Git branch flow: QA → main, QA → android-app
+│
+├── scripts/
+│   ├── docs/                   # DOCX / PDF document builders
+│   ├── media/                  # Screenshot capture and story-film renderer
+│   └── vite/                   # Vite plugin that assembles index.html from partials
+│
+└── .github/workflows/          # CI: build, deploy and branch guard
 ```
 
 ---
@@ -481,7 +495,7 @@ Nasa-2k26/
 In line with the Space Apps guidance, we state clearly how AI was used:
 
 - **Coding assistance.** An AI coding assistant helped us write, review and debug parts of the code — for example the profile/logout flow, the hub redesign, the removal of automatic pop-ups, the first-visit tips, the kid-friendly onboarding cards, and the scripts that capture screenshots and record the tour video.
-- **Writing support.** AI helped us draft and polish documentation and check Bengali phrasing.
+- **Writing support.** AI helped us draft and polish documentation.
 - **Human responsibility.** The concept (Planetary Archaeology 2085), the story, the choice of relics and facts, the game design, and all final decisions were made by the team. We reviewed and tested every AI-assisted change by running the game.
 - **No AI-generated gameplay content at runtime.** The game contains no live generative AI; everything a child sees is authored and fixed. The tour video is a recording of the real game, not generated footage.
 
@@ -505,7 +519,7 @@ In line with the Space Apps guidance, we state clearly how AI was used:
 2. **NASA Mars Reconnaissance Orbiter (MRO) HiRISE Archive**: Digital Terrain Model (DTM) of Perseverance Valley at Endeavour Crater (14.57° S, 354.67° E).
 3. **NASA 3D Resources and Jet Propulsion Laboratory (JPL)**: Mars Exploration Rover structural specifications, rocker-bogie chassis geometry and payload schematics.
 
-Links to every source are listed in [Section 12 — References](#12-references). Detailed data notes are kept in [`documentation/NASA_DATA_SOURCES.md`](./documentation/NASA_DATA_SOURCES.md).
+Links to every source are listed in [Section 13 — References](#13-references). Detailed data notes are kept in [`docs/project/NASA_DATA_SOURCES.md`](./docs/project/NASA_DATA_SOURCES.md).
 
 > Terrain and hardware in the game are procedural and illustrative, informed by these sources rather than copied from them. Facts, dates and figures are drawn from NASA public sources.
 
@@ -513,7 +527,7 @@ Links to every source are listed in [Section 12 — References](#12-references).
 
 ## 9. Team
 
-![Team Relics — Shaikot Kundu Akash, Md. Wahiduzzaman Nayem, Arni Rani Nath, Tareq Jamil Sarkar Samrat and Tanjir Ahmed Fardin](./final_doc/images/00_team_relics.jpg)
+![Team Relics — Shaikot Kundu Akash, Md. Wahiduzzaman Nayem, Arni Rani Nath, Tareq Jamil Sarkar Samrat and Tanjir Ahmed Fardin](./docs/submission/images/00_team_relics.jpg)
 
 _Team Relics — NASA International Space Apps Challenge 2026._
 
@@ -527,7 +541,22 @@ _Team Relics — NASA International Space Apps Challenge 2026._
 
 ---
 
-## 10. Game Controls
+## 10. How to Run the Project
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Start the development server (http://localhost:3000)
+npm run dev
+
+# 3. Build for production
+npm run build
+```
+
+---
+
+## 11. Game Controls
 
 | Action | Keyboard | Touch |
 | :-- | :-- | :-- |
@@ -541,13 +570,13 @@ _Team Relics — NASA International Space Apps Challenge 2026._
 
 ---
 
-## 11. License
+## 12. License
 
 This project is open source and released under the **[MIT License](LICENSE)**.
 
 ---
 
-## 12. References
+## 13. References
 
 Every NASA data set, archive and mission record used in the game, with its link. Section 8 explains how each one informed the project.
 

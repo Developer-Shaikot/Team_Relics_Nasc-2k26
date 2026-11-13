@@ -11,7 +11,7 @@ export const MISSION_STORY_ARTICLES = {
     author: "NASA Historical Office • Neil A. Armstrong Space Heritage",
     title: "Why Apollo 11 Left Its Golden Base on the Lunar Dust",
     subtitle: "The Tsiolkovsky rocket equation, the Ascent Stage escape, and humanity's first footprint.",
-    heroImage: "./hero_astronaut_mars.jpg",
+    heroImage: "./images/hero_astronaut_mars.jpg",
     tags: ["Sea of Tranquility", "Descent Stage", "Delta-v Balance", "July 20, 1969"],
     summary: "When Neil Armstrong and Buzz Aldrin stepped onto the Sea of Tranquility, they knew they could never bring everything back. Every single kilogram had to be calculated against the harsh math of gravity.",
     paragraphs: [
@@ -39,7 +39,7 @@ export const MISSION_STORY_ARTICLES = {
     author: "JPL Planetary Science Division • Pasadena, CA",
     title: "Opportunity: The Blueberries of Ancient Martian Oceans",
     subtitle: "How a 90-day golf-cart robot survived 15 years and proved Mars was once soaked in water.",
-    heroImage: "./thumb_archaeology.jpg",
+    heroImage: "./images/thumb_archaeology.jpg",
     tags: ["Perseverance Valley", "Hematite Blueberries", "APXS Spectrometer", "Sol 5111"],
     summary: "When Opportunity bounced into Eagle Crater on January 25, 2004, it was only expected to survive 90 Martian days. It ended up driving a marathon 45.16 kilometers across alien plains, transforming our understanding of planetary habitability.",
     paragraphs: [
@@ -67,7 +67,7 @@ export const MISSION_STORY_ARTICLES = {
     author: "SEIS Consortium • CNES & NASA JPL",
     title: "InSight: Listening to the Deep Heartbeat of Mars",
     subtitle: "Placing humanity's most sensitive ear on the red dirt to map an alien core.",
-    heroImage: "./thumb_storm.jpg",
+    heroImage: "./images/thumb_storm.jpg",
     tags: ["Elysium Planitia", "SEIS Seismometer", "P & S Waves", "Liquid Core"],
     summary: "Unlike rovers that rolled across the surface, InSight sat motionless in Elysium Planitia, placing a golden dome on the Martian dirt to hear the murmurs of marsquakes and meteoroid strikes.",
     paragraphs: [
@@ -95,7 +95,7 @@ export const MISSION_STORY_ARTICLES = {
     author: "NASA Jet Propulsion Laboratory • Interstellar Heritage",
     title: "Voyager 1: The Dying Candle in Interstellar Space",
     subtitle: "Over 24 billion kilometers from Earth, carrying humanity's Golden Record into the dark.",
-    heroImage: "./thumb_roadmap.jpg",
+    heroImage: "./images/thumb_roadmap.jpg",
     tags: ["Heliopause", "Pu-238 RTG", "Golden Record", "22h 34m Delay"],
     summary: "Launched in 1977, Voyager 1 is the farthest human-made object in history. Powered by decaying plutonium pellets, it crossed into the interstellar medium, carrying our sounds, art, and greetings to the stars.",
     paragraphs: [
